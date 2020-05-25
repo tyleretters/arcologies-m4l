@@ -16,6 +16,38 @@
  *
  */
 
+function testInitCell() {
+  var name = 'testInitCell';
+  var cell = initCell(6, 14);
+  var result1 = (cell.id == 'x6y14') ? true : false;
+  var result2 = (cell.isExists == false) ? true : false;
+  var result3 = (cell.x == 6) ? true : false;
+  var result4 = (cell.y == 14) ? true : false;
+  var result5 = (cell.routeType == 'off') ? true : false;
+  var result6 = (cell.structure == 'none') ? true : false;
+  var result7 = (cell.note == 60) ? true : false;
+  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testInitCellById() {
+  var name = 'testInitCellById';
+  var id = 'x3y8';
+  var cell = initCellById(id);
+  var result1 = (cell.id == 'x3y8') ? true : false;
+  var result2 = (cell.isExists == false) ? true : false;
+  var result3 = (cell.x == 3) ? true : false;
+  var result4 = (cell.y == 8) ? true : false;
+  var result5 = (cell.routeType == 'off') ? true : false;
+  var result6 = (cell.structure == 'none') ? true : false;
+  var result7 = (cell.note == 60) ? true : false;
+  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+
+}
+
 function testMakeIdReturnsId() {
   var name = 'testMakeIdReturnsId';
   var id = makeId(6, 14);
@@ -63,29 +95,12 @@ function testMakeFieldIsStructuredToSpec() {
   return result;
 }
 
-function testAddStructure() {
-  var name = 'testAddStructure';
-  addStructure(14, 'pyramid');
-  var result = (state.structures[14] == 'pyramid') ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-  
-}
-
-function testAddRoute() {
-  var name = 'testAddRoute';
-  addRoute(56, 'lost highway');
-  var result = (state.routes[56] == 'lost highway') ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testSetMenu() {
   var name = 'testSetMenu';
-  setMenu(1);
-  var result1 = (state.menuActive == 1) ? true : false;
-  setMenu(0);
-  var result2 = (state.menuActive == 0) ? true : false;
+  setMenu(true);
+  var result1 = (state.isMenuActive == true) ? true : false;
+  setMenu(false);
+  var result2 = (state.isMenuActive == false) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -125,7 +140,35 @@ function testSetHeight() {
 
 function testOpenGridMenu() {
   var name = 'testOpenGridMenu';
-  var result = (openGridMenu() == 'openGridMenu') ? 'pass' : 'fail';
+  var result1 = (openMenu() == 'openMenu') ? true : false;
+  var result2 = (state.isMenuActive === true) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDeselectCell() {
+  var name = 'testDeselectCell';
+  state.selectedCell = 'x0y0';
+  deselectCell();
+  var result = (state.selectedCell === false) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSelectCell() {
+  var name = 'testSelectCell';
+  selectCell('x6y3');
+  var result = (state.selectedCell === 'x6y3') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testCloseGridMenu() {
+  var name = 'testCloseGridMenu';
+  var result1 = (closeMenu() == 'closeMenu') ? true : false;
+  var result2 = (state.isMenuActive === false) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -187,11 +230,35 @@ function testDrawRoute() {
   return result;
 }
 
+function testDrawMenuRoute() {
+  var name = 'testDrawMenuRoute';
+  field.x4y3.routeType = 'random';
+  var d = drawMenuRoute('x4y3');
+  var result1 = (d[0] === 'drawRoute') ? true : false;
+  var result2 = (d[1] === 'random') ? true : false;
+  var result3 = (d[2] === 2) ? true : false;
+  var result4 = (d[3] === 2) ? true : false;
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDrawMenuStructure() {
+  var name = 'testDrawMenuStructure';
+  field.x4y3.structure = 'spaceport';
+  var d = drawMenuStructure('x4y3');
+  var result1 = (d[0] === 'drawStructure') ? true : false;
+  var result2 = (d[1] === 'spaceport') ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
 function testDrawHomes() {
   var name = 'testDrawHomes';
-  field.x0y0.isExists = 1;
-  field.x0y2.isExists = 1;
-  field.x0y3.isExists = 1;
+  field.x0y0.isExists = true;
+  field.x0y2.isExists = true;
+  field.x0y3.isExists = true;
   field.x0y0.routeType = 'all';
   field.x0y2.routeType = 'stop';
   field.x0y3.routeType = 'nse';
@@ -205,12 +272,28 @@ function testDrawHomes() {
   field.x0y2.structure = 'spaceport';
   field.x0y3.structure = 'mine';
   var h = drawHomes();
-  var result1 = (h.length === 3) ? true : false;
-  var result2 = (h[2][0] === 'drawRoute') ? true : false;
-  var result3 = (h[2][1] === 'home') ? true : false;
-  var result4 = (h[2][2] === 0) ? true : false;
-  var result5 = (h[2][3] === 0) ? true : false;
+  var result1 = (h.length === 4) ? true : false;
+  var result2 = (h[0] === 'drawHomes') ? true : false;
+  var result5 = (h[1] === 'x0y3') ? true : false;
+  var result4 = (h[2] === 'x0y2') ? true : false;
+  var result3 = (h[3] === 'x0y0') ? true : false;  
   var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDrawHome() {
+  var name = 'testDrawHome';
+  field.x0y3.isExists = true;
+  field.x0y3.routeType = 'nse';
+  field.x0y3.x = 0;
+  field.x0y3.y = 3;
+  field.x0y3.structure = 'mine';
+  var h = drawHome('x0y3');
+  var result1 = (h.length == 2) ? true : false;
+  var result2 = (h[0] === 'drawHomes') ? true : false;
+  var result3 = (h[1] === 'x0y3') ? true : false;
+  var result = (result1 && result2 && result3) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -244,6 +327,50 @@ function testDumpStructures() {
   return result;
 }
 
+function testMoveCell() {
+  var name = 'testMoveCell';
+  field.x0y0.isExists = true;
+  field.x6y6.isExists = true;
+  field.x0y0.routeType = 'random';
+  field.x6y6.routeType = 'all';
+  field.x0y0.x = 0;
+  field.x6y6.x = 6;
+  field.x0y0.y = 0;
+  field.x6y6.y = 6;
+  field.x0y0.structure = 'spaceport';
+  field.x6y6.structure = 'waystation';
+  field.x0y0.note = 51;
+  field.x6y6.note = 56;
+  moveCell('x0y0', 'x6y6');
+  var result1 = (field.x0y0.isExists === false) ? true : false;
+  var result2 = (field.x6y6.routeType === 'random' ) ? true : false;
+  var result3 = (field.x6y6.structure === 'spaceport') ? true : false;
+  var result4 = (field.x0y0.id === 'x0y0') ? true : false;
+  var result5 = (field.x6y6.id === 'x6y6') ? true : false;
+  var result6 = (field.x6y6.note === 51) ? true : false;
+  var result = (result1 && result2 && result3 && result4 && result5 && result6) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;  
+}
+
+function testCycleRouteTypes() {
+  var name = 'testCycleRouteTypes';
+  var result = (cycleRouteTypes('walls') === 'ne') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;  
+}
+
+function testDeleteCell() {
+  var name = 'testDeleteCell';
+  state.selectedCell = 'x0y1';
+  field['x0y1'].isExists = true;
+  deleteCell('x0y1');
+  var result1 = (state.selectedCell === false) ? true : false;
+  var result2 = (field.x0y1.isExists === false) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
 
 /*
  * Orchestration
@@ -263,17 +390,21 @@ function testSuite() {
   var results = [];
 
   resetTestSuite();
+  results.push(testInitCell());
+  results.push(testInitCellById());
   results.push(testMakeIdReturnsId());
   results.push(testGetCellReturnsObject());
   results.push(testGetCellStructureIsInitializedToNone());
   results.push(testArrayContains());
   results.push(testMakeFieldIsStructuredToSpec());
-  results.push(testAddStructure());
   results.push(testSetMenu());
   results.push(testSetTime());
   results.push(testSetWidth());
   results.push(testSetHeight());
   results.push(testOpenGridMenu());
+  results.push(testDeselectCell());
+  results.push(testSelectCell());
+  results.push(testCloseGridMenu());
   results.push(testOutletsOnOff());
 
   resetTestSuite();
@@ -289,7 +420,14 @@ function testSuite() {
   results.push(testDrawRoute());
 
   resetTestSuite();
+  results.push(testDrawMenuRoute());
+  results.push(testDrawMenuStructure());
+
+  resetTestSuite();
   results.push(testDrawHomes());
+
+  resetTestSuite();
+  results.push(testDrawHome());
   
   resetTestSuite();
   results.push(testGetIds());
@@ -297,6 +435,15 @@ function testSuite() {
   resetTestSuite();
   results.push(testDumpRoutes());
   results.push(testDumpStructures());
+
+  resetTestSuite();
+  results.push(testMoveCell());
+
+  resetTestSuite();
+  results.push(testCycleRouteTypes());
+
+  resetTestSuite();
+  results.push(testDeleteCell());
 
   return results;
 }

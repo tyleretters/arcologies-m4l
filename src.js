@@ -25,56 +25,72 @@
 function gridEvent(press, x, y) {
   if (x > state.x) return;
   if (y > state.y) return;
-  if (state.menuActive) {
-    // menu things
+  if (state.isMenuActive) {
+    menuEvent(press, x, y);
   } else {
-    switch(press) {
-      case 'single':
-        singleFieldEvent(x, y, 'drawCell');
-        break;
-      case 'double':
-        doubleFieldEvent(x, y);
-        break;
-      case 'long':
-        out('long event detected');
-        longFieldEvent(x, y);
-        break;
-      default:
-        return;
-    }
+    fieldEvent(press, x, y);
   }
 }
 
-function singleFieldEvent(x, y, callback) {
+function menuEvent(press, x, y) {
+    switch(press) {
+      case 'single':
+        // the menu is always [x1y1, x6y6] on any sized grid
+        // and pressing anywhere outside this square closes it
+        if (x > 0 && x < 7 && y > 0 && y < 7) {
+          singleMenuEvent(x, y);
+        } else {
+          deselectCell();
+          closeMenu();
+        }
+        break;
+      // case 'double':
+      //   doubleFieldEvent(x, y);
+      //   break;
+      // case 'long':
+      //   longFieldEvent(x, y);
+      //   break;
+    }
+}
+
+function fieldEvent(press, x, y) {
+  switch(press) {
+    case 'single':
+      singleFieldEvent(x, y);
+      break;
+    case 'double':
+      doubleFieldEvent(x, y);
+      break;
+    case 'long':
+      longFieldEvent(x, y);
+      break;
+  }
+}
+
+function singleFieldEvent(x, y) {
   var id = makeId(x, y);
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
+  clearField();
   if (state.selectedCell === false) {
-    // this is a fresh press
-    state.selectedCell = id;
-    cycleThroughRoutes(x, y, callback);
+    // there is no cell selected, so this is a fresh press
+    selectCell(id);
+    cycleThroughFieldRoutes(x, y);
   } else if (state.selectedCell == id) {
     // we're cycling through the selected cell
-    cycleThroughRoutes(x, y, callback);
-  } else if (ids.contains(id)) {
-    // we've pressed an existing cell and want to cycle it
-    state.selectedCell = id;
-    clearField();
-    drawHomes().forEach(function(el) {
-      out(el);
-    });
-    cycleThroughRoutes(x, y, callback);
+    cycleThroughFieldRoutes(x, y);
+  } else if (state.selectedCell !== id && ids.contains(id)) {
+    // we've pressed a different existing cell and want to cycle it
+    selectCell(id);
+    cycleThroughFieldRoutes(x, y);
   } else {
     // we've pressed an empty cell and are ready to do something else
-    state.selectedCell = false;
-    clearField();
-    drawHomes().forEach(function(el) {
-      out(el);
-    });
+    deselectCell();
   }
+  drawHomes();
 }
 
-function cycleThroughRoutes(x, y, callback) {
+function cycleThroughFieldRoutes(x, y) {
   
   var cell = getCell(x, y);
   var id = makeId(x, y);
@@ -84,36 +100,61 @@ function cycleThroughRoutes(x, y, callback) {
       cell.routeType = 'all';
       cell.isExists = true;
   } else {
-    var rt = cell.routeType;
-    if  (rt === 'all')   { cell.routeType = 'random'; }
-      else if  (rt === 'random')  { cell.routeType = 'walls'; }
-      else if  (rt === 'walls') { cell.routeType = 'ne'; }
-      else if  (rt === 'ne')    { cell.routeType = 'se'; }
-      else if  (rt === 'se')    { cell.routeType = 'sw'; }
-      else if  (rt === 'sw')    { cell.routeType = 'nw'; }
-      else if  (rt === 'nw')    { cell.routeType = 'ns'; }
-      else if  (rt === 'ns')    { cell.routeType = 'ew'; }
-      else if  (rt === 'ew')    { cell.routeType = 'nes'; }
-      else if  (rt === 'nes')   { cell.routeType = 'esw'; }
-      else if  (rt === 'esw')   { cell.routeType = 'swn'; }
-      else if  (rt === 'swn')   { cell.routeType = 'wne'; }
-      else if  (rt === 'wne')   { cell.routeType = 'nn'; }
-      else if  (rt === 'nn')    { cell.routeType = 'ee'; }
-      else if  (rt === 'ee')    { cell.routeType = 'ss'; }
-      else if  (rt === 'ss')    { cell.routeType = 'ww'; }
-      else if  (rt === 'ww')    { cell.routeType = 'all'; }
-      else                      { cell.routeType = 'all'; }
-    }
-  
-  field[id] = cell;
-
-  if (callback === 'drawCell') {
-    out(drawRoute(id));
+    cell.routeType = cycleRouteTypes(cell.routeType);
   }
+
+  field[id] = cell;
+  out(drawRoute(id));
+
+}
+
+// tested
+function cycleRouteTypes(routeType) {
+  // this pattern is hardcoded for the user's benefit
+  // (i don't want errant array sorting changing it)
+  if  (routeType === 'all')    return 'random';
+  if  (routeType === 'random') return 'walls';
+  if  (routeType === 'walls')  return 'ne';
+  if  (routeType === 'ne')     return 'se';
+  if  (routeType === 'se')     return 'sw';
+  if  (routeType === 'sw')     return 'nw';
+  if  (routeType === 'nw')     return 'ns';
+  if  (routeType === 'ns')     return 'ew';
+  if  (routeType === 'ew')     return 'nes';
+  if  (routeType === 'nes')    return 'esw';
+  if  (routeType === 'esw')    return 'swn';
+  if  (routeType === 'swn')    return 'wne';
+  if  (routeType === 'wne')    return 'nn';
+  if  (routeType === 'nn')     return 'ee';
+  if  (routeType === 'ee')     return 'ss';
+  if  (routeType === 'ss')     return 'ww';
+  if  (routeType === 'ww')     return 'all';
+  return 'all';
 }
 
 function doubleFieldEvent(x, y) {
-  out('double' + x + y);
+  var id = makeId(x, y);
+  var existingCells = getExistingCells();
+  var ids = getIds(existingCells);
+  clearField();
+  if (state.selectedCell === false && ids.contains(id)) {
+    // we are selecting an existing cell without cycling it
+    selectCell(id);
+  } else if (state.selectedCell === false && !ids.contains(id)) {
+    // we are double pressing an empty cell with nothing already selected
+    // do nothing
+  } else if (state.selectedCell === id ) {
+    // we're double pressing the current cell
+    deselectCell();
+  } else {
+    // we are moving the cell and either placing it at an empty
+    // cell or copying over an existing cell
+    moveCell(state.selectedCell, id);
+    selectCell(id);
+    out(drawRoute(id));
+  }
+
+  drawHomes();
 }
 
 function longFieldEvent(x, y) {
@@ -122,12 +163,60 @@ function longFieldEvent(x, y) {
   var ids = getIds(existingCells);
   if (ids.contains(id)) {
     // activate menu for this cell
-    state.selectedCell = id;
-    state.menuActive = true;
-    openGridMenu();
+    selectCell(id);
+    setMenu(true);
+    openMenu();
+    drawMenu(id);
   } else {
     // a long press on an empty cell does nothing
   }
+}
+
+// untested
+function singleMenuEvent(x, y) {
+  // note this x, y does not coorespond to the field
+  var id = state.selectedCell;
+  var cell = field[id];
+
+  // 2,2 lets you change the route
+  if (x === 2 && y === 2) {
+    cell.routeType = cycleRouteTypes(cell.routeType);
+    field[id] = cell;
+    out(drawMenuRoute(id));
+  }
+
+  // [4,1] - [6, 3] lets you change the structure
+  if (x === 4 || x === 5 || x === 6) {
+    if (y === 1) {
+      cell.structure = 'spaceport';
+    }
+    if (y === 2) {
+      cell.structure = 'waystation';
+    }
+    if (y === 3) {
+      cell.structure = 'mine';
+    }
+    field[id] = cell;
+    out(drawMenuStructure(id));
+  }
+
+  // [1,4] - [6, 4] is delete
+  if (x === 1 || x === 2 || x === 3 || x === 4 || x === 5 || x === 6) {
+    if (y === 4) {
+      deleteCell(id);
+      out('flashDelete');
+      closeMenu();
+    }
+  } 
+
+}
+
+function doubleMenuEvent(x, y) {
+  out('double' + x + y);
+}
+
+function longMenuEvent(x, y) {
+  out('long' + x + y);
 }
 
 /*
@@ -141,21 +230,48 @@ function clearField() {
 
 // tested
 function drawHomes() {
-  var out = [];
+  var arr = ['drawHomes'];
   var cells = getExistingCells();
-  for (var key in cells) {
-      if (!cells.hasOwnProperty(key)) continue;
-      var obj = cells[key];
-      out.push(['drawRoute', 'home', obj.x, obj.y]);
+  if (Object.size(cells) > 0) {
+    for (var key in cells) {
+        if (!cells.hasOwnProperty(key)) continue;
+        arr.push(cells[key].id);
+    }
+    if (state.outletsOn) {
+      out(arr);
+    } else {
+      return arr;
+    }
   }
-  return out;
 }
 
+// teseted
+function drawHome(id) {
+  return ['drawHomes', id]
+}
 
 // tested
 function drawRoute(id) {
   var cell = field[id];
   return ['drawRoute', cell.routeType, cell.x, cell.y];
+}
+
+// untested
+function drawMenu(id) {
+  out(drawMenuRoute(id));
+  out(drawMenuStructure(id));
+}
+
+// tested
+function drawMenuRoute(id) {
+  var cell = field[id];
+  return ['drawRoute', cell.routeType, 2, 2];
+}
+
+// tested
+function drawMenuStructure(id) {
+  var cell = field[id];
+  return ['drawStructure', cell.structure];
 }
 
 /*
@@ -171,19 +287,31 @@ function makeField() {
   for (var iy = y - 1; iy >= 0; iy--) {
     for (var ix = x - 1; ix >= 0; ix--) {
       var cellId = 'x' + ix + 'y' + iy;
-      var cell = {
-        id: makeId(ix, iy),
-        isExists: false,
-        x: ix,
-        y: iy,
-        routeType: 'off',
-        structure: 'none',
-        note: 60,
-      };
+      var cell = initCell(ix, iy);
       out[cellId] = cell;
     }
   }
   return out;
+}
+
+// tested
+function initCell(x, y) {
+  return {
+    id: makeId(x, y),
+    isExists: false,
+    x: x,
+    y: y,
+    routeType: 'off',
+    structure: 'none',
+    note: 60,
+  };
+}
+
+// tested
+function initCellById(id) {
+  var splitX = id.split('x');
+  var arr = splitX[1].split('y');
+  return initCell(arr[0], arr[1]);
 }
 
 // tested
@@ -223,6 +351,29 @@ function getIds(obj) {
   return arr;
 } 
 
+// tested
+function moveCell(originId, destinationId) {
+
+  // write the destination
+  field[destinationId].isExists = true;
+  field[destinationId].routeType = field[originId].routeType;
+  field[destinationId].structure = field[originId].structure;
+  field[destinationId].note = field[originId].note;
+
+  // erase the origin
+  field[originId].isExists = false;
+  field[originId].routeType = 'off';
+  field[originId].structure = 'none';
+  field[originId].note = 60;
+
+}
+
+// tested
+function deleteCell(id) {
+  deselectCell();
+  field[id] = initCellById(id);
+}
+
 /*
  * Initialize
  * ====================================================================================
@@ -232,12 +383,14 @@ var state = field = {};
 
 // tested by proxy
 function init() {
+  state = null;
+  state = {};
   state.outletsOn = false;
   state.lifespan = 0;
   state.time = 0;
   state.width = 0;
   state.height = 0;
-  state.menuActive = 0;
+  state.isMenuActive = false;
   state.routes = ['all', 'random', 'walls', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'];
   state.structures = ['mine', 'waystation', 'spaceport'];
   state.selectedCell = false;
@@ -245,6 +398,7 @@ function init() {
 
 // tested by proxy
 function initField() {
+  field = null;
   field = makeField();
 }
 
@@ -257,14 +411,29 @@ var inlets = 1;
 var outlets = 1;
 
 // tested
-function openGridMenu() {
-  var msg = 'openGridMenu';
+function openMenu() {
+  setMenu(true);
+  var msg = 'openMenu';
   if (state.outletsOn) {
     out(msg);
   } else {
     return msg;
   }
 }
+
+// tested
+function closeMenu() {
+  setMenu(false);
+  var msg = 'closeMenu';
+  if (state.outletsOn) {
+    out(msg);
+    clearField();
+    drawHomes();
+  } else {
+    return msg;
+  }
+}
+
 
 // tested
 function dumpStructures() {
@@ -285,6 +454,16 @@ function dumpRoutes() {
     out(arr);
   } else {
     return arr;
+  }
+}
+
+// untested
+function dumpExistingCells() {
+  var obj = getExistingCells();
+  if (state.outletsOn) {
+    out(JSON.stringify(obj));
+  } else {
+    return obj;
   }
 }
 
@@ -311,26 +490,10 @@ function out(val) {
  * Setters
  * ====================================================================================
  */
-// tested
-function addStructure(key, val) {
-  state.structures[key] = val;
-}
-
-// tested
-function addRoute(key, val) {
-  state.routes[key] = val;
-}
 
 // tested
 function setMenu(val) {
-  state.menuActive = val;
-  if (val === 1) {
-
-  } else {
-    drawHomes().forEach(function(el) {
-      out(el);
-    }); 
-  }
+  state.isMenuActive = val;
 }
 
 // tested
@@ -351,6 +514,18 @@ function setWidth(val) {
 // tested
 function setHeight(val) {
   state.height = val;
+}
+
+// tested
+function deselectCell() {
+  state.selectedCell = false;
+  out(['selectCell', 0]);
+}
+
+// tested
+function selectCell(val) {
+  state.selectedCell = val;
+  out(['selectCell', val]);
 }
 
 /*
