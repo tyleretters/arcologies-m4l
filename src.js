@@ -36,6 +36,7 @@ function gridEvent(press, x, y) {
         doubleFieldEvent(x, y);
         break;
       case 'long':
+        out('long event detected');
         longFieldEvent(x, y);
         break;
       default:
@@ -45,7 +46,6 @@ function gridEvent(press, x, y) {
 }
 
 function singleFieldEvent(x, y, callback) {
-  out('singleFieldEvent');
   var id = makeId(x, y);
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
@@ -85,8 +85,8 @@ function cycleThroughRoutes(x, y, callback) {
       cell.isExists = true;
   } else {
     var rt = cell.routeType;
-    if  (rt === 'all')   { cell.routeType = 'stop'; }
-      else if  (rt === 'stop')  { cell.routeType = 'walls'; }
+    if  (rt === 'all')   { cell.routeType = 'random'; }
+      else if  (rt === 'random')  { cell.routeType = 'walls'; }
       else if  (rt === 'walls') { cell.routeType = 'ne'; }
       else if  (rt === 'ne')    { cell.routeType = 'se'; }
       else if  (rt === 'se')    { cell.routeType = 'sw'; }
@@ -117,7 +117,17 @@ function doubleFieldEvent(x, y) {
 }
 
 function longFieldEvent(x, y) {
-  out('long' + x + y);
+  var id = makeId(x, y);
+  var existingCells = getExistingCells();
+  var ids = getIds(existingCells);
+  if (ids.contains(id)) {
+    // activate menu for this cell
+    state.selectedCell = id;
+    state.menuActive = true;
+    openGridMenu();
+  } else {
+    // a long press on an empty cell does nothing
+  }
 }
 
 /*
@@ -228,8 +238,8 @@ function init() {
   state.width = 0;
   state.height = 0;
   state.menuActive = 0;
-  state.routes = [];
-  state.structures = [];
+  state.routes = ['all', 'random', 'walls', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'];
+  state.structures = ['mine', 'waystation', 'spaceport'];
   state.selectedCell = false;
 }
 
@@ -247,8 +257,45 @@ var inlets = 1;
 var outlets = 1;
 
 // tested
+function openGridMenu() {
+  var msg = 'openGridMenu';
+  if (state.outletsOn) {
+    out(msg);
+  } else {
+    return msg;
+  }
+}
+
+// tested
+function dumpStructures() {
+  var arr = state.structures;
+  arr.unshift('structuresList');
+  if (state.outletsOn) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// tested
+function dumpRoutes() {
+  var arr = state.routes;
+  arr.unshift('routesList');
+  if (state.outletsOn) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// tested
 function outletsOn() {
   state.outletsOn = true;
+}
+
+// tested
+function outletsOff() {
+  state.outletsOn = false;
 }
 
 // tested

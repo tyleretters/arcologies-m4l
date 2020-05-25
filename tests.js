@@ -10,6 +10,7 @@
  *
  * File Organization:
  *  - Tests
+ *  - Orchestration
  *  - Test Framework
  *  - Test Runner
  *
@@ -122,11 +123,20 @@ function testSetHeight() {
   return result;
 }
 
-function testOutletsOn() {
-  var name = 'testOutletsOn';
+function testOpenGridMenu() {
+  var name = 'testOpenGridMenu';
+  var result = (openGridMenu() == 'openGridMenu') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testOutletsOnOff() {
+  var name = 'testOutletsOnOff';
   outletsOn();
-  var result = (state.outletsOn == true) ? 'pass' : 'fail';
-  state.outletsOn = false;
+  var result1 = (state.outletsOn == true) ? 'pass' : 'fail';
+  outletsOff();
+  var result2 = (state.outletsOn == false) ? 'pass' : 'fail';
+  var result = (result1 && result2);
   testOutput(name, result);
   return result;
 }
@@ -148,7 +158,7 @@ function testSingleFieldEventOnEmptyCell() {
   var result3 = (cell.routeType == 'all') ? true : false;
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
-  var result4 = (cell.routeType == 'stop') ? true : false;
+  var result4 = (cell.routeType == 'random') ? true : false;
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -214,11 +224,38 @@ function testGetIds() {
   return result;
 }
 
+function testDumpRoutes() {
+  var name = 'testDumpRoutes';
+  var arr = dumpRoutes();
+  var result1 = (arr[0] === 'routesList') ? true : false;
+  var result2 = (arr.includes('nes')) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDumpStructures() {
+  var name = 'testDumpStructures';
+  var arr = dumpStructures();
+  var result1 = (arr[0] === 'structuresList') ? true : false;
+  var result2 = (arr.includes('waystation')) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+
+/*
+ * Orchestration
+ * ====================================================================================
+ */
+
 function resetTestSuite() {
   init();
   setWidth(16);
   setHeight(8);
   initField();
+  outletsOff();
 }
 
 function testSuite() {
@@ -236,7 +273,8 @@ function testSuite() {
   results.push(testSetTime());
   results.push(testSetWidth());
   results.push(testSetHeight());
-  results.push(testOutletsOn());
+  results.push(testOpenGridMenu());
+  results.push(testOutletsOnOff());
 
   resetTestSuite();
   results.push(testOut());
@@ -255,6 +293,10 @@ function testSuite() {
   
   resetTestSuite();
   results.push(testGetIds());
+
+  resetTestSuite();
+  results.push(testDumpRoutes());
+  results.push(testDumpStructures());
 
   return results;
 }
