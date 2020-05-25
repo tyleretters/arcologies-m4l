@@ -47,9 +47,10 @@ function gridEvent(press, x, y) {
 }
 
 function singleFieldEvent(x, y, callback) {
-
+  out('singleFieldEvent');
   var id = makeId(x, y);
-
+  var existingCells = getExistingCells();
+  var ids = getIds(existingCells);
   if (state.selectedCell === false) {
     // this is a fresh press
     state.selectedCell = id;
@@ -57,8 +58,16 @@ function singleFieldEvent(x, y, callback) {
   } else if (state.selectedCell == id) {
     // we're cycling through the selected cell
     cycleThroughRoutes(x, y, callback);
+  } else if (ids.contains(id)) {
+    // we've pressed an existing cell and want to cycle it
+    state.selectedCell = id;
+    clearField();
+    drawHomes().forEach(function(el) {
+      out(el);
+    });
+    cycleThroughRoutes(x, y, callback);
   } else {
-    // we've pressed deselect and are ready to do something else
+    // we've pressed an empty cell and are ready to do something else
     state.selectedCell = false;
     clearField();
     drawHomes().forEach(function(el) {
@@ -77,49 +86,27 @@ function cycleThroughRoutes(x, y, callback) {
       cell.routeType = 'all';
       cell.isExists = true;
   } else {
-    switch (cell.routeType) {
-      case 'all':
-        cell.routeType = 'stop';
-        break;
-      case 'stop':
-        cell.routeType = 'walls';
-        break;
-      case 'walls':
-        cell.routeType = 'ne';
-        break;
-      case 'ne':
-        cell.routeType = 'se';
-        break;
-      case 'se':
-        cell.routeType = 'sw';
-        break;
-      case 'sw':
-        cell.routeType = 'nw';
-        break;
-      case 'nw':
-        cell.routeType = 'ns';
-        break;
-      case 'ns':
-        cell.routeType = 'ew';
-        break;
-      case 'ew':
-        cell.routeType = 'nn';
-        break;
-      case 'nn':
-        cell.routeType = 'ee';
-        break;
-      case 'ee':
-        cell.routeType = 'ss';
-        break;
-      case 'ss':
-        cell.routeType = 'ww';
-        break;
-      case 'ww':
-        cell.routeType = 'all';
-        break;
+    var rt = cell.routeType;
+    if  (rt === 'all')   { cell.routeType = 'stop'; }
+      else if  (rt === 'stop')  { cell.routeType = 'walls'; }
+      else if  (rt === 'walls') { cell.routeType = 'ne'; }
+      else if  (rt === 'ne')    { cell.routeType = 'se'; }
+      else if  (rt === 'se')    { cell.routeType = 'sw'; }
+      else if  (rt === 'sw')    { cell.routeType = 'nw'; }
+      else if  (rt === 'nw')    { cell.routeType = 'ns'; }
+      else if  (rt === 'ns')    { cell.routeType = 'ew'; }
+      else if  (rt === 'ew')    { cell.routeType = 'nes'; }
+      else if  (rt === 'nes')   { cell.routeType = 'esw'; }
+      else if  (rt === 'esw')   { cell.routeType = 'swn'; }
+      else if  (rt === 'swn')   { cell.routeType = 'wne'; }
+      else if  (rt === 'wne')   { cell.routeType = 'nn'; }
+      else if  (rt === 'nn')    { cell.routeType = 'ee'; }
+      else if  (rt === 'ee')    { cell.routeType = 'ss'; }
+      else if  (rt === 'ss')    { cell.routeType = 'ww'; }
+      else if  (rt === 'ww')    { cell.routeType = 'all'; }
+      else                      { cell.routeType = 'all'; }
     }
-  }
-
+  
   field[id] = cell;
 
   if (callback === 'drawCell') {
@@ -147,10 +134,11 @@ function clearField() {
 // tested
 function drawHomes() {
   var out = [];
-  cells = getExistingCells();
-  var cellsLength = cells.length;
-  for (var i = 0; i < cellsLength; i++) {
-    out.push(['drawRoute', 'home', cells[i]['x'], cells[i]['y']]);
+  var cells = getExistingCells();
+  for (var key in cells) {
+      if (!cells.hasOwnProperty(key)) continue;
+      var obj = cells[key];
+      out.push(['drawRoute', 'home', obj.x, obj.y]);
   }
   return out;
 }
@@ -176,6 +164,7 @@ function makeField() {
     for (var ix = x - 1; ix >= 0; ix--) {
       var cellId = 'x' + ix + 'y' + iy;
       var cell = {
+        id: makeId(ix, iy),
         isExists: false,
         x: ix,
         y: iy,
@@ -203,17 +192,28 @@ function getCell(x, y) {
 // tested
 function getExistingCells() {
   var f = field;
-  var arr = [];
+  var obj = {};
   for (var key in f) {
     if (f.hasOwnProperty(key)) {
         cell = f[key];
-        if (cell['isExists']) {
-          arr.push(f[key]);
-        }
+        if (!cell['isExists'] === true) continue;
+        obj[cell.id] = cell;
+    }
+  }
+  return obj;
+}
+
+// tested
+function getIds(obj) {
+  var arr = [];
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      cell = obj[key];
+      arr.push(cell.id);
     }
   }
   return arr;
-}
+} 
 
 /*
  * Initialize
@@ -322,6 +322,16 @@ Array.prototype.contains = function(obj) {
   }
   return false;
 }
+
+// to test
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
 
 function dumpState() {
   out(JSON.stringify(state))
@@ -477,6 +487,7 @@ function testSingleFieldEventOnEmptyCell() {
   var result2 = (cell.structure == 'mine') ? true : false;
   var result3 = (cell.routeType == 'all') ? true : false;
   gridEvent('single', 2, 2);
+  cell = getCell(2, 2);
   var result4 = (cell.routeType == 'stop') ? true : false;
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -485,11 +496,10 @@ function testSingleFieldEventOnEmptyCell() {
 
 function testGetExistingCells() {
   var name = 'testGetExistingCells';
-  gridEvent('single', 2, 2);
-  gridEvent('single', 0, 0); // deselect
-  gridEvent('single', 2, 3);
+  field.x0y0.isExists = true;
+  field.x1y0.isExists = true;
   var cells = getExistingCells();
-  var result = (cells.length === 2) ? 'pass' : 'fail';
+  var result = (Object.size(cells) === 2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -509,18 +519,37 @@ function testDrawRoute() {
 
 function testDrawHomes() {
   var name = 'testDrawHomes';
-  singleFieldEvent(5, 6, 'none');
-  singleFieldEvent(0, 0, 'none'); // deselect
-  singleFieldEvent(3, 7, 'none');
-  singleFieldEvent(0, 0, 'none'); // deselect
-  singleFieldEvent(2, 4, 'none');
+  field.x0y0.isExists = 1;
+  field.x0y2.isExists = 1;
+  field.x0y3.isExists = 1;
+  field.x0y0.routeType = 'all';
+  field.x0y2.routeType = 'stop';
+  field.x0y3.routeType = 'nse';
+  field.x0y0.x = 0;
+  field.x0y2.x = 0;
+  field.x0y3.x = 0;
+  field.x0y0.y = 0;
+  field.x0y2.y = 2;
+  field.x0y3.y = 3;
+  field.x0y0.structure = 'mine';
+  field.x0y2.structure = 'spaceport';
+  field.x0y3.structure = 'mine';
   var h = drawHomes();
   var result1 = (h.length === 3) ? true : false;
   var result2 = (h[2][0] === 'drawRoute') ? true : false;
   var result3 = (h[2][1] === 'home') ? true : false;
-  var result4 = (h[2][2] === 2) ? true : false;
-  var result5 = (h[2][3] === 4) ? true : false;
+  var result4 = (h[2][2] === 0) ? true : false;
+  var result5 = (h[2][3] === 0) ? true : false;
   var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetIds() {
+  var name = 'testGetIds';
+  var obj = {'x0y0':{}, 'x1y2':{}, 'x4y8':{}};
+  var ids = getIds(obj);
+  var result = (ids.length === 3) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -551,7 +580,11 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testOut());
+
+  resetTestSuite();
   results.push(testSingleFieldEventOnEmptyCell());
+
+  resetTestSuite()
   results.push(testGetExistingCells());
 
   resetTestSuite();
@@ -559,6 +592,9 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testDrawHomes());
+  
+  resetTestSuite();
+  results.push(testGetIds());
 
   return results;
 }
@@ -600,4 +636,3 @@ function runTestSuite() {
   drawBorder();
   console.log('\n');
 }
-

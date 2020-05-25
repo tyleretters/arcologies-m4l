@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "test": "node supply-chain.js"
+  }
+}
