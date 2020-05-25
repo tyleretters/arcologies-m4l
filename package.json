@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "test": "cat supply-chain.js tests.js > tmp.js && node supply-chain-tests.js && rm tmp.js"
+    "test": "cat src.js tests.js > tmp.js && node tmp.js && rm tmp.js"
   }
 }

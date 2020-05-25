@@ -1,6 +1,6 @@
 
 /*
- * SUPPLY CHAIN Tests
+ * Tests
  * ====================================================================================
  *
  * By:      Tyler Etters
@@ -284,14 +284,13 @@ function testOutput(name, result) {
 
 function runTestSuite() {
   console.log('\n');
+  console.log('\n             Test Suite');
   drawBorder();
-  console.log('\n     Supply Chain Test Suite\n');
-  drawLine();
   console.log('\n');
   results = testSuite();
-  drawBorder();
   var counts = {};
   results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
+  console.log('Final Results:');
   console.log(counts);
   drawBorder();
   console.log('\n');
