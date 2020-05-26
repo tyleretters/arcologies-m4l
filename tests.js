@@ -115,6 +115,17 @@ function testSetMenu() {
   return result;
 }
 
+function testSetMidiPalette() {
+  var name = 'testSetMidiPalette';
+  setMidiPalette(true);
+  var result1 = (state.isMidiPaletteActive == true) ? true : false;
+  setMidiPalette(false);
+  var result2 = (state.isMidiPaletteActive == false) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
 function testSetLifespan() {
   var name = 'testSetLifespan';
   setLifespan(999);
@@ -147,11 +158,47 @@ function testSetHeight() {
   return result;
 }
 
-function testOpenGridMenu() {
-  var name = 'testOpenGridMenu';
+function testOpenMenu() {
+  var name = 'testOpenMenu';
   var result1 = (openMenu() == 'openMenu') ? true : false;
   var result2 = (state.isMenuActive === true) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testOpenMidiPalette() {
+  var name = 'testOpenMidiPalette';
+  var msg = openMidiPalette();
+  var result1 = (state.isMidiPaletteActive) ? true : false;
+  var result2 = (msg = 'drawMidiPalette') ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSingleMidiPaletteEvent() {
+  var name = 'testSingleMidiPaletteEvent';
+  state.selectedCell = 'x0y0';
+  field.x0y0.note = 60;
+  var msg = singleMidiPaletteEvent(2, 2);
+  console.log(msg);
+  var result1 = (field.x0y0.note == 55) ? true : false;
+  var result2 = (msg[0] == 'animateMidiNotePress') ? true : false;
+  var result3 = (msg[1] == 2) ? true : false;
+  var result4 = (msg[2] == 2) ? true : false;
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetNote() {
+  var name = 'testGetNote';
+  var result1 = (getNote(2, 2) == 55) ? true : false;
+  var result2 = (getNote(5, 3) == 64) ? true : false;
+  var result3 = (getNote(5, 4) == 70) ? true : false;
+  var result4 = (getNote(6, 6) == 83) ? true : false;
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -173,11 +220,19 @@ function testSelectCell() {
   return result;
 }
 
-function testCloseGridMenu() {
-  var name = 'testCloseGridMenu';
+function testCloseMenu() {
+  var name = 'testCloseMenu';
   var result1 = (closeMenu() == 'closeMenu') ? true : false;
   var result2 = (state.isMenuActive === false) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testCloseMidiPalette() {
+  var name = 'testCloseMidiPalette';
+  closeMidiPalette();
+  var result = (!state.isMidiPaletteActive) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -425,13 +480,19 @@ function testSuite() {
   results.push(testObjectSize());
   results.push(testMakeFieldIsStructuredToSpec());
   results.push(testSetMenu());
+  results.push(testSetMidiPalette());
   results.push(testSetTime());
   results.push(testSetWidth());
   results.push(testSetHeight());
-  results.push(testOpenGridMenu());
+  results.push(testOpenMenu());
+  results.push(testOpenMidiPalette());
+  results.push(testSingleMidiPaletteEvent());
+  results.push(testGetNote());
+  results.push(testGetNote());
   results.push(testDeselectCell());
   results.push(testSelectCell());
-  results.push(testCloseGridMenu());
+  results.push(testCloseMenu());
+  results.push(testCloseMidiPalette());
   results.push(testOutletsOnOff());
   results.push(testClearField());
 

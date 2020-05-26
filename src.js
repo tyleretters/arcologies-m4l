@@ -38,6 +38,7 @@ function gridEvent(press, x, y) {
 
 // untested
 function menuEvent(press, x, y) {
+  if (!state.isMidiPaletteActive) {
     switch(press) {
       case 'single':
         // the menu is always [x1y1, x6y6] on any sized grid
@@ -56,6 +57,90 @@ function menuEvent(press, x, y) {
         // no long press events exist in the menu
         break;
     }
+  }
+  if (state.isMidiPaletteActive) {
+    switch(press) {
+      case 'single':
+        // the midi palette is always [x1y1, x6y6] on any sized grid
+        // and pressing anywhere outside this square closes it
+        if (x > 0 && x < 7 && y > 0 && y < 7) {
+          singleMidiPaletteEvent(x, y);
+        } else {
+          closeMidiPalette();
+          clearField();
+          openMenu();
+          drawMenu(state.selectedCell);
+        }
+        break;
+      case 'double':
+        // no double press events exist in the midi palette
+        break;
+      case 'long':
+        // no long press events exist in the midi palette
+        break;
+    }
+  } 
+}
+
+// tested
+function singleMidiPaletteEvent(x, y) {
+  // all midi palette events do the same thing - set the note
+  // 6x6 = 36 = 3 octaves = C3, C4, C5
+  var note = getNote(x, y);
+  var id = state.selectedCell;
+  field[id].note = note;
+  var arr = ['animateMidiNotePress', x, y];
+  if (state.outletsOn) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// tested
+function getNote(x, y) {
+  // row 1
+  if (x == 1 && y == 1) return 48;
+  if (x == 2 && y == 1) return 49;
+  if (x == 3 && y == 1) return 50;
+  if (x == 4 && y == 1) return 51;
+  if (x == 5 && y == 1) return 52;
+  if (x == 6 && y == 1) return 53;
+  // row 2
+  if (x == 1 && y == 2) return 54;
+  if (x == 2 && y == 2) return 55;
+  if (x == 3 && y == 2) return 56;
+  if (x == 4 && y == 2) return 57;
+  if (x == 5 && y == 2) return 58;
+  if (x == 6 && y == 2) return 59;
+  // row 3
+  if (x == 1 && y == 3) return 60;
+  if (x == 2 && y == 3) return 61;
+  if (x == 3 && y == 3) return 62;
+  if (x == 4 && y == 3) return 63;
+  if (x == 5 && y == 3) return 64;
+  if (x == 6 && y == 3) return 65;
+  // row 4
+  if (x == 1 && y == 4) return 66;
+  if (x == 2 && y == 4) return 67;
+  if (x == 3 && y == 4) return 68;
+  if (x == 4 && y == 4) return 69;
+  if (x == 5 && y == 4) return 70;
+  if (x == 6 && y == 4) return 71;
+  // row 5
+  if (x == 1 && y == 5) return 72;
+  if (x == 2 && y == 5) return 73;
+  if (x == 3 && y == 5) return 74;
+  if (x == 4 && y == 5) return 75;
+  if (x == 5 && y == 5) return 76;
+  if (x == 6 && y == 5) return 77;
+  // row 6
+  if (x == 1 && y == 6) return 78;
+  if (x == 2 && y == 6) return 79;
+  if (x == 3 && y == 6) return 80;
+  if (x == 4 && y == 6) return 81;
+  if (x == 5 && y == 6) return 82;
+  if (x == 6 && y == 6) return 83;
 }
 
 // untested
@@ -227,7 +312,11 @@ function singleMenuEvent(x, y) {
     out(drawMenuStructure(id));
   }
 
-  // row 4 toggles the midi picker
+  // row 4 toggles the midi palette
+  if (y === 4) {
+    out('animateMidiPalettePress');
+    openMidiPalette();
+  }
 
   // row 5 sets the speed
   if (y === 5) {
@@ -295,6 +384,8 @@ function drawRoute(id) {
 
 // untested
 function drawMenu(id) {
+  out('TESTTTTT');
+  out(id);
   out(drawMenuRoute(id));
   out(drawMenuStructure(id));
   out(drawMenuSpeed(field[id].speed));
@@ -435,6 +526,7 @@ function init() {
   state.width = 0;
   state.height = 0;
   state.isMenuActive = false;
+  state.isMidiPaletteActive = false;
   state.routes = ['all', 'random', 'walls', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'];
   state.structures = ['mine', 'waystation', 'spaceport'];
   state.selectedCell = false;
@@ -476,6 +568,22 @@ function closeMenu() {
   } else {
     return msg;
   }
+}
+
+// tested
+function openMidiPalette() {
+  setMidiPalette(true);
+  msg = 'drawMidiPalette';
+  if (state.outletsOn) {
+    out(msg);
+  } else {
+    return msg;
+  }
+}
+
+// tested
+function closeMidiPalette() {
+  setMidiPalette(false);
 }
 
 // tested
@@ -537,6 +645,11 @@ function out(val) {
 // tested
 function setMenu(val) {
   state.isMenuActive = val;
+}
+
+// tested
+function setMidiPalette(val) {
+  state.isMidiPaletteActive = val;
 }
 
 // tested
