@@ -26,7 +26,8 @@ function testInitCell() {
   var result5 = (cell.routeType == 'off') ? true : false;
   var result6 = (cell.structure == 'none') ? true : false;
   var result7 = (cell.note == 60) ? true : false;
-  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
+  var result8 = (cell.speed == 1) ? true : false;
+  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -76,6 +77,14 @@ function testArrayContains() {
   var name = 'testArrayContains';
   var bucket = [1, 2, 3, 4, 5];
   var result = (bucket.contains(5)) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testObjectSize() {
+  var name = 'testObjectSize';
+  var bucket = {1:{}, 2:{}, 3:{}, 4:{}, 5:{}};
+  var result = (Object.size(bucket) === 5) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -184,6 +193,13 @@ function testOutletsOnOff() {
   return result;
 }
 
+function testClearField() {
+  var name = 'testClearField';
+  var result = (clearField() === 'clearField') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
 function testOut() {
   var name = 'testOut';
   var test = out('internet');
@@ -249,6 +265,16 @@ function testDrawMenuStructure() {
   var d = drawMenuStructure('x4y3');
   var result1 = (d[0] === 'drawStructure') ? true : false;
   var result2 = (d[1] === 'spaceport') ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDrawMenuSpeed() {
+  var name = 'testDrawMenuSpeed';
+  var d = drawMenuSpeed(5);
+  var result1 = (d[0] === 'drawMenuSpeed') ? true : false;
+  var result2 = (d[1] === 5) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -396,6 +422,7 @@ function testSuite() {
   results.push(testGetCellReturnsObject());
   results.push(testGetCellStructureIsInitializedToNone());
   results.push(testArrayContains());
+  results.push(testObjectSize());
   results.push(testMakeFieldIsStructuredToSpec());
   results.push(testSetMenu());
   results.push(testSetTime());
@@ -406,6 +433,7 @@ function testSuite() {
   results.push(testSelectCell());
   results.push(testCloseGridMenu());
   results.push(testOutletsOnOff());
+  results.push(testClearField());
 
   resetTestSuite();
   results.push(testOut());
@@ -422,6 +450,7 @@ function testSuite() {
   resetTestSuite();
   results.push(testDrawMenuRoute());
   results.push(testDrawMenuStructure());
+  results.push(testDrawMenuSpeed());
 
   resetTestSuite();
   results.push(testDrawHomes());
@@ -452,8 +481,9 @@ function testSuite() {
  * Test Framework
  * ====================================================================================
  * This is a simple functional test framework made from scratch.
- * Jasmine, Cucumber, Tape, Mocha... none of them could easily
- * support simple functional tests like this and would require
+ * Jasmine, Cucumber, Tape, Mocha... none of them could 1.) easily
+ * support simple functional tests, 2.) be compatible with the JS
+ * that Max understands (I think), 3.) not require dozens of dependencies.
  *
  */
 
@@ -467,7 +497,11 @@ function drawBorder() {
 
 function testOutput(name, result) {
   console.log('Test:\t\t' + name);
-  console.log('Result:\t\t' + result);
+  if (result != 'pass') {
+    console.log('Result:\t!! ---- ' + result);
+  } else {
+    console.log('Result:\t\t' + result);
+  }
   console.log('\n');
 }
 

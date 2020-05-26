@@ -2,5 +2,5 @@
 
 ## Tests
 
- 1. Run `npm test`.
+1. Run `npm test`.
 
