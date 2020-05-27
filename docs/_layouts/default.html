@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+
+{% include head.html %}
+
+<body data-spy="scroll" data-target="#toc">
+
+{% include nav.html %}
+
+<div class="container-fluid">
+
+  <div class="row flex-xl-nowrap">
+
+    <div class="col-md-9 offset-md-1 col-xl-8 offset-xl-2 py-md-3 pl-md-5 bd-content">
+
+      {{ content }}
+
+    </div>
+
+    {% include sidebar.html %}
+
+  </div>
+
+</div>
+
+{% include footer.html %}
+
+{% include javascript.html %}
+
+</body>
+
+</html>

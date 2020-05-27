@@ -1,0 +1,6 @@
+title: "ecologies: docs"
+tagline: an interactive environment for designing 2d sound ecologies with grid and live
+baseurl: /
+url:
+markdown: kramdown
+theme: minima

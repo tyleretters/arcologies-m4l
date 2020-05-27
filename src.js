@@ -1,11 +1,11 @@
 /*
- * SUPPLY CHAIN
- * ====================================================================================
+ * ecologies
+ * ============================================================================
  *
- * By:      Tyler Etters
- * Date:    May, 2020
- * Site:    https://nor.the-rn.info
- * License: Attribution 4.0 International (CC BY 4.0)
+ * By:        Tyler Etters
+ * Date:      May, 2020
+ * Site:      https://nor.the-rn.info
+ * License:   Attribution 4.0 International (CC BY 4.0)
  *
  * File Organization:
  *  - Event Handlers
@@ -15,14 +15,14 @@
  *  - Max I/O
  *  - Utility
  *
- * Note, I've labeled the functions "tested" or "untested." 
- * Most "untested" ones are difficult to test with my homegrown framework.
+ * Notes:
+ *  - Function "//tested" and "//untested" comments refers to test coverage in tests.js.
  *
  */
 
 /*
  * Event Handlers
- * ====================================================================================
+ * ==============================================================================
  */
 
 // untested
@@ -194,8 +194,8 @@ function cycleThroughFieldRoutes(x, y) {
   var id = makeId(x, y);
 
   if (!cell.isExists) {
-    // new cells start as a "mine" with "all" routes on
-    cell.structure = 'mine';
+    // new cells start as a "giver" with "all" routes on
+    cell.structure = 'giver';
     cell.routeType = 'all';
     cell.isExists = true;
   } else {
@@ -300,13 +300,13 @@ function singleMenuEvent(x, y) {
   // with which you can set the structure:
   if (x === 4 || x === 5 || x === 6) {
     if (y === 1) {
-      cell.structure = 'spaceport';
+      cell.structure = 'taker';
     }
     if (y === 2) {
-      cell.structure = 'waystation';
+      cell.structure = 'mover';
     }
     if (y === 3) {
-      cell.structure = 'mine';
+      cell.structure = 'giver';
     }
     field[id] = cell;
     out(drawMenuStructure(id));
@@ -336,7 +336,7 @@ function singleMenuEvent(x, y) {
 
 /*
  * Draw
- * ====================================================================================
+ * ==============================================================================
  */
 
 // tested
@@ -384,8 +384,8 @@ function drawRoute(id) {
 
 // untested
 function drawMenu(id) {
-  out('TESTTTTT');
-  out(id);
+  // out('TESTTTTT');
+  // out(id);
   out(drawMenuRoute(id));
   out(drawMenuStructure(id));
   out(drawMenuSpeed(field[id].speed));
@@ -410,7 +410,7 @@ function drawMenuSpeed(x) {
 
 /*
  * Time & Place
- * ====================================================================================
+ * ==============================================================================
  */
 
 // tested
@@ -511,7 +511,7 @@ function deleteCell(id) {
 
 /*
  * Initialize
- * ====================================================================================
+ * ==============================================================================
  */
 
 var state = field = {};
@@ -527,8 +527,11 @@ function init() {
   state.height = 0;
   state.isMenuActive = false;
   state.isMidiPaletteActive = false;
-  state.routes = ['all', 'random', 'walls', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'];
-  state.structures = ['mine', 'waystation', 'spaceport'];
+  state.routes = [
+    'all', 'random', 'walls', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 
+    'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'
+  ];
+  state.structures = ['giver', 'mover', 'taker'];
   state.selectedCell = false;
 }
 
@@ -540,7 +543,7 @@ function initField() {
 
 /*
  * I/O
- * ====================================================================================
+ * ==============================================================================
  */
 
 var inlets = 1;
@@ -639,7 +642,7 @@ function out(val) {
 
 /*
  * Setters
- * ====================================================================================
+ * ==============================================================================
  */
 
 // tested

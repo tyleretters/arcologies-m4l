@@ -1,12 +1,11 @@
-
 /*
- * Tests
- * ====================================================================================
+ * ecologies
+ * ============================================================================
  *
- * By:      Tyler Etters
- * Date:    May, 2020
- * Site:    https://nor.the-rn.info
- * License: Attribution 4.0 International (CC BY 4.0)
+ * By:        Tyler Etters
+ * Date:      May, 2020
+ * Site:      https://nor.the-rn.info
+ * License:   Attribution 4.0 International (CC BY 4.0)
  *
  * File Organization:
  *  - Tests
@@ -182,7 +181,6 @@ function testSingleMidiPaletteEvent() {
   state.selectedCell = 'x0y0';
   field.x0y0.note = 60;
   var msg = singleMidiPaletteEvent(2, 2);
-  console.log(msg);
   var result1 = (field.x0y0.note == 55) ? true : false;
   var result2 = (msg[0] == 'animateMidiNotePress') ? true : false;
   var result3 = (msg[1] == 2) ? true : false;
@@ -268,7 +266,7 @@ function testSingleFieldEventOnEmptyCell() {
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
   var result1 = (cell.isExists) ? true : false;
-  var result2 = (cell.structure == 'mine') ? true : false;
+  var result2 = (cell.structure == 'giver') ? true : false;
   var result3 = (cell.routeType == 'all') ? true : false;
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
@@ -316,10 +314,10 @@ function testDrawMenuRoute() {
 
 function testDrawMenuStructure() {
   var name = 'testDrawMenuStructure';
-  field.x4y3.structure = 'spaceport';
+  field.x4y3.structure = 'taker';
   var d = drawMenuStructure('x4y3');
   var result1 = (d[0] === 'drawStructure') ? true : false;
-  var result2 = (d[1] === 'spaceport') ? true : false;
+  var result2 = (d[1] === 'taker') ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -349,9 +347,9 @@ function testDrawHomes() {
   field.x0y0.y = 0;
   field.x0y2.y = 2;
   field.x0y3.y = 3;
-  field.x0y0.structure = 'mine';
-  field.x0y2.structure = 'spaceport';
-  field.x0y3.structure = 'mine';
+  field.x0y0.structure = 'giver';
+  field.x0y2.structure = 'taker';
+  field.x0y3.structure = 'giver';
   var h = drawHomes();
   var result1 = (h.length === 4) ? true : false;
   var result2 = (h[0] === 'drawHomes') ? true : false;
@@ -369,7 +367,7 @@ function testDrawHome() {
   field.x0y3.routeType = 'nse';
   field.x0y3.x = 0;
   field.x0y3.y = 3;
-  field.x0y3.structure = 'mine';
+  field.x0y3.structure = 'giver';
   var h = drawHome('x0y3');
   var result1 = (h.length == 2) ? true : false;
   var result2 = (h[0] === 'drawHomes') ? true : false;
@@ -402,7 +400,7 @@ function testDumpStructures() {
   var name = 'testDumpStructures';
   var arr = dumpStructures();
   var result1 = (arr[0] === 'structuresList') ? true : false;
-  var result2 = (arr.includes('waystation')) ? true : false;
+  var result2 = (arr.includes('mover')) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -418,14 +416,14 @@ function testMoveCell() {
   field.x6y6.x = 6;
   field.x0y0.y = 0;
   field.x6y6.y = 6;
-  field.x0y0.structure = 'spaceport';
-  field.x6y6.structure = 'waystation';
+  field.x0y0.structure = 'taker';
+  field.x6y6.structure = 'mover';
   field.x0y0.note = 51;
   field.x6y6.note = 56;
   moveCell('x0y0', 'x6y6');
   var result1 = (field.x0y0.isExists === false) ? true : false;
   var result2 = (field.x6y6.routeType === 'random' ) ? true : false;
-  var result3 = (field.x6y6.structure === 'spaceport') ? true : false;
+  var result3 = (field.x6y6.structure === 'taker') ? true : false;
   var result4 = (field.x0y0.id === 'x0y0') ? true : false;
   var result5 = (field.x6y6.id === 'x6y6') ? true : false;
   var result6 = (field.x6y6.note === 51) ? true : false;
@@ -455,7 +453,7 @@ function testDeleteCell() {
 
 /*
  * Orchestration
- * ====================================================================================
+ * ============================================================================
  */
 
 function resetTestSuite() {
@@ -540,7 +538,7 @@ function testSuite() {
 
 /*
  * Test Framework
- * ====================================================================================
+ * ============================================================================
  * This is a simple functional test framework made from scratch.
  * Jasmine, Cucumber, Tape, Mocha... none of them could 1.) easily
  * support simple functional tests, 2.) be compatible with the JS
@@ -582,7 +580,7 @@ function runTestSuite() {
 
 /*
  * Test Runner
- * ====================================================================================
+ * ============================================================================
  */
 
 runTestSuite();

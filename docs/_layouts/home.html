@@ -1,0 +1,280 @@
+---
+layout: default
+---
+
+<div id="download" class="py-5 text-center">
+    <h1 class="ecologies">ecologies</h1>
+    <img class="d-block mx-auto mb-4" src="./assets/images/ecologies.gif" alt="ecologies" width="300" height="60">
+    <div class="tagline">{{ site.tagline }}</div>
+    <a class="download" href="#"><i class="fas fa-download"></i> Download v1.0.0</a>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="about">About</h2>
+    <hr>
+    <div class="row">
+      <div class="col-lg-6 col-sm-12">
+        <p><strong>ecologies</strong> is an interactive environment for designing 2d sound ecologies with <a href="https://monome.org/docs/grid">monome grid</a> and <a href="https://ableton.com/live">Ableton Live</a>. It works like this:</p>
+          <ul>
+            <li>Arrange cells on a 2d field.</li>
+            <li>Change a cell's structure to define behavior.</li>
+            <li>Change a cell's route to create channels.</li>
+            <li>Signals emerge from giver cells.</li>
+            <li>Signals play a cells note when they collide.</li>
+          </ul>
+          <p>It is an M4L midi instrument that pairs especially well with drum racks and <a href="https://www.ableton.com/en/manual/instrument-drum-and-effect-racks/#18-5-2-key-zones">zoned instrument racks</a>.</p>
+          <p>Inspired by tools like <a href="https://monome.org/docs/meadowphysics/">meadowphysics</a>, <a href="https://100r.co/site/orca.html">Orca</a>, and <a href="https://warmplace.ru/soft/sunvox/">Sunvox</a>. But also other types of software like <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>, the <a href="https://en.wikipedia.org/wiki/Tower_defense">tower defense</a> genre, and the <a href="http://generativemusic.com/">Eno / Chilvers</a> suite of generative applications.</p>
+          <p>Also carbon-based life, water, the anthropocene, supply chains, <a href="https://en.wikipedia.org/wiki/The_Mushroom_at_the_End_of_the_World">The Mushroom at the End of the World</a>, acrologies, <a href="https://dark-mountain.net/">The Dark Mountain Project</a>, <a href="https://soundcloud.com/eco-futurism-corp">Eco Futurism Corp</a>, <a href="https://danielseankelly.wordpress.com/2019/04/24/in-the-days-of-the-seasteaders-or-how-the-extropian-detritivores-broke-capitalism/">"seasteading"</a>, the gedankenexperiment-prompt: "sound artist's work in a William Gibson novel?", <a href="https://journal.highlandsolutions.com/cellular-automata-in-javascript-c0336af3e1f3?source=user_profile---------10-----------------------">Conway's Game of Life</a>, and Garfield Park Conservatory.</p>
+          <p><strong>ecologies</strong> is free, <a href="https://github.com/tyleretters/ecologies">open source</a>, licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">CC By 4.0</a> License.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img src="./assets/images/ecologies-open-graph.jpg" class="rounded mx-auto d-block" width="400" alt="Garfield Park Conservatory" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="installation">Installation</h2>
+    <hr>
+    <p>Nullam a tempor justo. Fusce tempus dapibus ex, non ultrices felis interdum et. Nullam mollis dictum nunc, ut porttitor mauris fermentum sit amet. Duis massa tellus, posuere ullamcorper arcu sed, malesuada sodales odio. Nunc hendrerit lectus ut nunc accumsan finibus. Aenean ullamcorper augue eget ante sagittis consectetur. Nullam commodo ultricies metus id egestas. Nam et turpis diam. Nam vestibulum porta cursus. Quisque condimentum leo id tristique vehicula. Morbi felis sem, maximus sit amet metus id, rutrum sodales tortor. Ut eu metus iaculis, interdum justo ut, facilisis tellus. Mauris rutrum massa nec sem gravida, eu consequat dolor interdum. Curabitur tincidunt vestibulum augue, nec dignissim eros malesuada eu. Phasellus urna libero, hendrerit at est vitae, faucibus bibendum erat.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 col-sm-12">
+    <h4 id="m4l">M4L</h4>
+    <hr>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sit amet risus massa. Suspendisse pulvinar ligula sed efficitur molestie. Quisque sagittis fermentum ipsum, sed rhoncus tortor ultrices in. Pellentesque pharetra lacus ut rhoncus tincidunt. In et bibendum arcu, facilisis porta neque. Morbi non diam orci. Phasellus sodales ultrices augue sit amet lacinia. Praesent congue facilisis lacus, et venenatis lacus pretium et. Vestibulum eget lacus purus.</p>
+  </div>
+  <div class="col-lg-6 col-sm-12">
+    <h4 id="grids">grids 64, 128, & 256</h4>
+    <hr>
+    <p><strong>ecologies</strong> was built for grid 128 but is lovingly compatible with 64 and 256. Just edit the <code>.amxd</code> with your grid's width and height. Then save and re-initialize.</p>
+    <img src="./assets/images/grid-size-config.png" class="rounded mb-3 mx-auto d-block" width="400" alt="grid Size Config" />
+    <p>This is a little buried because it isn't designed to be changed while playing.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="concepts">Concepts</h2>
+    <hr>
+    <table class="table table-striped table-bordered table-dark table-hover">
+      <thead>
+        <tr>
+          <th>Term</th>
+          <th>Definition</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>Field</td>
+        <td>Your grid is now a field where cells live, channels wind, and signals propagate.</td>
+      </tr>
+      <tr>
+        <td>Menu</td>
+        <td>For configuring individual cell attributes. Also deleting.</td>
+      </tr>
+      <tr>
+        <td>Cell</td>
+        <td>Stationary points of light on the field.</td>
+      </tr>
+      <tr>
+        <td>Structure</td>
+        <td>Each cell has one structure. There are three types: giver, mover, taker.</td>
+      </tr>
+      <tr>
+        <td>Giver</td>
+        <td>Births signals.</td>
+      </tr>
+      <tr>
+        <td>Mover</td>
+        <td>Passes signals along to others.</td>
+      </tr>
+      <tr>
+        <td>Taker</td>
+        <td>Devours signals.</td>
+      </tr>
+      <tr>
+        <td>Route</td>
+        <td>Each cell has one of 17 available routes. </td>
+      </tr>
+      <tr>
+        <td>Signal</td>
+        <td>Travels on channels.</td>
+      </tr>
+      <tr>
+        <td>Channel</td>
+        <td>Line segments that connect cells. Or rays that terminate at the field boundary.</td>
+      </tr>
+      <tr>
+        <td>Speed</td>
+        <td>The rate at which givers birth signals. An integer in the range of 1-6.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h3 id="cells">Cells</h3>
+    <hr>
+    <p>Cells are the building blocks of <strong>ecologies</strong>. In addition to their <code>x</code> / <code>y</code> coordinates, cells have four attributes:</p>
+    <ol>
+      <li>Route</li>
+      <li>Structure</li>
+      <li>Note</li>
+      <li>Speed</li>
+    </ol>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h4 id="route">Route</h4>
+    <hr>
+    <img class="d-block mx-auto mb-4" src="./assets/images/routes.png" alt="Routes" />
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h4 id="structure">Structure</h4>
+    <hr>
+    <div class="row">
+      <div class="col-lg-4 col-sm-12">        
+        <h4 class="text-center">Givers</h4>
+        <img class="mx-auto d-block" src="./assets/images/giver.png" alt="Giver structure menu setting" />
+        <p>...send signals into the field via their routes. Signals call out when they are born.</p>
+      </div>
+      <div class="col-lg-4 col-sm-12">
+        <h4 class="text-center">Movers</h4>
+        <img class="mx-auto d-block" src="./assets/images/mover.png" alt="Mover structure menu setting"/>
+        <p>...are connectors, joints in channels, directing the flow of signals. Signals call out when they are routed by movers. If a signals collides with a mover, and the mover has multiple routes, the signal will be split among all other routes.</p>
+      </div>
+      <div class="col-lg-4 col-sm-12">
+        <h4 class="text-center">Takers</h4>
+        <img class="mx-auto d-block" src="./assets/images/taker.png" alt="Taker structure menu setting"/>
+        <p>...devour signals. They don't care much for routes (specifically, the route don't change the behavior of a taker.) Signals cry out when they are taken.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h4 id="note">Note</h4>
+    <hr>
+    <p>A note in the range of C3 - B5 (midi 48-83).</p>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col eco-col">
+    <h4 id="speed">Speed</h4>
+    <hr>
+    <p>Consider an ecology in 4/4 time. This table illustrates the rates at which givers birth signals:</p>
+    <table class="table table-striped table-bordered table-dark table-hover">
+      <thead>
+      <tr>
+        <th>Speed</th>
+        <th>Frequency</th>
+        <th>Notation</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>1 <em>(slowest)</em></td>
+        <td>Every 6 beats</td>
+        <td>Dotted whole note</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Every 5 beats</td>
+        <td>Whole note tied with a quarter note</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Every 4 beats</td>
+        <td>Whole note</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Every 3 beats</td>
+        <td>Dotted half note</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Every other beat</td>
+        <td>Half note</td>
+      </tr>
+      <tr>
+        <td>6 <em>(fastest)</em></td>
+        <td>One per beat</td>
+        <td>Quarter note</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="signals">Signals</h2>
+    <hr>
+    <p>Signals have a position (<code>x</code> & <code>y</code>) and a direction (<code>n</code>, <code>e</code>, <code>s</code>, or <code>w</code>).
+    <p>If a signals's channel terminates in any cell without a connecting route, the signal disappears into silence. Forgotten. The same is true if it wanders off the field. The same is true if they collide with a giver. If two (or more) signals collide, both (or all) will be destroyed. If two (or more) signals meet at a mover, the mover only sees one of them. If a channel disappears from beneath a signal, the signal will continue along. Perhaps you can help it will find its way again?</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="channels">Channels</h2>
+    <hr>
+    <p>Channels...</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="the-field">The Field</h2>
+    <hr>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h2 id="the-menu">The Menu</h2>
+    <hr>
+    <p>Long press any cell to open the menu:</p>
+    <img alt="The Menu" class="full-width" src="./assets/images/menu.png" />
+    <p>Pressing dimly lit key will close the menu.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h3 id="menu-detail">Menu Detail</h3>
+    <hr>
+    <p>The four cell attributes (route, structure, note, speed) may be configured in the menu.</p>
+    <p>Cycle through routes as you would on the field. Select one of three structures (giver, mover, taker). Choose notes with the midi palette.</p>
+    <p>Finally, you may delete cells with the bottom row of the menu. There is no "confirm" action. Fortune favors the brave.</p>
+    <img alt="Menu Detail" class="full-width" src="./assets/images/menu-detail.png" />
+  </div>
+</div>
+
+<div class="row">
+  <div class="col eco-col">
+    <h3 id="midi-palette">Midi Palette</h3>
+    <hr>    
+    <img alt="Midi Palette" class="full-width" src="./assets/images/midi-palette.png" />
+  </div>
+</div>
+
+
+    

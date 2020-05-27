@@ -1,0 +1,130 @@
+// colors
+$white: #ffffff
+$dark: #000000
+$grey: #222222
+$green: #00F965
+$purple: #44355B
+$lightPurple: lighten($purple, 40%)
+$darkPurple: darken($purple, 10%)
+
+// margins
+$bgMargin: 50px
+$mdMargin: 25px
+$smMargin: 10px
+
+.sans-serif
+  font-family: 'Open Sans', sans-serif
+
+.monospace
+  font-family: 'Andale Mono', monospace
+
+.inline 
+  display: inline
+
+.bg-green
+  background-color: $green !important
+
+.bg-purple
+  background-color: $darkPurple !important
+
+body 
+  @extend .sans-serif
+  color: $purple
+  position: relative
+  font-size: 1rem
+
+code,
+pre 
+  @extend .monospace
+  color: $lightPurple
+
+h1
+  color: $green
+
+h2
+  font-weight: 600
+
+h3
+  font-size: 1.25rem
+  font-weight: 600
+
+h4
+  font-size: 1rem
+  font-weight: 600
+  color: $dark
+
+a,
+a:link,
+a:visited
+  color: $lightPurple
+  text-decoration: underline
+
+a:hover,
+a:active
+  color: $purple
+
+hr
+  margin-top: 0
+  border-top: 1px solid $purple
+
+img
+  max-width: 100%
+
+.navbar
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:active
+    text-decoration: none
+
+.ecologies
+  font-style: italic
+  letter-spacing: $mdMargin
+
+.tagline 
+  font-style: italic
+  margin: $mdMargin auto
+  text-align: center
+
+a.download 
+  color: $purple
+  text-decoration: none
+  background: $green
+  border-radius: 4px
+  border: 1px solid $purple
+  margin: 10px auto
+  display: block
+  width: 300px
+  font-weight: 600
+  text-align: center
+  padding: 20px
+
+  &:hover 
+    background: $purple
+    color: $green
+    text-decoration: none
+
+#toc
+  position: sticky
+  top: 4rem
+  height: calc(100vh - 4rem)
+  overflow-y: auto
+  padding-top: 1.5rem
+  padding-bottom: 1.5rem
+  font-size: .875rem
+
+  a,
+  a:link,
+  a:visited
+    text-decoration: none
+    color: $purple
+
+  a:hover,
+  a:active,
+  a.nav-link.active
+    background: $purple
+    color: $white
+
+.eco-col
+  margin-bottom: $bgMargin
