@@ -4,7 +4,7 @@ layout: default
 
 <div id="download" class="py-5 text-center">
     <h1 class="ecologies">ecologies</h1>
-    <img class="d-block mx-auto mb-4" src="./assets/images/ecologies.gif" alt="ecologies" width="300" height="60">
+    <img class="d-block mx-auto mb-4" src="{{ base.url }}/assets/images/ecologies.gif" alt="ecologies" width="300" height="60">
     <div class="tagline">{{ site.tagline }}</div>
     <a class="download" href="#"><i class="fas fa-download"></i> Download v1.0.0</a>
 </div>
@@ -137,7 +137,7 @@ layout: default
   <div class="col mb-5">
     <h4 id="route">Route</h4>
     <hr>
-    <img class="d-block mx-auto mb-4" src="./assets/images/routes.png" alt="Routes" />
+    <img class="d-block mx-auto mb-4" src="{{ base.url }}/assets/images/routes.png" alt="Routes" />
   </div>
 </div>
 
@@ -148,17 +148,17 @@ layout: default
     <div class="row">
       <div class="col-lg-4 col-sm-12">        
         <h4 class="text-center">Givers</h4>
-        <img class="mx-auto d-block" src="./assets/images/giver.png" alt="Giver structure menu setting" />
+        <img class="mx-auto d-block" src="{{ base.url }}/assets/images/giver.png" alt="Giver structure menu setting" />
         <p>...send signals into the field via their routes. Signals call out when they are born.</p>
       </div>
       <div class="col-lg-4 col-sm-12">
         <h4 class="text-center">Movers</h4>
-        <img class="mx-auto d-block" src="./assets/images/mover.png" alt="Mover structure menu setting"/>
+        <img class="mx-auto d-block" src="{{ base.url }}/assets/images/mover.png" alt="Mover structure menu setting"/>
         <p>...are connectors of channels, directing the flow of signals. Signals call out when they are routed by movers. If a signals collides with a mover, and the mover has multiple routes, the signal will be split among all other routes.</p>
       </div>
       <div class="col-lg-4 col-sm-12">
         <h4 class="text-center">Takers</h4>
-        <img class="mx-auto d-block" src="./assets/images/taker.png" alt="Taker structure menu setting"/>
+        <img class="mx-auto d-block" src="{{ base.url }}/assets/images/taker.png" alt="Taker structure menu setting"/>
         <p>...devour signals. They don't care much for routes (specifically, the route doesn't affect the behavior of a taker.) Signals cry out when they are taken.</p>
       </div>
     </div>
@@ -252,7 +252,7 @@ layout: default
     <h2 id="the-menu">The Menu</h2>
     <hr>
     <p>Long press any cell to open the menu:</p>
-    <img alt="The Menu" class="full-width" src="./assets/images/menu.png" />
+    <img alt="The Menu" class="full-width" src="{{ base.url }}/assets/images/menu.png" />
     <p>Pressing any dimly lit key will close the menu.</p>
   </div>
 </div>
@@ -264,7 +264,7 @@ layout: default
     <p>The four cell attributes (route, structure, note, speed) may be configured in the menu.</p>
     <p>Cycle through routes as you would on the field. Select one of three structures (giver, mover, taker). Choose notes with the midi palette.</p>
     <p>Finally, you may delete cells with the bottom row of the menu. There is no "confirm" action. Fortune favors the brave.</p>
-    <img alt="Menu Detail" class="full-width" src="./assets/images/menu-detail.png" />
+    <img alt="Menu Detail" class="full-width" src="{{ base.url }}/assets/images/menu-detail.png" />
   </div>
 </div>
 
@@ -272,7 +272,7 @@ layout: default
   <div class="col mb-5">
     <h3 id="midi-palette">Midi Palette</h3>
     <hr>    
-    <img alt="Midi Palette" class="full-width" src="./assets/images/midi-palette.png" />
+    <img alt="Midi Palette" class="full-width" src="{{ base.url }}/assets/images/midi-palette.png" />
     <p>Pressing any dimly lit key will close the midi palette.</p>
   </div>
 </div>
