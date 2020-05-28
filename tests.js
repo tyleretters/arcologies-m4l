@@ -22,7 +22,7 @@ function testInitCell() {
   var result2 = (cell.isExists == false) ? true : false;
   var result3 = (cell.x == 6) ? true : false;
   var result4 = (cell.y == 14) ? true : false;
-  var result5 = (cell.routeType == 'off') ? true : false;
+  var result5 = (cell.route == 'off') ? true : false;
   var result6 = (cell.structure == 'none') ? true : false;
   var result7 = (cell.note == 60) ? true : false;
   var result8 = (cell.speed == 1) ? true : false;
@@ -39,7 +39,7 @@ function testInitCellById() {
   var result2 = (cell.isExists == false) ? true : false;
   var result3 = (cell.x == 3) ? true : false;
   var result4 = (cell.y == 8) ? true : false;
-  var result5 = (cell.routeType == 'off') ? true : false;
+  var result5 = (cell.route == 'off') ? true : false;
   var result6 = (cell.structure == 'none') ? true : false;
   var result7 = (cell.note == 60) ? true : false;
   var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
@@ -91,14 +91,14 @@ function testObjectSize() {
 function testMakeFieldIsStructuredToSpec() {
   var name      = 'testMakeFieldIsStructuredToSpec';
   var field     = makeField();
-  var cell      = field['x10y4']; // arbitrary id
+  var cell      = field.x10y4; // arbitrary id
   var isExists  = (cell.isExists === false) ? true : false;
   var x         = (cell.x == 10) ? true : false;
   var y         = (cell.y == 4) ? true : false;
-  var routeType = (cell.routeType == 'off') ? true : false;
+  var route = (cell.route == 'off') ? true : false;
   var structure = (cell.structure == 'none') ? true : false;
   var note      = (cell.note == 60) ? true : false;
-  var result    = (isExists && x && y && routeType && structure && note) ? 'pass' : 'fail';
+  var result    = (isExists && x && y && route && structure && note) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -201,6 +201,21 @@ function testGetNote() {
   return result;
 }
 
+function testGetRouteDirections() {
+  var name = 'testGetRouteDirections';
+  var test1 = getRouteDirections('nes');
+  var test2 = getRouteDirections('all');
+  var test3 = getRouteDirections('ee');
+  var test4 = getRouteDirections('garbage');
+  var result1 = ( test1[0] == 'n' && test1[1] ==  'e' && test1[2] == 's') ? true : false;
+  var result2 = ( test2[0] == 'n' && test2[1] ==  'e' && test2[2] == 's' && test2[3] == 'w') ? true : false;
+  var result3 = ( test3[0] == 'e') ? true : false;
+  var result4 = ( test4.length == 0) ? true : false;
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
 function testDeselectCell() {
   var name = 'testDeselectCell';
   state.selectedCell = 'x0y0';
@@ -267,10 +282,10 @@ function testSingleFieldEventOnEmptyCell() {
   cell = getCell(2, 2);
   var result1 = (cell.isExists) ? true : false;
   var result2 = (cell.structure == 'giver') ? true : false;
-  var result3 = (cell.routeType == 'all') ? true : false;
+  var result3 = (cell.route == 'all') ? true : false;
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
-  var result4 = (cell.routeType == 'random') ? true : false;
+  var result4 = (cell.route == 'random') ? true : false;
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -301,7 +316,7 @@ function testDrawRoute() {
 
 function testDrawMenuRoute() {
   var name = 'testDrawMenuRoute';
-  field.x4y3.routeType = 'random';
+  field.x4y3.route = 'random';
   var d = drawMenuRoute('x4y3');
   var result1 = (d[0] === 'drawRoute') ? true : false;
   var result2 = (d[1] === 'random') ? true : false;
@@ -333,14 +348,14 @@ function testDrawMenuSpeed() {
   return result;
 }
 
-function testDrawHomes() {
-  var name = 'testDrawHomes';
+function testdrawCells() {
+  var name = 'testDrawCells';
   field.x0y0.isExists = true;
   field.x0y2.isExists = true;
   field.x0y3.isExists = true;
-  field.x0y0.routeType = 'all';
-  field.x0y2.routeType = 'stop';
-  field.x0y3.routeType = 'nse';
+  field.x0y0.route = 'all';
+  field.x0y2.route = 'stop';
+  field.x0y3.route = 'nse';
   field.x0y0.x = 0;
   field.x0y2.x = 0;
   field.x0y3.x = 0;
@@ -350,9 +365,9 @@ function testDrawHomes() {
   field.x0y0.structure = 'giver';
   field.x0y2.structure = 'taker';
   field.x0y3.structure = 'giver';
-  var h = drawHomes();
+  var h = drawCells();
   var result1 = (h.length === 4) ? true : false;
-  var result2 = (h[0] === 'drawHomes') ? true : false;
+  var result2 = (h[0] === 'drawCells') ? true : false;
   var result5 = (h[1] === 'x0y3') ? true : false;
   var result4 = (h[2] === 'x0y2') ? true : false;
   var result3 = (h[3] === 'x0y0') ? true : false;  
@@ -361,16 +376,16 @@ function testDrawHomes() {
   return result;
 }
 
-function testDrawHome() {
-  var name = 'testDrawHome';
+function testDrawCell() {
+  var name = 'testDrawCell';
   field.x0y3.isExists = true;
-  field.x0y3.routeType = 'nse';
+  field.x0y3.route = 'nse';
   field.x0y3.x = 0;
   field.x0y3.y = 3;
   field.x0y3.structure = 'giver';
-  var h = drawHome('x0y3');
+  var h = drawCell('x0y3');
   var result1 = (h.length == 2) ? true : false;
-  var result2 = (h[0] === 'drawHomes') ? true : false;
+  var result2 = (h[0] === 'drawCell') ? true : false;
   var result3 = (h[1] === 'x0y3') ? true : false;
   var result = (result1 && result2 && result3) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -410,8 +425,8 @@ function testMoveCell() {
   var name = 'testMoveCell';
   field.x0y0.isExists = true;
   field.x6y6.isExists = true;
-  field.x0y0.routeType = 'random';
-  field.x6y6.routeType = 'all';
+  field.x0y0.route = 'random';
+  field.x6y6.route = 'all';
   field.x0y0.x = 0;
   field.x6y6.x = 6;
   field.x0y0.y = 0;
@@ -422,7 +437,7 @@ function testMoveCell() {
   field.x6y6.note = 56;
   moveCell('x0y0', 'x6y6');
   var result1 = (field.x0y0.isExists === false) ? true : false;
-  var result2 = (field.x6y6.routeType === 'random' ) ? true : false;
+  var result2 = (field.x6y6.route === 'random' ) ? true : false;
   var result3 = (field.x6y6.structure === 'taker') ? true : false;
   var result4 = (field.x0y0.id === 'x0y0') ? true : false;
   var result5 = (field.x6y6.id === 'x6y6') ? true : false;
@@ -432,9 +447,9 @@ function testMoveCell() {
   return result;  
 }
 
-function testCycleRouteTypes() {
-  var name = 'testCycleRouteTypes';
-  var result = (cycleRouteTypes('walls') === 'ne') ? 'pass' : 'fail';
+function testCycleRoutes() {
+  var name = 'testCycleRoutes';
+  var result = (cycleRoutes('walls') === 'ne') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
@@ -442,13 +457,194 @@ function testCycleRouteTypes() {
 function testDeleteCell() {
   var name = 'testDeleteCell';
   state.selectedCell = 'x0y1';
-  field['x0y1'].isExists = true;
+  field.x0y1.isExists = true;
   deleteCell('x0y1');
   var result1 = (state.selectedCell === false) ? true : false;
   var result2 = (field.x0y1.isExists === false) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
+}
+
+function testDrawChannel() {
+  var name = 'testDrawChannel';
+  var arr = [0, 4, 0, 7];
+  var d = drawChannel(arr);
+  var result1 = (d[0] === 'drawChannel') ? true : false;
+  var result2 = (d[1] === 0) ? true : false;
+  var result3 = (d[2] === 4) ? true : false;
+  var result4 = (d[3] === 0) ? true : false;
+  var result5 = (d[4] === 7) ? true : false;
+  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindColumnNeighborNorth() {
+  var name = 'testFindColumnNeighborNorth';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
+    'x4y3': { 'id' : 'x4y3', 'x': 4, 'y': 3}, 
+    'x4y5': { 'id' : 'x4y5', 'x': 4, 'y': 5},
+    'x4y8': { 'id' : 'x4y8', 'x': 4, 'y': 8}
+  }
+  var neighbor = findColumnNeighbor(currentCell, existingCells, 'north');
+  var result1 = (neighbor.y === 8) ? true : false;
+  var result2 = (neighbor.x === 4) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindColumnNeighborSouth() {
+  var name = 'testFindColumnNeighborSouth';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
+    'x4y3': { 'id' : 'x4y3', 'x': 4, 'y': 3}, 
+    'x4y5': { 'id' : 'x4y5', 'x': 4, 'y': 5},
+    'x4y8': { 'id' : 'x4y8', 'x': 4, 'y': 8}
+  }
+  var neighbor = findColumnNeighbor(currentCell, existingCells, 'south');
+  var result1 = (neighbor.y === 3) ? true : false;
+  var result2 = (neighbor.x === 4) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindNoColumnNeighborSouth() {
+  var name = 'testFindColumnNeighborSouth';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x3y0': { 'id' : 'x3y0', 'x': 3, 'y': 0}, 
+    'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3}, 
+    'x8y5': { 'id' : 'x8y5', 'x': 8, 'y': 5},
+    'x10y8': { 'id' : 'x10y8', 'x': 10, 'y': 8}
+  }
+  var neighbor = findColumnNeighbor(currentCell, existingCells, 'south');
+  var result1 = (neighbor.y === 7) ? true : false;
+  var result2 = (neighbor.x === 4) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindNoColumnNeighborNorth() {
+  var name = 'testFindColumnNeighborNorth';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x3y0': { 'id' : 'x3y0', 'x': 3, 'y': 0}, 
+    'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3}, 
+    'x8y5': { 'id' : 'x8y5', 'x': 8, 'y': 5},
+    'x10y8': { 'id' : 'x10y8', 'x': 10, 'y': 8}
+  }
+  var neighbor = findColumnNeighbor(currentCell, existingCells, 'north');
+  var result1 = (neighbor.y === 0) ? true : false;
+  var result2 = (neighbor.x === 4) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindRowNeighborWest() {
+  var name = 'testFindRowNeighborWest';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
+    'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+    'x1y7': { 'id' : 'x1y7', 'x': 1, 'y': 7},
+    'x2y7': { 'id' : 'x2y7', 'x': 2, 'y': 7}
+  }
+  var neighbor = findRowNeighbor(currentCell, existingCells, 'west');
+  var result1 = (neighbor.y === 7) ? true : false;
+  var result2 = (neighbor.x === 2) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindRowNeighborEast() {
+  var name = 'testFindRowNeighborWest';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
+    'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+    'x15y7': { 'id' : 'x15y7', 'x': 15, 'y': 7},
+    'x14y7': { 'id' : 'x14y7', 'x': 14, 'y': 7}
+  }
+  var neighbor = findRowNeighbor(currentCell, existingCells, 'east');
+  var result1 = (neighbor.y === 7) ? true : false;
+  var result2 = (neighbor.x === 14) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindNoRowNeighborEast() {
+  var name = 'testFindNoRowNeighborEast';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
+    'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+  }
+  var neighbor = findRowNeighbor(currentCell, existingCells, 'east');
+  var result1 = (neighbor.y === 7) ? true : false;
+  var result2 = (neighbor.x === 15) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testFindNoRowNeighborWest() {
+  var name = 'testFindNoRowNeighborWest';
+  var currentCell = {
+    'id': 'x4y7', 'x': 4, 'y': 7
+  };
+  var existingCells = { 
+    'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+    'x15y7': { 'id' : 'x15y7', 'x': 15, 'y': 7},
+    'x14y7': { 'id' : 'x14y7', 'x': 14, 'y': 7}
+  }
+  var neighbor = findRowNeighbor(currentCell, existingCells, 'west');
+  var result1 = (neighbor.y === 7) ? true : false;
+  var result2 = (neighbor.x === 0) ? true : false;
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testPrepareCellChannels() {
+  // left off here, gotta make a permutations and test
+  // state.field = { 
+  //   'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
+  //   'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
+  //   'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+  //   'x15y7': { 'id' : 'x15y7', 'x': 15, 'y': 7},
+  //   'x14y7': { 'id' : 'x14y7', 'x': 14, 'y': 7}
+  // }
 }
 
 /*
@@ -486,7 +682,7 @@ function testSuite() {
   results.push(testOpenMidiPalette());
   results.push(testSingleMidiPaletteEvent());
   results.push(testGetNote());
-  results.push(testGetNote());
+  results.push(testGetRouteDirections());
   results.push(testDeselectCell());
   results.push(testSelectCell());
   results.push(testCloseMenu());
@@ -500,7 +696,7 @@ function testSuite() {
   resetTestSuite();
   results.push(testSingleFieldEventOnEmptyCell());
 
-  resetTestSuite()
+  resetTestSuite();
   results.push(testGetExistingCells());
 
   resetTestSuite();
@@ -512,10 +708,10 @@ function testSuite() {
   results.push(testDrawMenuSpeed());
 
   resetTestSuite();
-  results.push(testDrawHomes());
+  results.push(testdrawCells());
 
   resetTestSuite();
-  results.push(testDrawHome());
+  results.push(testDrawCell());
   
   resetTestSuite();
   results.push(testGetIds());
@@ -528,10 +724,27 @@ function testSuite() {
   results.push(testMoveCell());
 
   resetTestSuite();
-  results.push(testCycleRouteTypes());
+  results.push(testCycleRoutes());
 
   resetTestSuite();
   results.push(testDeleteCell());
+
+  resetTestSuite();
+  results.push(testDrawChannel());
+
+  resetTestSuite();
+  results.push(testFindColumnNeighborNorth());
+  results.push(testFindNoColumnNeighborNorth());
+  results.push(testFindColumnNeighborSouth());
+  results.push(testFindNoColumnNeighborSouth());
+  results.push(testFindRowNeighborWest());
+  results.push(testFindNoRowNeighborWest());
+  results.push(testFindRowNeighborEast());
+  results.push(testFindNoRowNeighborEast());
+
+  resetTestSuite();
+  results.push(testPrepareCellChannels());
+
 
   return results;
 }

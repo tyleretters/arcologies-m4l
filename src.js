@@ -25,6 +25,162 @@
  * ==============================================================================
  */
 
+// wip
+function advance() {
+  // channels
+  drawChannels();
+
+  // signals
+  drawSignals();
+}
+
+// wip
+function drawSignals() {
+  // todo
+}
+
+
+// wip
+function drawChannels() {
+
+  var advancedChannels = {};
+  var existingCells = getExistingCells();
+  var arr = [];
+
+  for (var key in existingCells) {
+    if (existingCells.hasOwnProperty(key)) {
+      cell = existingCells[key];
+       advancedChannels.push(prepareCellChannels(cell.id));
+    }
+  }
+  
+  for (var i = 0; i < advancedChannels.length; i++) {
+    out(drawChannel(advancedChannels[i]));
+  }
+
+} 
+
+
+// tested
+function findColumnNeighbor(currentCell, existingCells, direction) {
+  
+  // northern boundary is row 0
+  // southern boundary is grid height - 1
+
+  var ys = [];
+
+  // find all cells in this column and get the y values
+  Object.keys(existingCells).forEach(function(key) {
+    if (existingCells[key].x == currentCell.x) {
+      ys.push(existingCells[key].y);
+    }
+  });
+
+  // filter out the cells to the south or north
+  ys = ys.filter(function(val) {
+    if (direction == 'north') {
+      return val > currentCell.x;
+    }
+    if (direction == 'south') {
+      return val < currentCell.x;
+    }
+  });
+
+  var neighbor;
+  if (ys.length > 0) {
+    // find nearest cell of those in this column
+    var goal = currentCell.y;
+    neighbor = ys.reduce(function(prev, curr) {
+      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+    });
+  } else {
+    // we're going all the way to the edge of the field
+    if (direction == 'north') {
+       neighbor = 0;
+    }
+    if (direction == 'south') {
+      neighbor = state.height - 1; // account for zero index on grid
+    }
+  }
+
+  var neighborId = 'x' + currentCell.x + 'y' + neighbor;
+  return { 'id': neighborId, 'x' : currentCell.x, 'y' : neighbor };
+}
+
+// tested
+function findRowNeighbor(currentCell, existingCells, direction) {
+  
+  // western boundary is row 0
+  // eastern boundary is grid width - 1
+
+  var xs = [];
+
+  // find all cells in this row and get the x values
+  Object.keys(existingCells).forEach(function(key) {
+    if (existingCells[key].y == currentCell.y) {
+      xs.push(existingCells[key].x);
+    }
+  });
+
+  // filter out the cells to the east or west
+  xs = xs.filter(function(val) {
+    if (direction == 'west') {
+      return val < currentCell.y;
+    }
+    if (direction == 'east') {
+      return val > currentCell.y;
+    }
+  });
+
+  var neighbor;
+  if (xs.length > 0) {
+    // find nearest cell of those in this column
+    var goal = currentCell.x;
+    neighbor = xs.reduce(function(prev, curr) {
+      return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
+    });
+  } else {
+    // we're going all the way to the edge of the field
+    if (direction == 'west') {
+       neighbor = 0;
+    }
+    if (direction == 'east') {
+      neighbor = state.width - 1; // account for zero index on grid
+    }
+  }
+
+  var neighborId = 'x' + neighbor + 'y' + currentCell.y;
+  return { 'id': neighborId, 'x' : neighbor, 'y' : currentCell.y };
+}
+
+// wip
+function prepareCellChannels(cellId) {
+
+  var currentCell = field.cellId;
+  var currentCellRouteDirections = getRouteDirections(currentCell.route); // eg, ['n', 's']
+  var existingCells = getExistingCells();
+  var filteredTermini = [];
+
+  if (currentCellRouteDirections.contains('n')) {
+    filteredTermini.push(findColumnNeighbor(currentCell, existingCells, 'north'));
+  }
+  if (currentCellRouteDirections.contains('e')) {
+    filteredTermini.push(findRowNeighbor(currentCell, existingCells, 'east'));
+  }
+  if (currentCellRouteDirections.contains('s')) {
+    filteredTermini.push(findColumnNeighbor(currentCell, existingCells, 'south'));
+  }
+  if (currentCellRouteDirections.contains('w')) {
+    filteredTermini.push(findRowNeighbor(currentCell, existingCells, 'west'));
+  }
+
+  var cellChannels = [];
+  for (var i = 0; i < filteredTermini.length; i++) {
+    cellChannels.push([currentCell.x, currentCell.y, filteredTermini[i].x, filteredTermini[i].y]);
+  }
+  return cellChannels;
+}
+
 // untested
 function gridEvent(press, x, y) {
   if (x > state.x) return;
@@ -183,7 +339,7 @@ function singleFieldEvent(x, y) {
     deselectCell();
   }
 
-  drawHomes();
+  drawCells();
 
 }
 
@@ -196,10 +352,10 @@ function cycleThroughFieldRoutes(x, y) {
   if (!cell.isExists) {
     // new cells start as a "giver" with "all" routes on
     cell.structure = 'giver';
-    cell.routeType = 'all';
+    cell.route = 'all';
     cell.isExists = true;
   } else {
-    cell.routeType = cycleRouteTypes(cell.routeType);
+    cell.route = cycleRoutes(cell.route);
   }
 
   field[id] = cell;
@@ -209,26 +365,26 @@ function cycleThroughFieldRoutes(x, y) {
 }
 
 // tested
-function cycleRouteTypes(routeType) {
+function cycleRoutes(route) {
   // this pattern is hardcoded for the user's benefit
   // (i don't want errant array sorting changing it)
-  if  (routeType === 'all')    return 'random';
-  if  (routeType === 'random') return 'walls';
-  if  (routeType === 'walls')  return 'ne';
-  if  (routeType === 'ne')     return 'se';
-  if  (routeType === 'se')     return 'sw';
-  if  (routeType === 'sw')     return 'nw';
-  if  (routeType === 'nw')     return 'ns';
-  if  (routeType === 'ns')     return 'ew';
-  if  (routeType === 'ew')     return 'nes';
-  if  (routeType === 'nes')    return 'esw';
-  if  (routeType === 'esw')    return 'swn';
-  if  (routeType === 'swn')    return 'wne';
-  if  (routeType === 'wne')    return 'nn';
-  if  (routeType === 'nn')     return 'ee';
-  if  (routeType === 'ee')     return 'ss';
-  if  (routeType === 'ss')     return 'ww';
-  if  (routeType === 'ww')     return 'all';
+  if  (route === 'all')    return 'random';
+  if  (route === 'random') return 'walls';
+  if  (route === 'walls')  return 'ne';
+  if  (route === 'ne')     return 'se';
+  if  (route === 'se')     return 'sw';
+  if  (route === 'sw')     return 'nw';
+  if  (route === 'nw')     return 'ns';
+  if  (route === 'ns')     return 'ew';
+  if  (route === 'ew')     return 'nes';
+  if  (route === 'nes')    return 'esw';
+  if  (route === 'esw')    return 'swn';
+  if  (route === 'swn')    return 'wne';
+  if  (route === 'wne')    return 'nn';
+  if  (route === 'nn')     return 'ee';
+  if  (route === 'ee')     return 'ss';
+  if  (route === 'ss')     return 'ww';
+  if  (route === 'ww')     return 'all';
   return 'all';
 }
 
@@ -258,7 +414,7 @@ function doubleFieldEvent(x, y) {
     out(drawRoute(id));
   }
 
-  drawHomes();
+  drawCells();
 
 }
 
@@ -291,7 +447,7 @@ function singleMenuEvent(x, y) {
   // the nw corner is the route symbole &
   // 2,2 lets you change the route:
   if (x === 2 && y === 2) {
-    cell.routeType = cycleRouteTypes(cell.routeType);
+    cell.route = cycleRoutes(cell.route);
     field[id] = cell;
     out(drawMenuRoute(id));
   }
@@ -353,9 +509,9 @@ function clearField() {
 }
 
 // tested
-function drawHomes() {
+function drawCells() {
   
-  var arr = ['drawHomes'];
+  var arr = ['drawCells'];
   var cells = getExistingCells();
   
   if (Object.size(cells) > 0) {
@@ -372,14 +528,21 @@ function drawHomes() {
 }
 
 // tested
-function drawHome(id) {
-  return ['drawHomes', id]
+function drawCell(id) {
+  return ['drawCell', id];
+}
+
+
+// tested
+function drawChannel(arr) {
+  arr.unshift('drawChannel');
+  return arr;
 }
 
 // tested
 function drawRoute(id) {
   var cell = field[id];
-  return ['drawRoute', cell.routeType, cell.x, cell.y];
+  return ['drawRoute', cell.route, cell.x, cell.y];
 }
 
 // untested
@@ -394,7 +557,7 @@ function drawMenu(id) {
 // tested
 function drawMenuRoute(id) {
   var cell = field[id];
-  return ['drawRoute', cell.routeType, 2, 2];
+  return ['drawRoute', cell.route, 2, 2];
 }
 
 // tested
@@ -435,7 +598,7 @@ function initCell(x, y) {
     isExists: false,
     x: x,
     y: y,
-    routeType: 'off',
+    route: 'off',
     structure: 'none',
     note: 60,
     speed: 1
@@ -467,7 +630,7 @@ function getExistingCells() {
   for (var key in f) {
     if (f.hasOwnProperty(key)) {
         cell = f[key];
-        if (!cell['isExists'] === true) continue;
+        if (cell.isExists === false) continue;
         obj[cell.id] = cell;
     }
   }
@@ -487,17 +650,39 @@ function getIds(obj) {
 } 
 
 // tested
+function getRouteDirections(route) {
+  if  (route == 'all')    return ['n', 'e', 's', 'w'];
+  if  (route == 'random') return ['n', 'e', 's', 'w'];
+  if  (route == 'walls')  return [];
+  if  (route == 'ne')     return ['n', 'e'];
+  if  (route == 'se')     return ['s', 'e'];
+  if  (route == 'sw')     return ['s', 'w'];
+  if  (route == 'nw')     return ['n', 'w'];
+  if  (route == 'ns')     return ['n', 's'];
+  if  (route == 'ew')     return ['e', 'w'];
+  if  (route == 'nes')    return ['n', 'e', 's'];
+  if  (route == 'esw')    return ['e', 's', 'w'];
+  if  (route == 'swn')    return ['s', 'w', 'n'];
+  if  (route == 'wne')    return ['w', 'n', 'e'];
+  if  (route == 'nn')     return ['n'];
+  if  (route == 'ee')     return ['e'];
+  if  (route == 'ss')     return ['s'];
+  if  (route == 'ww')     return ['w'];
+  return  [];
+}
+
+// tested
 function moveCell(originId, destinationId) {
 
   // write the destination
   field[destinationId].isExists = true;
-  field[destinationId].routeType = field[originId].routeType;
+  field[destinationId].route = field[originId].route;
   field[destinationId].structure = field[originId].structure;
   field[destinationId].note = field[originId].note;
 
   // erase the origin
   field[originId].isExists = false;
-  field[originId].routeType = 'off';
+  field[originId].route = 'off';
   field[originId].structure = 'none';
   field[originId].note = 60;
 
@@ -514,7 +699,8 @@ function deleteCell(id) {
  * ==============================================================================
  */
 
-var state = field = {};
+var state = {};
+var field = {};
 
 // tested by proxy
 function init() {
@@ -567,7 +753,7 @@ function closeMenu() {
   if (state.outletsOn) {
     out(msg);
     clearField();
-    drawHomes();
+    drawCells();
   } else {
     return msg;
   }
@@ -700,26 +886,33 @@ Array.prototype.contains = function(obj) {
     }
   }
   return false;
-}
+};
 
 // tested
-Object.size = function(obj) {
-    var size = 0, key;
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) size++;
+if (!Object.prototype.size) {
+  Object.defineProperty(Object.prototype, 'size', {
+    value: function (obj) {
+      if (this == null) {
+        throw new TypeError('Not an object');
+      }
+      var size = 0, key;
+      for (key in obj) {
+          if (obj.hasOwnProperty(key)) size++;
+      }
+      return size;
     }
-    return size;
-};
+  });
+}
 
 // untested
 function dumpState() {
-  out(JSON.stringify(state))
-};
+  out(JSON.stringify(state));
+}
 
 // untested
 function dumpField() {
-  out(JSON.stringify(field))
-};
+  out(JSON.stringify(field));
+}
 
 // untested...
 function test() {
