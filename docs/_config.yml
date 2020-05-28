@@ -1,5 +1,5 @@
 title: "ecologies: docs"
-tagline: an interactive environment for designing 2d sound ecologies with grid and live
+description: an interactive environment for designing 2d sound ecologies with grid and live
 baseurl: /ecologies
 url: https://tyleretters.github.io/ecologies
 markdown: kramdown
