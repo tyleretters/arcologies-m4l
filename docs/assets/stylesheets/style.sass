@@ -7,18 +7,11 @@ $purple: #44355B
 $lightPurple: lighten($purple, 40%)
 $darkPurple: darken($purple, 10%)
 
-// margins
-$bgMargin: 50px
-$mdMargin: 25px
-$smMargin: 10px
-
 .sans-serif
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif
 
 .monospace
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
-.inline 
-  display: inline
 
 .bg-green
   background-color: $green !important
@@ -79,11 +72,11 @@ img
 
 .ecologies
   font-style: italic
-  letter-spacing: $mdMargin
+  letter-spacing: 25px
 
 .tagline 
   font-style: italic
-  margin: $mdMargin auto
+  margin: auto
   text-align: center
 
 a.download 
@@ -124,6 +117,3 @@ a.download
   a.nav-link.active
     background: $purple
     color: $white
-
-.eco-col
-  margin-bottom: $bgMargin

@@ -5,9 +5,6 @@
 pre {
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
-.inline {
-  display: inline; }
-
 .bg-green {
   background-color: #00F965 !important; }
 
@@ -68,7 +65,7 @@ img {
 
 .tagline {
   font-style: italic;
-  margin: 25px auto;
+  margin: auto;
   text-align: center; }
 
 a.download {
@@ -106,8 +103,5 @@ a.download {
   #toc a.nav-link.active {
     background: #44355B;
     color: #ffffff; }
-
-.eco-col {
-  margin-bottom: 50px; }
 
 /*# sourceMappingURL=style.css.map */
