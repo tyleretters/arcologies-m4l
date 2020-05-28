@@ -5,8 +5,14 @@
 
 {% if page.url == "/" %}<title>{{ site.title }}</title>{% elsif page.title %}<title>{{ page.title }} | {{ site.title }}</title>{% else %}<title>{{ site.title }}</title>{% endif %}
 
-{% seo title=false %}
-
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="ecologies: docs" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="{{ site.url }}" />
+<meta property="og:url" content="{{ site.url }}" />
+<meta property="og:site_name" content="ecologies: docs" />
+<script type="application/ld+json">
+{"@type":"WebSite","url":"{{ site.url }}","name":"ecologies: docs","headline":"ecologies: docs","@context":"https://schema.org"}</script>
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{{ site.title }}">
 <meta name="twitter:url" content="{{ site.url }}">
