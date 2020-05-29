@@ -27,11 +27,9 @@
 
 // wip
 function advance() {
-  // channels
-  drawChannels();
-
-  // signals
+  clearField();
   drawSignals();
+  drawCells();
 }
 
 // wip
@@ -40,22 +38,23 @@ function drawSignals() {
 }
 
 
-// wip
-function drawChannels() {
+// tested
+function drawChannels(id) {
 
-  var advancedChannels = {};
-  var existingCells = getExistingCells();
-  var arr = [];
-
-  for (var key in existingCells) {
-    if (existingCells.hasOwnProperty(key)) {
-      cell = existingCells[key];
-       advancedChannels.push(prepareCellChannels(cell.id));
-    }
-  }
+  cell = field[id];
   
-  for (var i = 0; i < advancedChannels.length; i++) {
-    out(drawChannel(advancedChannels[i]));
+  if (cell.route == 'off') return;
+  if (cell.route == 'walls') return;
+
+  var channels = [];
+  channels = channels.concat(prepareCellChannels(cell.id));
+  
+  if (state.outletsOn) {
+    channels.forEach(function(channel){
+      out(channel);
+    });
+  } else {
+      return channels;
   }
 
 } 
@@ -71,7 +70,7 @@ function findColumnNeighbor(currentCell, existingCells, direction) {
 
   // find all cells in this column and get the y values
   Object.keys(existingCells).forEach(function(key) {
-    if (existingCells[key].x == currentCell.x) {
+    if (existingCells[key].x == currentCell.x && existingCells[key].id != currentCell.id) {
       ys.push(existingCells[key].y);
     }
   });
@@ -79,12 +78,13 @@ function findColumnNeighbor(currentCell, existingCells, direction) {
   // filter out the cells to the south or north
   ys = ys.filter(function(val) {
     if (direction == 'north') {
-      return val > currentCell.x;
+      return val < currentCell.y;
     }
     if (direction == 'south') {
-      return val < currentCell.x;
+      return val > currentCell.y;
     }
   });
+ // console.log(ys);
 
   var neighbor;
   if (ys.length > 0) {
@@ -117,18 +117,19 @@ function findRowNeighbor(currentCell, existingCells, direction) {
 
   // find all cells in this row and get the x values
   Object.keys(existingCells).forEach(function(key) {
-    if (existingCells[key].y == currentCell.y) {
+    if (existingCells[key].y == currentCell.y && existingCells[key].id != currentCell.id) {
       xs.push(existingCells[key].x);
     }
   });
 
   // filter out the cells to the east or west
+  xs.sort();
   xs = xs.filter(function(val) {
-    if (direction == 'west') {
-      return val < currentCell.y;
-    }
     if (direction == 'east') {
-      return val > currentCell.y;
+      return val > currentCell.x;
+    }
+    if (direction == 'west') {
+      return val < currentCell.x;
     }
   });
 
@@ -153,10 +154,10 @@ function findRowNeighbor(currentCell, existingCells, direction) {
   return { 'id': neighborId, 'x' : neighbor, 'y' : currentCell.y };
 }
 
-// wip
+// tested
 function prepareCellChannels(cellId) {
 
-  var currentCell = field.cellId;
+  var currentCell = field[cellId];
   var currentCellRouteDirections = getRouteDirections(currentCell.route); // eg, ['n', 's']
   var existingCells = getExistingCells();
   var filteredTermini = [];
@@ -176,7 +177,7 @@ function prepareCellChannels(cellId) {
 
   var cellChannels = [];
   for (var i = 0; i < filteredTermini.length; i++) {
-    cellChannels.push([currentCell.x, currentCell.y, filteredTermini[i].x, filteredTermini[i].y]);
+    cellChannels.push(['drawChannel', currentCell.x, currentCell.y, filteredTermini[i].x, filteredTermini[i].y]);
   }
   return cellChannels;
 }
@@ -202,8 +203,11 @@ function menuEvent(press, x, y) {
         if (x > 0 && x < 7 && y > 0 && y < 7) {
           singleMenuEvent(x, y);
         } else {
-          deselectCell();
           closeMenu();
+          clearField();
+          drawChannels(state.selectedCellId);
+          out(drawRoute(state.selectedCellId));
+          drawCells();
         }
         break;
       case 'double':
@@ -225,7 +229,7 @@ function menuEvent(press, x, y) {
           closeMidiPalette();
           clearField();
           openMenu();
-          drawMenu(state.selectedCell);
+          drawMenu(state.selectedCellId);
         }
         break;
       case 'double':
@@ -243,7 +247,7 @@ function singleMidiPaletteEvent(x, y) {
   // all midi palette events do the same thing - set the note
   // 6x6 = 36 = 3 octaves = C3, C4, C5
   var note = getNote(x, y);
-  var id = state.selectedCell;
+  var id = state.selectedCellId;
   field[id].note = note;
   var arr = ['animateMidiNotePress', x, y];
   if (state.outletsOn) {
@@ -321,26 +325,28 @@ function singleFieldEvent(x, y) {
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
 
-  clearField();
-
-  if (state.selectedCell === false) {
-    // there is no cell already selected, so this is a fresh press
+  if (!ids.contains(id)) {
+    // this sell doesn't exist so create it
     selectCell(id);
+    clearField();
+    cycleThroughFieldRoutes(x, y);    
+    drawCells();
+  } else if (state.selectedCellId == id) {
+    // we're pressing the already selected cell, so cycle through the routes
+    clearField();
     cycleThroughFieldRoutes(x, y);
-  } else if (state.selectedCell == id) {
-    // we're pressing an already selected cell, so cycle through the routes
-    cycleThroughFieldRoutes(x, y);
-  } else if (state.selectedCell !== id && ids.contains(id)) {
-    // we've pressed a different existing cell and want to cycle its routes
+    drawCells();
+  } else if (state.selectedCellId !== id && ids.contains(id)) {
+    // we've pressed a different existing cell and want to select it
     selectCell(id);
-    cycleThroughFieldRoutes(x, y);
+    clearField();
+    drawChannels(id);
+    out(drawRoute(id));
+    drawCells();
   } else {
     // we've pressed an empty cell and are ready to do something else
     deselectCell();
   }
-
-  drawCells();
-
 }
 
 // untested
@@ -360,6 +366,7 @@ function cycleThroughFieldRoutes(x, y) {
 
   field[id] = cell;
 
+  drawChannels(id); // eh?
   out(drawRoute(id));
 
 }
@@ -397,19 +404,19 @@ function doubleFieldEvent(x, y) {
 
   clearField();
 
-  if (state.selectedCell === false && ids.contains(id)) {
+  if (state.selectedCellId === false && ids.contains(id)) {
     // we are selecting an existing cell without cycling it
     selectCell(id);
-  } else if (state.selectedCell === false && !ids.contains(id)) {
+  } else if (state.selectedCellId === false && !ids.contains(id)) {
     // we are double pressing an empty cell with nothing already selected
     // do nothing
-  } else if (state.selectedCell === id ) {
+  } else if (state.selectedCellId === id ) {
     // we're double pressing the current cell
     deselectCell();
   } else {
     // we are moving the cell and either placing it at an empty
     // cell or copying over an existing cell
-    moveCell(state.selectedCell, id);
+    moveCell(state.selectedCellId, id);
     selectCell(id);
     out(drawRoute(id));
   }
@@ -432,7 +439,13 @@ function longFieldEvent(x, y) {
     openMenu();
     drawMenu(id);
   } else {
-    // a long press on an empty cell does nothing
+    if (state.selectedCellId) {
+      deselectCell();
+      clearField();
+      drawCells();
+    } else {
+      // reserved for global menu
+    }
   }
 
 }
@@ -440,8 +453,8 @@ function longFieldEvent(x, y) {
 // untested
 function singleMenuEvent(x, y) {
   // note this x, y does not correspond to the field.xNyN values!
-  // so we cannot use them to lookup the cells we have to state.selectedCell[id]
-  var id = state.selectedCell;
+  // so we cannot use them to lookup the cells we have to state.selectedCellId[id]
+  var id = state.selectedCellId;
   var cell = field[id];
 
   // the nw corner is the route symbole &
@@ -528,12 +541,6 @@ function drawCells() {
 }
 
 // tested
-function drawCell(id) {
-  return ['drawCell', id];
-}
-
-
-// tested
 function drawChannel(arr) {
   arr.unshift('drawChannel');
   return arr;
@@ -547,8 +554,6 @@ function drawRoute(id) {
 
 // untested
 function drawMenu(id) {
-  // out('TESTTTTT');
-  // out(id);
   out(drawMenuRoute(id));
   out(drawMenuStructure(id));
   out(drawMenuSpeed(field[id].speed));
@@ -668,6 +673,7 @@ function getRouteDirections(route) {
   if  (route == 'ee')     return ['e'];
   if  (route == 'ss')     return ['s'];
   if  (route == 'ww')     return ['w'];
+  if  (route == 'off')     return [];
   return  [];
 }
 
@@ -718,7 +724,7 @@ function init() {
     'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'
   ];
   state.structures = ['giver', 'mover', 'taker'];
-  state.selectedCell = false;
+  state.selectedCellId = false;
 }
 
 // tested by proxy
@@ -752,8 +758,6 @@ function closeMenu() {
   var msg = 'closeMenu';
   if (state.outletsOn) {
     out(msg);
-    clearField();
-    drawCells();
   } else {
     return msg;
   }
@@ -863,13 +867,13 @@ function setHeight(val) {
 
 // tested
 function deselectCell() {
-  state.selectedCell = false;
-  out(['selectCell', 0]);
+  state.selectedCellId = false;
+  out('deselectCell');
 }
 
 // tested
 function selectCell(val) {
-  state.selectedCell = val;
+  state.selectedCellId = val;
   out(['selectCell', val]);
 }
 
