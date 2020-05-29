@@ -68,7 +68,6 @@ function testGetSignal() {
   var name = 'testGetSignal';
   makeSignal(3, 3, 'n');
   var signal = getSignal(3, 3);
-  console.log(signal);
   var result1 = (typeof signal === 'object' && signal !== null) ? true : false;
   var result2 = (signal.x === 3) ? true : false;
   var result3 = (signal.direction === 'n') ? true : false;
@@ -137,7 +136,7 @@ function testMakeFieldIsStructuredToSpec() {
   var isExists  = (cell.isExists === false) ? true : false;
   var x         = (cell.x == 10) ? true : false;
   var y         = (cell.y == 4) ? true : false;
-  var route = (cell.route == 'off') ? true : false;
+  var route     = (cell.route == 'off') ? true : false;
   var structure = (cell.structure == 'none') ? true : false;
   var note      = (cell.note == 60) ? true : false;
   var result    = (isExists && x && y && route && structure && note) ? 'pass' : 'fail';
@@ -754,6 +753,67 @@ function testGetIsMidiPaletteActive() {
   return result;
 }
 
+function testRollRandomRoute() {
+  var name = 'testRollRandomRoute';
+  var random = rollRandomRoute();
+  var result = (Array.isArray(random)) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetCellsByStructure() {
+  var name = 'testGetCellsByStructure';
+  field.x0y0.isExists = true;
+  field.x0y2.isExists = true;
+  field.x0y3.isExists = true;
+  field.x0y0.route = 'all';
+  field.x0y2.route = 'stop';
+  field.x0y3.route = 'nse';
+  field.x0y0.x = 0;
+  field.x0y2.x = 0;
+  field.x0y3.x = 0;
+  field.x0y0.y = 0;
+  field.x0y2.y = 2;
+  field.x0y3.y = 3;
+  field.x0y0.structure = 'hive';
+  field.x0y2.structure = 'nomad';
+  field.x0y3.structure = 'hive';
+  var hives = getCellsByStructure('hive');
+  var result1 = (hives[0].id === 'x0y3') ? true : false;
+  var result2 = (hives[0].structure === 'hive') ? true : false;
+  var result3 = (hives.length == 2) ? true : false;
+  var result = (result1 && result2 && result3) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testBirthSignals() {
+  var name = 'testBirthSignals';
+  field.x0y0.isExists = true;
+  field.x2y7.isExists = true;
+  field.x11y5.isExists = true;
+  field.x0y0.route = 'all';
+  field.x2y7.route = 'ss';
+  field.x11y5.route = 'nse';
+  field.x0y0.x = 0;
+  field.x2y7.x = 2;
+  field.x11y5.x = 11;
+  field.x0y0.y = 0;
+  field.x2y7.y = 7;
+  field.x11y5.y = 5;
+  field.x0y0.structure = 'hive';
+  field.x2y7.structure = 'hive';
+  field.x11y5.structure = 'hive';
+  var signals = birthSignals();
+  console.log(signals);
+  // var result1 = (hives[0].id === 'x0y3') ? true : false;
+  // var result2 = (hives[0].structure === 'hive') ? true : false;
+  // var result3 = (hives.length == 2) ? true : false;
+  // var result = (result1 && result2 && result3) ? 'pass' : 'fail';
+  testOutput(name, false);
+  //return result;
+}
+
 /*
  * Orchestration
  * ============================================================================
@@ -781,6 +841,7 @@ function testSuite() {
   results.push(testGetSignal());
   results.push(testGetSignalSpeed());
   results.push(testDeleteSignal());
+  results.push(testRollRandomRoute());
   results.push(testGetCellStructureIsInitializedToNone());
   results.push(testArrayContains());
   results.push(testObjectSize());
@@ -861,6 +922,12 @@ function testSuite() {
   results.push(testGetSelectedCellId());
   results.push(testGetIsMenuActive());
   results.push(testGetIsMidiPaletteActive());
+
+  resetTestSuite();
+  results.push(testGetCellsByStructure());
+
+  resetTestSuite();
+  results.push(testBirthSignals());
 
 
   return results;

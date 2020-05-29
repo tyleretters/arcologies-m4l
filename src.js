@@ -50,37 +50,48 @@ function propagateSignals() {
   out('propagateSignals');
 }
 
+// tested
+function rollRandomRoute() {
+  var routes = ['all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'shell'];
+  return getRouteDirections(routes[ Math.floor(Math.random() * routes.length)]);
+}
 
+
+// wip
 function birthSignals() {
 
   var newSignals = [];
-  var hives = getCellsByStructure('hives');
+  var hives = getCellsByStructure('hive');
 
   Object.keys(hives).forEach(function(key) {
     var hive = hives[key];
-    var hiveRouteDirections = getRouteDirections(hive.route);
-    for( i = 0; i < hiveRouteDirections.length; i++);
+    var hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
+
+    for( i = 0; i < hiveRouteDirections.length; i++) {
+
+      if (hiveRouteDirections[i] === '') continue; // rollRandomRoute came up empty
+
       var x;
       var y      
       var signalId;
       if (hiveRouteDirections[i] === 'n') {
-        var x = hive.x - 1;
+        var x = ((hive.x - 1) < 0 ) ? 0 : (hive.x - 1);
         var y = hive.y;
         signalId = makeId(x, y);    
       }
       if (hiveRouteDirections[i] === 'e') {
         var x = hive.x;
-        var y = hive.y + 1;
+        var y = ((hive.y + 1) > state.gridHeight) ? state.gridHeight : hive.y + 1;
         signalId = makeId(x, y);    
       }
       if (hiveRouteDirections[i] === 's') {
-        var x = hive.x + 1;
+        var x = ((hive.x + 1) > state.gridWidth) ? state.gridWidth : hive.x + 1;
         var y = hive.y;
         signalId = makeId(x, y);    
       }
       if (hiveRouteDirections[i] === 'w') {
         var x = hive.x;
-        var y = hive.y - 1;
+        var y = ((hive.y - 1) < 0 ) ? 0 : (hive.y - 1) ;
         signalId = makeId(x, y);    
       }
 
@@ -88,26 +99,26 @@ function birthSignals() {
         'id' : signalId,
         'x' : x,
         'y' : y,
-        'direction' : hiveRouteDirections[i];
+        'direction' : hiveRouteDirections[i]
       };
       newSignals.push(signal);
     };
+  });
+  
+  return newSignals;
 
-    return newSignals;
 }
 
-// wip
-function getCellsByStructure('structure') {
+// tested
+function getCellsByStructure(structure) {
 
   var existingCells = getExistingCells();
   var cells = [];
-
   Object.keys(existingCells).forEach(function(key) {
     if (existingCells[key].structure == structure) {
       cells.push(existingCells[key]);
     }
   });
-
   return cells;
 }
 
