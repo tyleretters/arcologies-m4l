@@ -1,6 +1,6 @@
 # ecologies
 
- - [Docs](#)
+ - [Docs](https://tyleretters.github.io/ecologis)
  - [Lines](#)
 
 ## Technical
@@ -17,5 +17,5 @@ The tests requrie [npm](https://www.npmjs.com/).
 
 Developing the docs requires [Jekyll](https://jekyllrb.com/) & [SASS](https://sass-lang.com/). Hosted with [GitHub pages](https://pages.github.com/)
 
-1. To run the docs locally at `127.0.0.1:4000`: `cd docs` and run `bundle exec jekyll serve`.
+1. To run the docs locally at `127.0.0.1:4000`: `cd docs` and run `bundle exec jekyll serve --baseurl ''`.
 2. To work with the CSS: `cd assets/stylesheets` and run `sass --watch style.sass:style.css`.

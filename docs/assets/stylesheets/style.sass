@@ -1,37 +1,17 @@
-// colors
-$white: #ffffff
-$dark: #000000
-$grey: #222222
-$green: #00F965
-$purple: #44355B
-$lightPurple: lighten($purple, 40%)
-$darkPurple: darken($purple, 10%)
-
 .sans-serif
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif
 
 .monospace
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
 
-.bg-green
-  background-color: $green !important
-
-.bg-purple
-  background-color: $darkPurple !important
-
 body 
   @extend .sans-serif
-  color: $purple
   position: relative
   font-size: 1rem
 
 code,
 pre 
   @extend .monospace
-  color: $lightPurple
-
-h1
-  color: $green
 
 h2
   font-weight: 600
@@ -43,21 +23,19 @@ h3
 h4
   font-size: 1rem
   font-weight: 600
-  color: $dark
 
 a,
 a:link,
 a:visited
-  color: $lightPurple
   text-decoration: underline
 
 a:hover,
 a:active
-  color: $purple
+
 
 hr
   margin-top: 0
-  border-top: 1px solid $purple
+  border-top: 1px solid #000000
 
 img
   max-width: 100%
@@ -80,22 +58,9 @@ img
   text-align: center
 
 a.download 
-  color: $purple
-  text-decoration: none
-  background: $green
-  border-radius: 4px
-  border: 1px solid $purple
   margin: 10px auto
-  display: block
-  width: 300px
-  font-weight: 600
-  text-align: center
-  padding: 20px
-
-  &:hover 
-    background: $purple
-    color: $green
-    text-decoration: none
+  padding: 20px 50px
+  text-decoration: none
 
 #toc
   position: sticky
@@ -106,14 +71,3 @@ a.download
   padding-bottom: 1.5rem
   font-size: .875rem
 
-  a,
-  a:link,
-  a:visited
-    text-decoration: none
-    color: $purple
-
-  a:hover,
-  a:active,
-  a.nav-link.active
-    background: $purple
-    color: $white

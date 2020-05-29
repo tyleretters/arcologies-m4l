@@ -5,23 +5,9 @@
 pre {
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
-.bg-green {
-  background-color: #00F965 !important; }
-
-.bg-purple {
-  background-color: #2c223b !important; }
-
 body {
-  color: #44355B;
   position: relative;
   font-size: 1rem; }
-
-code,
-pre {
-  color: #aa99c3; }
-
-h1 {
-  color: #00F965; }
 
 h2 {
   font-weight: 600; }
@@ -32,22 +18,16 @@ h3 {
 
 h4 {
   font-size: 1rem;
-  font-weight: 600;
-  color: #000000; }
+  font-weight: 600; }
 
 a,
 a:link,
 a:visited {
-  color: #aa99c3;
   text-decoration: underline; }
-
-a:hover,
-a:active {
-  color: #44355B; }
 
 hr {
   margin-top: 0;
-  border-top: 1px solid #44355B; }
+  border-top: 1px solid #000000; }
 
 img {
   max-width: 100%; }
@@ -69,21 +49,9 @@ img {
   text-align: center; }
 
 a.download {
-  color: #44355B;
-  text-decoration: none;
-  background: #00F965;
-  border-radius: 4px;
-  border: 1px solid #44355B;
   margin: 10px auto;
-  display: block;
-  width: 300px;
-  font-weight: 600;
-  text-align: center;
-  padding: 20px; }
-  a.download:hover {
-    background: #44355B;
-    color: #00F965;
-    text-decoration: none; }
+  padding: 20px 50px;
+  text-decoration: none; }
 
 #toc {
   position: sticky;
@@ -93,15 +61,5 @@ a.download {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
   font-size: 0.875rem; }
-  #toc a,
-  #toc a:link,
-  #toc a:visited {
-    text-decoration: none;
-    color: #44355B; }
-  #toc a:hover,
-  #toc a:active,
-  #toc a.nav-link.active {
-    background: #44355B;
-    color: #ffffff; }
 
 /*# sourceMappingURL=style.css.map */

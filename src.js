@@ -27,16 +27,31 @@
 
 // wip
 function advance() {
-  clearField();
-  drawSignals();
-  drawCells();
+
+  propagateSignals();
+
+  if (!getSelectedCellId() &&
+      !getIsMenuActive() &&
+      !getIsMidiPaletteActive()) {
+    // don't redraw when
+    // - a cell is selected
+    // - the menu is active
+    // - the palette is active
+    clearField();
+    drawSignals();
+    drawCells();
+  }
+
 }
 
 // wip
-function drawSignals() {
-  // todo
+function propagateSignals() {
+  out('propagateSignals');
 }
 
+function drawSignals() {
+
+}
 
 // tested
 function drawChannels(id) {
@@ -44,7 +59,7 @@ function drawChannels(id) {
   cell = field[id];
   
   if (cell.route == 'off') return;
-  if (cell.route == 'walls') return;
+  if (cell.route == 'shell') return;
 
   var channels = [];
   channels = channels.concat(prepareCellChannels(cell.id));
@@ -84,7 +99,6 @@ function findColumnNeighbor(currentCell, existingCells, direction) {
       return val > currentCell.y;
     }
   });
- // console.log(ys);
 
   var neighbor;
   if (ys.length > 0) {
@@ -186,7 +200,7 @@ function prepareCellChannels(cellId) {
 function gridEvent(press, x, y) {
   if (x > state.x) return;
   if (y > state.y) return;
-  if (state.isMenuActive) {
+  if (getIsMenuActive()) {
     menuEvent(press, x, y);
   } else {
     fieldEvent(press, x, y);
@@ -195,7 +209,7 @@ function gridEvent(press, x, y) {
 
 // untested
 function menuEvent(press, x, y) {
-  if (!state.isMidiPaletteActive) {
+  if (!getIsMidiPaletteActive()) {
     switch(press) {
       case 'single':
         // the menu is always [x1y1, x6y6] on any sized grid
@@ -205,8 +219,8 @@ function menuEvent(press, x, y) {
         } else {
           closeMenu();
           clearField();
-          drawChannels(state.selectedCellId);
-          out(drawRoute(state.selectedCellId));
+          drawChannels(getSelectedCellId());
+          out(drawRoute(getSelectedCellId()));
           drawCells();
         }
         break;
@@ -218,7 +232,7 @@ function menuEvent(press, x, y) {
         break;
     }
   }
-  if (state.isMidiPaletteActive) {
+  if (getIsMidiPaletteActive()) {
     switch(press) {
       case 'single':
         // the midi palette is always [x1y1, x6y6] on any sized grid
@@ -229,7 +243,7 @@ function menuEvent(press, x, y) {
           closeMidiPalette();
           clearField();
           openMenu();
-          drawMenu(state.selectedCellId);
+          drawMenu(getSelectedCellId());
         }
         break;
       case 'double':
@@ -247,7 +261,7 @@ function singleMidiPaletteEvent(x, y) {
   // all midi palette events do the same thing - set the note
   // 6x6 = 36 = 3 octaves = C3, C4, C5
   var note = getNote(x, y);
-  var id = state.selectedCellId;
+  var id = getSelectedCellId();
   field[id].note = note;
   var arr = ['animateMidiNotePress', x, y];
   if (state.outletsOn) {
@@ -331,12 +345,12 @@ function singleFieldEvent(x, y) {
     clearField();
     cycleThroughFieldRoutes(x, y);    
     drawCells();
-  } else if (state.selectedCellId == id) {
+  } else if (getSelectedCellId() == id) {
     // we're pressing the already selected cell, so cycle through the routes
     clearField();
     cycleThroughFieldRoutes(x, y);
     drawCells();
-  } else if (state.selectedCellId !== id && ids.contains(id)) {
+  } else if (getSelectedCellId() !== id && ids.contains(id)) {
     // we've pressed a different existing cell and want to select it
     selectCell(id);
     clearField();
@@ -356,8 +370,8 @@ function cycleThroughFieldRoutes(x, y) {
   var id = makeId(x, y);
 
   if (!cell.isExists) {
-    // new cells start as a "giver" with "all" routes on
-    cell.structure = 'giver';
+    // new cells start as a "hive" with "all" routes on
+    cell.structure = 'hive';
     cell.route = 'all';
     cell.isExists = true;
   } else {
@@ -375,9 +389,7 @@ function cycleThroughFieldRoutes(x, y) {
 function cycleRoutes(route) {
   // this pattern is hardcoded for the user's benefit
   // (i don't want errant array sorting changing it)
-  if  (route === 'all')    return 'random';
-  if  (route === 'random') return 'walls';
-  if  (route === 'walls')  return 'ne';
+  if  (route === 'all')    return 'ne';
   if  (route === 'ne')     return 'se';
   if  (route === 'se')     return 'sw';
   if  (route === 'sw')     return 'nw';
@@ -391,7 +403,9 @@ function cycleRoutes(route) {
   if  (route === 'nn')     return 'ee';
   if  (route === 'ee')     return 'ss';
   if  (route === 'ss')     return 'ww';
-  if  (route === 'ww')     return 'all';
+  if  (route === 'ww')     return 'random';
+  if  (route === 'random') return 'shell';
+  if  (route === 'shell')  return 'all';
   return 'all';
 }
 
@@ -404,20 +418,21 @@ function doubleFieldEvent(x, y) {
 
   clearField();
 
-  if (state.selectedCellId === false && ids.contains(id)) {
+  if (getSelectedCellId() === false && ids.contains(id)) {
     // we are selecting an existing cell without cycling it
     selectCell(id);
-  } else if (state.selectedCellId === false && !ids.contains(id)) {
+  } else if (getSelectedCellId() === false && !ids.contains(id)) {
     // we are double pressing an empty cell with nothing already selected
     // do nothing
-  } else if (state.selectedCellId === id ) {
+  } else if (getSelectedCellId() === id ) {
     // we're double pressing the current cell
     deselectCell();
   } else {
     // we are moving the cell and either placing it at an empty
     // cell or copying over an existing cell
-    moveCell(state.selectedCellId, id);
+    moveCell(getSelectedCellId(), id);
     selectCell(id);
+    drawChannels(id);
     out(drawRoute(id));
   }
 
@@ -439,7 +454,7 @@ function longFieldEvent(x, y) {
     openMenu();
     drawMenu(id);
   } else {
-    if (state.selectedCellId) {
+    if (getSelectedCellId()) {
       deselectCell();
       clearField();
       drawCells();
@@ -453,8 +468,8 @@ function longFieldEvent(x, y) {
 // untested
 function singleMenuEvent(x, y) {
   // note this x, y does not correspond to the field.xNyN values!
-  // so we cannot use them to lookup the cells we have to state.selectedCellId[id]
-  var id = state.selectedCellId;
+  // so we cannot use them to lookup the cells we have to getSelectedCellId()[id]
+  var id = getSelectedCellId();
   var cell = field[id];
 
   // the nw corner is the route symbole &
@@ -469,13 +484,13 @@ function singleMenuEvent(x, y) {
   // with which you can set the structure:
   if (x === 4 || x === 5 || x === 6) {
     if (y === 1) {
-      cell.structure = 'taker';
+      cell.structure = 'nomad';
     }
     if (y === 2) {
-      cell.structure = 'mover';
+      cell.structure = 'port';
     }
     if (y === 3) {
-      cell.structure = 'giver';
+      cell.structure = 'hive';
     }
     field[id] = cell;
     out(drawMenuStructure(id));
@@ -658,7 +673,7 @@ function getIds(obj) {
 function getRouteDirections(route) {
   if  (route == 'all')    return ['n', 'e', 's', 'w'];
   if  (route == 'random') return ['n', 'e', 's', 'w'];
-  if  (route == 'walls')  return [];
+  if  (route == 'shell')  return [];
   if  (route == 'ne')     return ['n', 'e'];
   if  (route == 'se')     return ['s', 'e'];
   if  (route == 'sw')     return ['s', 'w'];
@@ -720,10 +735,10 @@ function init() {
   state.isMenuActive = false;
   state.isMidiPaletteActive = false;
   state.routes = [
-    'all', 'random', 'walls', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 
+    'all', 'random', 'shell', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 
     'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'
   ];
-  state.structures = ['giver', 'mover', 'taker'];
+  state.structures = ['hive', 'port', 'nomad'];
   state.selectedCellId = false;
 }
 
@@ -866,6 +881,21 @@ function setHeight(val) {
 }
 
 // tested
+function getSelectedCellId() {
+  return state.selectedCellId;
+}
+
+// tested
+function getIsMenuActive() {
+  return state.isMenuActive;
+}
+
+// tested
+function getIsMidiPaletteActive() {
+  return state.isMidiPaletteActive;
+}
+
+// tested
 function deselectCell() {
   state.selectedCellId = false;
   out('deselectCell');
@@ -915,7 +945,7 @@ function dumpState() {
 
 // untested
 function dumpField() {
-  out(JSON.stringify(field));
+  out(SON.stringify(field));
 }
 
 // untested...

@@ -281,11 +281,11 @@ function testSingleFieldEventOnEmptyCell() {
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
   var result1 = (cell.isExists) ? true : false;
-  var result2 = (cell.structure == 'giver') ? true : false;
+  var result2 = (cell.structure == 'hive') ? true : false;
   var result3 = (cell.route == 'all') ? true : false;
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
-  var result4 = (cell.route == 'random') ? true : false;
+  var result4 = (cell.route == 'ne') ? true : false;
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -329,10 +329,10 @@ function testDrawMenuRoute() {
 
 function testDrawMenuStructure() {
   var name = 'testDrawMenuStructure';
-  field.x4y3.structure = 'taker';
+  field.x4y3.structure = 'nomad';
   var d = drawMenuStructure('x4y3');
   var result1 = (d[0] === 'drawStructure') ? true : false;
-  var result2 = (d[1] === 'taker') ? true : false;
+  var result2 = (d[1] === 'nomad') ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -362,9 +362,9 @@ function testdrawCells() {
   field.x0y0.y = 0;
   field.x0y2.y = 2;
   field.x0y3.y = 3;
-  field.x0y0.structure = 'giver';
-  field.x0y2.structure = 'taker';
-  field.x0y3.structure = 'giver';
+  field.x0y0.structure = 'hive';
+  field.x0y2.structure = 'nomad';
+  field.x0y3.structure = 'hive';
   var h = drawCells();
   var result1 = (h.length === 4) ? true : false;
   var result2 = (h[0] === 'drawCells') ? true : false;
@@ -399,7 +399,7 @@ function testDumpStructures() {
   var name = 'testDumpStructures';
   var arr = dumpStructures();
   var result1 = (arr[0] === 'structuresList') ? true : false;
-  var result2 = (arr.includes('mover')) ? true : false;
+  var result2 = (arr.includes('hive')) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -415,14 +415,14 @@ function testMoveCell() {
   field.x6y6.x = 6;
   field.x0y0.y = 0;
   field.x6y6.y = 6;
-  field.x0y0.structure = 'taker';
-  field.x6y6.structure = 'mover';
+  field.x0y0.structure = 'nomad';
+  field.x6y6.structure = 'hive';
   field.x0y0.note = 51;
   field.x6y6.note = 56;
   moveCell('x0y0', 'x6y6');
   var result1 = (field.x0y0.isExists === false) ? true : false;
   var result2 = (field.x6y6.route === 'random' ) ? true : false;
-  var result3 = (field.x6y6.structure === 'taker') ? true : false;
+  var result3 = (field.x6y6.structure === 'nomad') ? true : false;
   var result4 = (field.x0y0.id === 'x0y0') ? true : false;
   var result5 = (field.x6y6.id === 'x6y6') ? true : false;
   var result6 = (field.x6y6.note === 51) ? true : false;
@@ -433,7 +433,7 @@ function testMoveCell() {
 
 function testCycleRoutes() {
   var name = 'testCycleRoutes';
-  var result = (cycleRoutes('walls') === 'ne') ? 'pass' : 'fail';
+  var result = (cycleRoutes('shell') === 'all') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
@@ -650,8 +650,7 @@ function testPrepareCellChannels() {
   var result6 = (channels1[1][4] === 4) ? true : false;
   var result7 = (channels1[3][3] === 7) ? true : false;
   var result8 = (channels1[3][4] === 4) ? true : false;  
-  var result = (result1 && result2 && result3 && result4
-    && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
+  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
@@ -663,7 +662,7 @@ function testDrawChannels() {
     'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3, 'route': 'esw'}, 
     'x11y3': { 'id' : 'x11y3', 'x': 11, 'y': 3, 'route': 'nn'},  
     'x6y1': { 'id' : 'x6y1', 'x': 6, 'y': 1, 'route': 'all'}, 
-    'x6y6': { 'id' : 'x6y6', 'x': 6, 'y': 6, 'route': 'walls'},
+    'x6y6': { 'id' : 'x6y6', 'x': 6, 'y': 6, 'route': 'shell'},
     'x0y3': { 'id' : 'x0y3', 'x': 0, 'y': 3, 'route': 'all'}, 
     'x6y0': { 'id' : 'x6y0', 'x': 6, 'y': 0, 'route': 'nn'}, 
     'x17y3': { 'id' : 'x17y3', 'x': 17, 'y': 3, 'route': 'ee'}, 
@@ -679,8 +678,36 @@ function testDrawChannels() {
   var result7 = (channels[2][4] == 6) ? true : false;  
   var result8 = (channels[3][3] == 1) ? true : false;
   var result9 = (channels[3][4] == 3) ? true : false;  
-  var result = (result1 && result2 && result3 && result4 && result5
-    && result6 && result7 && result8 && result9) ? 'pass' : 'fail';
+  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8 && result9) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetSelectedCellId() {
+  var name = 'testGetSelectedCellId';
+  state.selectedCellId = 'kfajslkdfj';
+  var result1 = getSelectedCellId();
+  var result = (result1 == 'kfajslkdfj') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetIsMenuActive() {
+  var name = 'testGetIsMenuActive';
+  var result1 = getIsMenuActive();
+  state.isMenuActive = true;
+  var result2 = getIsMenuActive();
+  var result = (!result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetIsMidiPaletteActive() {
+  var name = 'testGetisMidiPaletteActive';
+  var result1 = getIsMidiPaletteActive();
+  state.isMidiPaletteActive = true;
+  var result2 = getIsMidiPaletteActive();
+  var result = (!result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -782,6 +809,12 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testDrawChannels());
+
+  resetTestSuite();
+  results.push(testGetSelectedCellId());
+  results.push(testGetIsMenuActive());
+  results.push(testGetIsMidiPaletteActive());
+
 
   return results;
 }
