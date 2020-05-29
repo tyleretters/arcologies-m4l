@@ -74,7 +74,7 @@ layout: default
       </tr>
       <tr>
         <td>Cell</td>
-        <td>Stationary points of light on the field.</td>
+        <td>Keys on the grid.</td>
       </tr>
       <tr>
         <td>Structure</td>
@@ -94,15 +94,15 @@ layout: default
       </tr>
       <tr>
         <td>Route</td>
-        <td>Each cell has one of 17 available routes. </td>
+        <td>Each cell has one of 17 available routes.</td>
       </tr>
       <tr>
         <td>Signal</td>
-        <td>Travels on channels.</td>
+        <td>Travels on channels. Cry out when they collide with cells.</td>
       </tr>
       <tr>
         <td>Channel</td>
-        <td>Line segments that connect cells. Or rays that terminate at the field boundary.</td>
+        <td>Line segments that connect cells or terminate at the field boundary.</td>
       </tr>
       <tr>
         <td>Speed</td>
@@ -129,7 +129,43 @@ layout: default
 
 <div class="row">
   <div class="col mb-5">
-    <h4 id="route">Route</h4>
+    <h3 id="route">Route</h4>
+    <hr>
+    <p>Routes direct the flow of signals. Each active cell must have one of 17 available routes enabled. Routes can be configued via both the field and the menu. Routes always cycle in the same order before looping back to the beginning.</p>
+    <p class="alert alert-primary"><i class="fas fa-exclamation-triangle"></i> Note you can only view/edit the route of one cell at a time.</p>
+    <div class="row">
+      <div class="col-lg-6 col-sm-12">
+        <h4>Route Order</h4>
+        <hr>
+        <ol>
+          <li>All</li>
+          <li>North East</li>
+          <li>South East</li>
+          <li>South West</li>
+          <li>North West</li>
+          <li>North South</li>
+          <li>East West</li>
+          <li>North East South</li>
+          <li>East South West</li>
+          <li>South West North</li>
+          <li>West North East</li>
+          <li>North</li>
+          <li>East</li>
+          <li>South</li>
+          <li>West</li>
+          <li>Random</li>
+          <li>Shell</li>
+        </ol>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <h4>Route Behavior</h4>
+        <hr>
+        <p>"All" and cardinal direction routes emit (in the case of hives) or route (in the case of ports and nomads) in the directions you would expect. Hives emit signals from all their open routes at a rate as defined by their speed. Ports and nomads route incoming signals to <em>every other</em> open route. So if a signal enters a "North East South" port from the east, it will split the signal into two and send them out of the north and south routes on the next beat.</p>
+        <p>Random structures emit or route signals at random.</p>
+        <p>Shell structures neither emit nor route signals. They're useful for stopping the flow of signals.</p>
+      </div>
+    </div>
+    <h4>Route Diagram</h4>
     <hr>
     <img class="d-block mx-auto mb-4" src="{{ site.baseurl }}/assets/images/routes.png" alt="Routes" />
   </div>
@@ -139,6 +175,7 @@ layout: default
   <div class="col mb-5">
     <h4 id="structure">Structure</h4>
     <hr>
+    <p>Each active cell has a structure. Structure is only configured in the menu. Newly activated cells default to hives.</p>
     <div class="row">
       <div class="col-lg-4 col-sm-12">        
         <h4 class="text-center">Hives</h4>
@@ -163,7 +200,7 @@ layout: default
   <div class="col mb-5">
     <h4 id="note">Note</h4>
     <hr>
-    <p>A note in the range of C3 - B5 (midi 48-83).</p>
+    <p>A note in the range of C3 - B5 (midi 48-83). This note will play when a signal collides with the cell, or (in the case of hives) the signals are birthed.</p>
   </div>
 </div>
 
@@ -172,6 +209,8 @@ layout: default
   <div class="col mb-5">
     <h4 id="speed">Speed</h4>
     <hr>
+    <p>Speed is the rate at which hives birth signals. Speed has no impact on ports and nomads (but you can still configure it in case the port or nomad ever mutate into a hive - there are some interesting live performance implications here.)</p>
+    <p>Speed is synced with Live's playback.</p>
     <p>Consider an ecology in 4/4 time. This table illustrates the rates at which hives birth signals:</p>
     <table class="table table-striped table-bordered table-hover">
       <thead>
@@ -230,7 +269,7 @@ layout: default
   <div class="col mb-5">
     <h2 id="channels">Channels</h2>
     <hr>
-    <p>Channels...</p>
+    <p>Channels are defined by cell routes. Signals flow through channels.</p>
   </div>
 </div>
 
@@ -238,6 +277,34 @@ layout: default
   <div class="col mb-5">
     <h2 id="the-field">The Field</h2>
     <hr>
+    <p>At the field's resting state, active cells (hives, ports, nomads) will be displayed with a single, brightly illuminated LED. Signals will be displayed as single, slightly dimmer LEDs, moving about. This is the only state where signal flow can be analyzed.</p>
+    <p>There are three types of user interaction available on the field:</p>
+    <ol>
+      <li>Single Press</li>
+      <li>Double Press</li>
+      <li>Long Press</li>
+    </ol>
+    <p class="alert alert-primary"><i class="fas fa-exclamation-triangle"></i> Note that when a cell is selected, signal flow is hidden.</p>
+    <h3>Single Press</h3>
+    <hr>
+    <ul>
+      <li>Single press an inactive cell to activate it. Newly activated default to hives with all routes open.</li>
+      <li>The cell will become selected and its routes and channels will be displayed.</li>
+      <li>Single press the selected cell again to cycle through routes.</li>
+      <li>With the cell still selected, single press any inactive cell to create a new cell.</li>
+    </ul>
+    <h3>Double Press</h3>
+    <hr>
+    <ul>
+      <li>With a cell selected, double press any inactive cell to move it to that cell.</li>
+    </ul>   
+    <h3>Long Press</h3>
+    <hr>
+    <ul>
+      <li>Long press any active cell to open the menu for that cell.</li>
+      <li>If a cell is selected, a long press on any empty cell will deselect it and display signal flow again.</li>
+      <li>Long pressing any inactive cell is reserved for future functionality.</li>
+    </ul>
   </div>
 </div>
 
@@ -245,7 +312,7 @@ layout: default
   <div class="col mb-5">
     <h2 id="the-menu">The Menu</h2>
     <hr>
-    <p>Long press any cell to open the menu:</p>
+    <p>Long press any active cell to open the menu:</p>
     <img alt="The Menu" class="full-width" src="{{ site.baseurl }}/assets/images/menu.png" />
     <p>Pressing any dimly lit key will close the menu.</p>
   </div>
@@ -267,9 +334,8 @@ layout: default
     <h3 id="midi-palette">Midi Palette</h3>
     <hr>    
     <img alt="Midi Palette" class="full-width" src="{{ site.baseurl }}/assets/images/midi-palette.png" />
+    <p>The midi palette contains the notes C3-B#5. Press any key to set the note.</p>
     <p>Pressing any dimly lit key will close the midi palette.</p>
   </div>
 </div>
-
-
     
