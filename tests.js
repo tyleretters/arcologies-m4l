@@ -25,7 +25,7 @@ function testInitCell() {
   var result5 = (cell.route == 'off') ? true : false;
   var result6 = (cell.structure == 'none') ? true : false;
   var result7 = (cell.note == 60) ? true : false;
-  var result8 = (cell.speed == 1) ? true : false;
+  var result8 = (cell.interval == 4) ? true : false;
   var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -48,7 +48,7 @@ function testInitCellById() {
 
 }
 
-function testMakeIdReturnsId() {
+function testMakeId() {
   var name = 'testMakeIdReturnsId';
   var id = makeId(6, 14);
   var result = (id == 'x6y14') ? 'pass' : 'fail';
@@ -56,10 +56,52 @@ function testMakeIdReturnsId() {
   return result;
 }
 
-function testGetCellReturnsObject() {
+function testGetCell() {
   var name = 'testGetCellReturnsObject';
   var cell = getCell(5, 4);
   var result = (typeof cell === 'object' && cell !== null) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetSignal() {
+  var name = 'testGetSignal';
+  makeSignal(3, 3, 'n');
+  var signal = getSignal(3, 3);
+  console.log(signal);
+  var result1 = (typeof signal === 'object' && signal !== null) ? true : false;
+  var result2 = (signal.x === 3) ? true : false;
+  var result3 = (signal.direction === 'n') ? true : false;
+  var result = (result1 && result2 && result3)  ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testMakeSignal() {
+  var name = 'testMakeSignal';
+  makeSignal(4, 5, 'e');
+  signal = signals.x4y5;
+  var result1 = (signal.id === 'x4y5') ? true : false;
+  var result2 = (signal.x === 4) ? true : false;
+  var result3 = (signal.y === 5) ? true : false;
+  var result4 = (signal.direction === 'e') ? true : false;
+  var result = (result1 && result2 && result3 && result4)  ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetSignalSpeed() {
+  var name = 'testGetSignalSpeed';
+  var result = (getSignalSpeed() === 1)  ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDeleteSignal() {
+  var name = 'testDeleteSignal';
+  makeSignal(1, 1, 'w');
+  deleteSignal('x1y1');
+  var result = (getSignal('x1y1') === false)  ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -338,10 +380,10 @@ function testDrawMenuStructure() {
   return result;
 }
 
-function testDrawMenuSpeed() {
-  var name = 'testDrawMenuSpeed';
-  var d = drawMenuSpeed(5);
-  var result1 = (d[0] === 'drawMenuSpeed') ? true : false;
+function testDrawMenuInterval() {
+  var name = 'testDrawMenuInterval';
+  var d = drawMenuInterval(5);
+  var result1 = (d[0] === 'drawMenuInterval') ? true : false;
   var result2 = (d[1] === 5) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -722,6 +764,7 @@ function resetTestSuite() {
   setWidth(16);
   setHeight(8);
   initField();
+  initSignals();
   outletsOff();
 }
 
@@ -732,8 +775,12 @@ function testSuite() {
   resetTestSuite();
   results.push(testInitCell());
   results.push(testInitCellById());
-  results.push(testMakeIdReturnsId());
-  results.push(testGetCellReturnsObject());
+  results.push(testMakeId());
+  results.push(testGetCell());
+  results.push(testMakeSignal());
+  results.push(testGetSignal());
+  results.push(testGetSignalSpeed());
+  results.push(testDeleteSignal());
   results.push(testGetCellStructureIsInitializedToNone());
   results.push(testArrayContains());
   results.push(testObjectSize());
@@ -770,7 +817,7 @@ function testSuite() {
   resetTestSuite();
   results.push(testDrawMenuRoute());
   results.push(testDrawMenuStructure());
-  results.push(testDrawMenuSpeed());
+  results.push(testDrawMenuInterval());
 
   resetTestSuite();
   results.push(testdrawCells());

@@ -502,11 +502,11 @@ function singleMenuEvent(x, y) {
     openMidiPalette();
   }
 
-  // row 5 sets the speed
+  // row 5 sets the interval
   if (y === 5) {
     // we know x can only be 1-6 due to previous validation
-    field[id].speed = x;
-    out(drawMenuSpeed(x));
+    field[id].interval = x;
+    out(drawMenuInterval(x));
   }
 
   // row 6 is delete:
@@ -571,7 +571,7 @@ function drawRoute(id) {
 function drawMenu(id) {
   out(drawMenuRoute(id));
   out(drawMenuStructure(id));
-  out(drawMenuSpeed(field[id].speed));
+  out(drawMenuInterval(field[id].interval));
 }
 
 // tested
@@ -587,8 +587,8 @@ function drawMenuStructure(id) {
 }
 
 // tested
-function drawMenuSpeed(x) {
-  return ['drawMenuSpeed', x];
+function drawMenuInterval(x) {
+  return ['drawMenuInterval', x];
 }
 
 /*
@@ -621,7 +621,7 @@ function initCell(x, y) {
     route: 'off',
     structure: 'none',
     note: 60,
-    speed: 1
+    interval: 4
   };
 }
 
@@ -635,6 +635,34 @@ function initCellById(id) {
 // tested
 function makeId(x, y) {
   return 'x' + x + 'y' + y;
+}
+
+// tested
+function getSignal(x, y) {
+  var id = makeId(x, y);
+  if ((typeof signals[id] === 'object' && signal[id] !== null)) {
+    return signals[id];
+  } else {
+    return false;
+  }
+}
+
+// tested
+function deleteSignal(id) {
+  delete signals.id;
+}
+
+// tested
+function makeSignal(x, y, direction) {
+  var id = makeId(x, y);
+  var newSignal = {};
+  newSignal = {
+    'id' : id,
+    'x' : x,
+    'y' : y,
+    'direction' : direction
+  }
+  signals[id] = newSignal;
 }
 
 // tested
@@ -722,6 +750,7 @@ function deleteCell(id) {
 
 var state = {};
 var field = {};
+var signals = {};
 
 // tested by proxy
 function init() {
@@ -740,12 +769,19 @@ function init() {
   ];
   state.structures = ['hive', 'port', 'nomad'];
   state.selectedCellId = false;
+  state.signalSpeed = 1;
 }
 
 // tested by proxy
 function initField() {
   field = null;
   field = makeField();
+}
+
+// tested by proxy
+function initSignals() {
+  signals = null;
+  signals = {};
 }
 
 /*
@@ -878,6 +914,11 @@ function setWidth(val) {
 // tested
 function setHeight(val) {
   state.height = val;
+}
+
+// tested
+function getSignalSpeed() {
+  return state.signalSpeed;
 }
 
 // tested
