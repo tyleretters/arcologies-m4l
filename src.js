@@ -46,9 +46,72 @@ function advance() {
 
 // wip
 function propagateSignals() {
+  birthSignals();
   out('propagateSignals');
 }
 
+
+function birthSignals() {
+
+  var newSignals = [];
+  var hives = getCellsByStructure('hives');
+
+  Object.keys(hives).forEach(function(key) {
+    var hive = hives[key];
+    var hiveRouteDirections = getRouteDirections(hive.route);
+    for( i = 0; i < hiveRouteDirections.length; i++);
+      var x;
+      var y      
+      var signalId;
+      if (hiveRouteDirections[i] === 'n') {
+        var x = hive.x - 1;
+        var y = hive.y;
+        signalId = makeId(x, y);    
+      }
+      if (hiveRouteDirections[i] === 'e') {
+        var x = hive.x;
+        var y = hive.y + 1;
+        signalId = makeId(x, y);    
+      }
+      if (hiveRouteDirections[i] === 's') {
+        var x = hive.x + 1;
+        var y = hive.y;
+        signalId = makeId(x, y);    
+      }
+      if (hiveRouteDirections[i] === 'w') {
+        var x = hive.x;
+        var y = hive.y - 1;
+        signalId = makeId(x, y);    
+      }
+
+      signal = {
+        'id' : signalId,
+        'x' : x,
+        'y' : y,
+        'direction' : hiveRouteDirections[i];
+      };
+      newSignals.push(signal);
+    };
+
+    return newSignals;
+}
+
+// wip
+function getCellsByStructure('structure') {
+
+  var existingCells = getExistingCells();
+  var cells = [];
+
+  Object.keys(existingCells).forEach(function(key) {
+    if (existingCells[key].structure == structure) {
+      cells.push(existingCells[key]);
+    }
+  });
+
+  return cells;
+}
+
+// wip
 function drawSignals() {
 
 }
@@ -700,8 +763,6 @@ function getIds(obj) {
 // tested
 function getRouteDirections(route) {
   if  (route == 'all')    return ['n', 'e', 's', 'w'];
-  if  (route == 'random') return ['n', 'e', 's', 'w'];
-  if  (route == 'shell')  return [];
   if  (route == 'ne')     return ['n', 'e'];
   if  (route == 'se')     return ['s', 'e'];
   if  (route == 'sw')     return ['s', 'w'];
@@ -716,6 +777,8 @@ function getRouteDirections(route) {
   if  (route == 'ee')     return ['e'];
   if  (route == 'ss')     return ['s'];
   if  (route == 'ww')     return ['w'];
+  if  (route == 'random') return ['n', 'e', 's', 'w'];
+  if  (route == 'shell')  return [];
   if  (route == 'off')     return [];
   return  [];
 }

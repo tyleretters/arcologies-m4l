@@ -49,12 +49,10 @@ layout: default
         <p><strong>ecologies</strong> was built for grid 128 but is lovingly compatible with 64 and 256. Just select your edition and click reset.</p>
         <img src="{{ site.baseurl }}/assets/images/grid-size-config.png" class="rounded mb-3 mx-auto d-block" width="400" alt="grid Size Config" />
       </div>
-              <img alt="Zoned Instrument Rack" class="full-width" src="{{ site.baseurl }}/assets/images/zoned-instrument-rack.png" />
-
     </div>
+    <img alt="Zoned Instrument Rack" class="full-width" src="{{ site.baseurl }}/assets/images/zoned-instrument-rack.png" />
   </div>
 </div>
-
 
 <div class="row">
   <div class="col mb-5">
@@ -265,7 +263,7 @@ layout: default
     <h2 id="signals">Signals</h2>
     <hr>
     <p>Signals have a position (<code>x</code> & <code>y</code>) and a direction (<code>n</code>, <code>e</code>, <code>s</code>, or <code>w</code>).
-    <p>If a signals's channel terminates in any cell without a connecting route, the signal disappears into silence. Forgotten. The same is true if it wanders off the field. The same is true if they collide with a hive. If two (or more) signals collide, both (or all) will be destroyed. If two (or more) signals meet at a port, the port only sees one of them. If a channel disappears from beneath a signal, the signal will continue along. Perhaps you can help it will find its way again?</p>
+    <p>If a signal's collids in a cell without a connecting route, the signal disappears into silence (the poor little signal just smashed into a wall.) The same is true if it wanders off the field. The same is true if they collide with a hive. If two (or more) signals collide, both (or all) will be destroyed. If two (or more) signals meet at a port, the port only sees one of them. Specifically, it prioritizes northern signals first, eastern second, southern third, and western last. If a channel disappears from beneath a signal, the signal will continue along. Perhaps you can help it will find its way again?</p>
   </div>
 </div>
 
@@ -364,9 +362,19 @@ layout: default
         <h4>Beat 4</h4>
         <p>The southern signal will collide with the port. It will send midi note F4 to live. Again, since this is a dead-end port, the signal is destroyed.</p>
         <h4>Beat 5</h4>
-        <p>The eastern signal will collide with the port, with the same results as the previous two signals... but it is also time for the hive to emit another cluster of signals! The result is three new singals entering the field from the hive, one leaving at the eastern port, and the dyad of C4 & F5 being sent to Live.</p>
+        <p>The eastern signal will collide with the port, with the same results as the previous two signals... but it is also time for the hive to emit another cluster of signals! The result is three new singals entering the field from the hive, one leaving at the eastern port, and the dyad of C4 (via hive) & F5 (via eastern port) being sent to Live.</p>
       </div>
-</div>
+    </div>
   </div>
 </div>
-    
+
+<div class="row">
+  <div class="col mb-5">
+    <h2 id="philosophy">Philosophy</h3>
+    <hr>  
+    <p><strong>ecologies</strong> is an instrument for exploration and discovery. At it's core it is designed to be a deterministic compositional tool. With a certain initial configuration of cells, structures, notes, (and eventually nomads), entire songs could be emerge <em>and be replayed note-for-note</em> from a relatively simple set of rules.</p>
+    <p class="alert alert-primary"><i class="fas fa-exclamation-triangle"></i> All the data is stored as JSON and importing/exporting/sharing ecologies is on the roadmap.</p>
+    <p>Entropy is a fundamental building block of reality. Despite it's (often valid) criticisms, randomness has proven to be a useful tool to artists. The random route has been included to satisfy the proclivities of particular musical and compositional objectives. Let the decision to place it at the end of the route order be a signal as to the creator's viewpoint on the topic.</p>
+    <p>And, of course, <strong>ecologies</strong> is an <a href="https://github.com/tyleretters/ecologies">open source project</a>. Happy hacking.</p>
+  </div>
+</div>

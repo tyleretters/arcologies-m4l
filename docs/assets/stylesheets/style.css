@@ -61,5 +61,7 @@ a.download {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
   font-size: 0.875rem; }
+  #toc .nav-link {
+    padding: 0.25rem 0.5rem; }
 
 /*# sourceMappingURL=style.css.map */
