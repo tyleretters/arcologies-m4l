@@ -11,393 +11,392 @@
  *  - Tests
  *  - Orchestration
  *  - Test Framework
- *  - Test Runner
  *
  */
 
 function testInitCell() {
-  var name = 'testInitCell';
-  var cell = initCell(6, 14);
-  var result1 = (cell.id == 'x6y14') ? true : false;
-  var result2 = (cell.isExists == false) ? true : false;
-  var result3 = (cell.x == 6) ? true : false;
-  var result4 = (cell.y == 14) ? true : false;
-  var result5 = (cell.route == 'off') ? true : false;
-  var result6 = (cell.structure == 'none') ? true : false;
-  var result7 = (cell.note == 60) ? true : false;
-  var result8 = (cell.interval == 4) ? true : false;
-  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
+  name = 'testInitCell';
+  cell = initCell(6, 14);
+  result1 = (cell.id == 'x6y14');
+  result2 = (cell.isExists == false);
+  result3 = (cell.x == 6);
+  result4 = (cell.y == 14);
+  result5 = (cell.route == 'off');
+  result6 = (cell.structure == 'none');
+  result7 = (cell.note == 60);
+  result8 = (cell.interval == 4);
+  result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testInitCellById() {
-  var name = 'testInitCellById';
-  var id = 'x3y8';
-  var cell = initCellById(id);
-  var result1 = (cell.id == 'x3y8') ? true : false;
-  var result2 = (cell.isExists == false) ? true : false;
-  var result3 = (cell.x == 3) ? true : false;
-  var result4 = (cell.y == 8) ? true : false;
-  var result5 = (cell.route == 'off') ? true : false;
-  var result6 = (cell.structure == 'none') ? true : false;
-  var result7 = (cell.note == 60) ? true : false;
-  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
+  name = 'testInitCellById';
+  id = 'x3y8';
+  cell = initCellById(id);
+  result1 = (cell.id == 'x3y8');
+  result2 = (cell.isExists == false);
+  result3 = (cell.x == 3);
+  result4 = (cell.y == 8);
+  result5 = (cell.route == 'off');
+  result6 = (cell.structure == 'none');
+  result7 = (cell.note == 60);
+  result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 
 }
 
 function testMakeId() {
-  var name = 'testMakeIdReturnsId';
-  var id = makeId(6, 14);
-  var result = (id == 'x6y14') ? 'pass' : 'fail';
+  name = 'testMakeIdReturnsId';
+  id = makeId(6, 14);
+  result = (id == 'x6y14') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetCell() {
-  var name = 'testGetCellReturnsObject';
-  var cell = getCell(5, 4);
-  var result = (typeof cell === 'object' && cell !== null) ? 'pass' : 'fail';
+  name = 'testGetCellReturnsObject';
+  cell = getCell(5, 4);
+  result = (typeof cell === 'object' && cell !== null) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetSignal() {
-  var name = 'testGetSignal';
+  name = 'testGetSignal';
   signals.x3y3 = makeSignal(3, 3, 'n');
-  var signal = getSignal(3, 3);
-  var result1 = (typeof signal === 'object' && signal !== null) ? true : false;
-  var result2 = (signal.x === 3) ? true : false;
-  var result3 = (signal.direction === 'n') ? true : false;
-  var result = (result1 && result2 && result3)  ? 'pass' : 'fail';
+  signal = getSignal(3, 3);
+  result1 = (typeof signal === 'object' && signal !== null);
+  result2 = (signal.x === 3);
+  result3 = (signal.direction === 'n');
+  result = (result1 && result2 && result3)  ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testMakeSignal() {
-  var name = 'testMakeSignal';
+  name = 'testMakeSignal';
   signal = makeSignal(4, 5, 'e');
-  var result1 = (signal.id === 'x4y5') ? true : false;
-  var result2 = (signal.x === 4) ? true : false;
-  var result3 = (signal.y === 5) ? true : false;
-  var result4 = (signal.direction === 'e') ? true : false;
-  var result = (result1 && result2 && result3 && result4)  ? 'pass' : 'fail';
+  result1 = (signal.id === 'x4y5');
+  result2 = (signal.x === 4);
+  result3 = (signal.y === 5);
+  result4 = (signal.direction === 'e');
+  result = (result1 && result2 && result3 && result4)  ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetSignalSpeed() {
-  var name = 'testGetSignalSpeed';
-  var result = (getSignalSpeed() === 1)  ? 'pass' : 'fail';
+  name = 'testGetSignalSpeed';
+  result = (getSignalSpeed() === 1)  ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDeleteSignal() {
-  var name = 'testDeleteSignal';
+  name = 'testDeleteSignal';
   makeSignal(1, 1, 'w');
   deleteSignal('x1y1');
-  var result = (getSignal('x1y1') === false)  ? 'pass' : 'fail';
+  result = (getSignal('x1y1') === false)  ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
-function testGetCellStructureIsInitializedToNone() {
-  var name = 'testGetCellStructureIsInitializedToNone';
-  var cell = getCell(0, 0);
-  var result = (cell.structure === 'none') ? 'pass' : 'fail';
+function testGetCellStructure() {
+  name = 'testGetCellStructure';
+  cell = getCell(0, 0);
+  result = (cell.structure === 'none') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testArrayContains() {
-  var name = 'testArrayContains';
-  var bucket = [1, 2, 3, 4, 5];
-  var result = (bucket.contains(5)) ? 'pass' : 'fail';
+  name = 'testArrayContains';
+  bucket = [1, 2, 3, 4, 5];
+  result = (bucket.contains(5)) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testObjectSize() {
-  var name = 'testObjectSize';
-  var bucket = {1:{}, 2:{}, 3:{}, 4:{}, 5:{}};
-  var result = (Object.size(bucket) === 5) ? 'pass' : 'fail';
+  name = 'testObjectSize';
+  bucket = {1:{}, 2:{}, 3:{}, 4:{}, 5:{}};
+  result = (Object.size(bucket) === 5) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
-function testMakeFieldIsStructuredToSpec() {
-  var name      = 'testMakeFieldIsStructuredToSpec';
-  var field     = makeField();
-  var cell      = field.x10y4; // arbitrary id
-  var isExists  = (cell.isExists === false) ? true : false;
-  var x         = (cell.x == 10) ? true : false;
-  var y         = (cell.y == 4) ? true : false;
-  var route     = (cell.route == 'off') ? true : false;
-  var structure = (cell.structure == 'none') ? true : false;
-  var note      = (cell.note == 60) ? true : false;
-  var result    = (isExists && x && y && route && structure && note) ? 'pass' : 'fail';
+function testMakeField() {
+  name      = 'testMakeField';
+  field     = makeField();
+  cell      = field.x10y4; // arbitrary id
+  isExists  = (cell.isExists === false);
+  x         = (cell.x == 10);
+  y         = (cell.y == 4);
+  route     = (cell.route == 'off');
+  structure = (cell.structure == 'none');
+  note      = (cell.note == 60);
+  result    = (isExists && x && y && route && structure && note) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetMenu() {
-  var name = 'testSetMenu';
+  name = 'testSetMenu';
   setMenu(true);
-  var result1 = (state.isMenuActive == true) ? true : false;
+  result1 = (state.isMenuActive == true);
   setMenu(false);
-  var result2 = (state.isMenuActive == false) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  result2 = (state.isMenuActive == false);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetMidiPalette() {
-  var name = 'testSetMidiPalette';
+  name = 'testSetMidiPalette';
   setMidiPalette(true);
-  var result1 = (state.isMidiPaletteActive == true) ? true : false;
+  result1 = (state.isMidiPaletteActive == true);
   setMidiPalette(false);
-  var result2 = (state.isMidiPaletteActive == false) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  result2 = (state.isMidiPaletteActive == false);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetLifespan() {
-  var name = 'testSetLifespan';
+  name = 'testSetLifespan';
   setLifespan(999);
-  var result = (state.lifespan == 999) ? 'pass' : 'fail';
+  result = (state.lifespan == 999) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetTime() {
-  var name = 'testSetTime';
+  name = 'testSetTime';
   setTime(29837598);
-  var result = (state.time == 29837598) ? 'pass' : 'fail';
+  result = (state.time == 29837598) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetWidth() {
-  var name = 'testSetWidth';
+  name = 'testSetWidth';
   setWidth(7);
-  var result = (state.width == 7) ? 'pass' : 'fail';
+  result = (state.width == 7) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetHeight() {
-  var name = 'testSetHeight';
+  name = 'testSetHeight';
   setHeight(48);
-  var result = (state.height == 48) ? 'pass' : 'fail';
+  result = (state.height == 48) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSetGeneration() {
-  var name = 'testSetGeneration';
+  name = 'testSetGeneration';
   setGeneration(51);
-  var result = (state.generation == 51) ? 'pass' : 'fail';
+  result = (state.generation == 51) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testOpenMenu() {
-  var name = 'testOpenMenu';
-  var result1 = (openMenu() == 'openMenu') ? true : false;
-  var result2 = (state.isMenuActive === true) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  name = 'testOpenMenu';
+  result1 = (openMenu() == 'openMenu');
+  result2 = (state.isMenuActive === true);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testOpenMidiPalette() {
-  var name = 'testOpenMidiPalette';
-  var msg = openMidiPalette();
-  var result1 = (state.isMidiPaletteActive) ? true : false;
-  var result2 = (msg = 'drawMidiPalette') ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  name = 'testOpenMidiPalette';
+  msg = openMidiPalette();
+  result1 = (state.isMidiPaletteActive);
+  result2 = (msg = 'drawMidiPalette');
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSingleMidiPaletteEvent() {
-  var name = 'testSingleMidiPaletteEvent';
+  name = 'testSingleMidiPaletteEvent';
   state.selectedCellId = 'x0y0';
   field.x0y0.note = 60;
-  var msg = singleMidiPaletteEvent(2, 2);
-  var result1 = (field.x0y0.note == 55) ? true : false;
-  var result2 = (msg[0] == 'animateMidiNotePress') ? true : false;
-  var result3 = (msg[1] == 2) ? true : false;
-  var result4 = (msg[2] == 2) ? true : false;
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  msg = singleMidiPaletteEvent(2, 2);
+  result1 = (field.x0y0.note == 55);
+  result2 = (msg[0] == 'animateMidiNotePress');
+  result3 = (msg[1] == 2);
+  result4 = (msg[2] == 2);
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetNote() {
-  var name = 'testGetNote';
-  var result1 = (getNote(2, 2) == 55) ? true : false;
-  var result2 = (getNote(5, 3) == 64) ? true : false;
-  var result3 = (getNote(5, 4) == 70) ? true : false;
-  var result4 = (getNote(6, 6) == 83) ? true : false;
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  name = 'testGetNote';
+  result1 = (getNote(2, 2) == 55);
+  result2 = (getNote(5, 3) == 64);
+  result3 = (getNote(5, 4) == 70);
+  result4 = (getNote(6, 6) == 83);
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetRouteDirections() {
-  var name = 'testGetRouteDirections';
-  var test1 = getRouteDirections('nes');
-  var test2 = getRouteDirections('all');
-  var test3 = getRouteDirections('ee');
-  var test4 = getRouteDirections('garbage');
-  var result1 = ( test1[0] == 'n' && test1[1] ==  'e' && test1[2] == 's') ? true : false;
-  var result2 = ( test2[0] == 'n' && test2[1] ==  'e' && test2[2] == 's' && test2[3] == 'w') ? true : false;
-  var result3 = ( test3[0] == 'e') ? true : false;
-  var result4 = ( test4.length == 0) ? true : false;
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  name = 'testGetRouteDirections';
+  test1 = getRouteDirections('nes');
+  test2 = getRouteDirections('all');
+  test3 = getRouteDirections('ee');
+  test4 = getRouteDirections('garbage');
+  result1 = ( test1[0] == 'n' && test1[1] ==  'e' && test1[2] == 's');
+  result2 = ( test2[0] == 'n' && test2[1] ==  'e' && test2[2] == 's' && test2[3] == 'w');
+  result3 = ( test3[0] == 'e');
+  result4 = ( test4.length == 0);
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDeselectCell() {
-  var name = 'testDeselectCell';
+  name = 'testDeselectCell';
   state.selectedCellId = 'x0y0';
   deselectCell();
-  var result = (state.selectedCellId === false) ? 'pass' : 'fail';
+  result = (state.selectedCellId === false) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSelectCell() {
-  var name = 'testSelectCell';
+  name = 'testSelectCell';
   selectCell('x6y3');
-  var result = (state.selectedCellId === 'x6y3') ? 'pass' : 'fail';
+  result = (state.selectedCellId === 'x6y3') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testCloseMenu() {
-  var name = 'testCloseMenu';
-  var result1 = (closeMenu() == 'closeMenu') ? true : false;
-  var result2 = (state.isMenuActive === false) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  name = 'testCloseMenu';
+  result1 = (closeMenu() == 'closeMenu');
+  result2 = (state.isMenuActive === false);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testCloseMidiPalette() {
-  var name = 'testCloseMidiPalette';
+  name = 'testCloseMidiPalette';
   closeMidiPalette();
-  var result = (!state.isMidiPaletteActive) ? 'pass' : 'fail';
+  result = (!state.isMidiPaletteActive) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testOutletsOnOff() {
-  var name = 'testOutletsOnOff';
+  name = 'testOutletsOnOff';
   outletsOn();
-  var result1 = (state.outletsOn == true) ? 'pass' : 'fail';
+  result1 = (state.outletsOn == true) ? 'pass' : 'fail';
   outletsOff();
-  var result2 = (state.outletsOn == false) ? 'pass' : 'fail';
-  var result = (result1 && result2);
+  result2 = (state.outletsOn == false) ? 'pass' : 'fail';
+  result = (result1 && result2);
   testOutput(name, result);
   return result;
 }
 
 function testClearField() {
-  var name = 'testClearField';
-  var result = (clearField() === 'clearField') ? 'pass' : 'fail';
+  name = 'testClearField';
+  result = (clearField() === 'clearField') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testOut() {
-  var name = 'testOut';
-  var test = out('internet');
-  var result = (test == 'internet') ? 'pass' : 'fail';
+  name = 'testOut';
+  test = out('internet');
+  result = (test == 'internet') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testSingleFieldEventOnEmptyCell() {
-  var name = 'testSingleFieldEventOnEmptyCell';
+  name = 'testSingleFieldEventOnEmptyCell';
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
-  var result1 = (cell.isExists) ? true : false;
-  var result2 = (cell.structure == 'hive') ? true : false;
-  var result3 = (cell.route == 'all') ? true : false;
+  result1 = (cell.isExists);
+  result2 = (cell.structure == 'hive');
+  result3 = (cell.route == 'all');
   gridEvent('single', 2, 2);
   cell = getCell(2, 2);
-  var result4 = (cell.route == 'ne') ? true : false;
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  result4 = (cell.route == 'ne');
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetExistingCells() {
-  var name = 'testGetExistingCells';
+  name = 'testGetExistingCells';
   field.x0y0.isExists = true;
   field.x1y0.isExists = true;
-  var cells = getExistingCells();
-  var result = (Object.size(cells) === 2) ? 'pass' : 'fail';
+  cells = getExistingCells();
+  result = (Object.size(cells) === 2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDrawRoute() {
-  var name = 'testDrawRoute';
+  name = 'testDrawRoute';
   singleFieldEvent(5, 6, 'none');
-  var d = drawRoute('x5y6');
-  var result1 = (d[0] === 'drawRoute') ? true : false;
-  var result2 = (d[1] === 'all') ? true : false;
-  var result3 = (d[2] === 5) ? true : false;
-  var result4 = (d[3] === 6) ? true : false;
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  d = drawRoute('x5y6');
+  result1 = (d[0] === 'drawRoute');
+  result2 = (d[1] === 'all');
+  result3 = (d[2] === 5);
+  result4 = (d[3] === 6);
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDrawMenuRoute() {
-  var name = 'testDrawMenuRoute';
+  name = 'testDrawMenuRoute';
   field.x4y3.route = 'random';
-  var d = drawMenuRoute('x4y3');
-  var result1 = (d[0] === 'drawRoute') ? true : false;
-  var result2 = (d[1] === 'random') ? true : false;
-  var result3 = (d[2] === 2) ? true : false;
-  var result4 = (d[3] === 2) ? true : false;
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  d = drawMenuRoute('x4y3');
+  result1 = (d[0] === 'drawRoute');
+  result2 = (d[1] === 'random');
+  result3 = (d[2] === 2);
+  result4 = (d[3] === 2);
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDrawMenuStructure() {
-  var name = 'testDrawMenuStructure';
+  name = 'testDrawMenuStructure';
   field.x4y3.structure = 'nomad';
-  var d = drawMenuStructure('x4y3');
-  var result1 = (d[0] === 'drawStructure') ? true : false;
-  var result2 = (d[1] === 'nomad') ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  d = drawMenuStructure('x4y3');
+  result1 = (d[0] === 'drawStructure');
+  result2 = (d[1] === 'nomad');
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDrawMenuInterval() {
-  var name = 'testDrawMenuInterval';
-  var d = drawMenuInterval(5);
-  var result1 = (d[0] === 'drawMenuInterval') ? true : false;
-  var result2 = (d[1] === 5) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  name = 'testDrawMenuInterval';
+  d = drawMenuInterval(5);
+  result1 = (d[0] === 'drawMenuInterval');
+  result2 = (d[1] === 5);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testdrawCells() {
-  var name = 'testDrawCells';
+  name = 'testDrawCells';
   field.x0y0.isExists = true;
   field.x0y2.isExists = true;
   field.x0y3.isExists = true;
@@ -413,48 +412,48 @@ function testdrawCells() {
   field.x0y0.structure = 'hive';
   field.x0y2.structure = 'nomad';
   field.x0y3.structure = 'hive';
-  var h = drawCells();
-  var result1 = (h.length === 4) ? true : false;
-  var result2 = (h[0] === 'drawCells') ? true : false;
-  var result5 = (h[1] === 'x0y3') ? true : false;
-  var result4 = (h[2] === 'x0y2') ? true : false;
-  var result3 = (h[3] === 'x0y0') ? true : false;  
-  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  h = drawCells();
+  result1 = (h.length === 4);
+  result2 = (h[0] === 'drawCells');
+  result5 = (h[1] === 'x0y3');
+  result4 = (h[2] === 'x0y2');
+  result3 = (h[3] === 'x0y0');  
+  result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetIds() {
-  var name = 'testGetIds';
-  var obj = {'x0y0':{}, 'x1y2':{}, 'x4y8':{}};
-  var ids = getIds(obj);
-  var result = (ids.length === 3) ? 'pass' : 'fail';
+  name = 'testGetIds';
+  obj = {'x0y0':{}, 'x1y2':{}, 'x4y8':{}};
+  ids = getIds(obj);
+  result = (ids.length === 3) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDumpRoutes() {
-  var name = 'testDumpRoutes';
-  var arr = dumpRoutes();
-  var result1 = (arr[0] === 'routesList') ? true : false;
-  var result2 = (arr.includes('nes')) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  name = 'testDumpRoutes';
+  arr = dumpRoutes();
+  result1 = (arr[0] === 'routesList');
+  result2 = (arr.includes('nes'));
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDumpStructures() {
-  var name = 'testDumpStructures';
-  var arr = dumpStructures();
-  var result1 = (arr[0] === 'structuresList') ? true : false;
-  var result2 = (arr.includes('hive')) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  name = 'testDumpStructures';
+  arr = dumpStructures();
+  result1 = (arr[0] === 'structuresList');
+  result2 = (arr.includes('hive'));
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testMoveCell() {
-  var name = 'testMoveCell';
+  name = 'testMoveCell';
   field.x0y0.isExists = true;
   field.x6y6.isExists = true;
   field.x0y0.route = 'random';
@@ -468,208 +467,208 @@ function testMoveCell() {
   field.x0y0.note = 51;
   field.x6y6.note = 56;
   moveCell('x0y0', 'x6y6');
-  var result1 = (field.x0y0.isExists === false) ? true : false;
-  var result2 = (field.x6y6.route === 'random' ) ? true : false;
-  var result3 = (field.x6y6.structure === 'nomad') ? true : false;
-  var result4 = (field.x0y0.id === 'x0y0') ? true : false;
-  var result5 = (field.x6y6.id === 'x6y6') ? true : false;
-  var result6 = (field.x6y6.note === 51) ? true : false;
-  var result = (result1 && result2 && result3 && result4 && result5 && result6) ? 'pass' : 'fail';
+  result1 = (field.x0y0.isExists === false);
+  result2 = (field.x6y6.route === 'random' );
+  result3 = (field.x6y6.structure === 'nomad');
+  result4 = (field.x0y0.id === 'x0y0');
+  result5 = (field.x6y6.id === 'x6y6');
+  result6 = (field.x6y6.note === 51);
+  result = (result1 && result2 && result3 && result4 && result5 && result6) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
 
 function testCycleRoutes() {
-  var name = 'testCycleRoutes';
-  var result = (cycleRoutes('shell') === 'all') ? 'pass' : 'fail';
+  name = 'testCycleRoutes';
+  result = (cycleRoutes('shell') === 'all') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
 
 function testDeleteCell() {
-  var name = 'testDeleteCell';
+  name = 'testDeleteCell';
   state.selectedCellId = 'x0y1';
   field.x0y1.isExists = true;
   deleteCell('x0y1');
-  var result1 = (state.selectedCellId === false) ? true : false;
-  var result2 = (field.x0y1.isExists === false) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  result1 = (state.selectedCellId === false);
+  result2 = (field.x0y1.isExists === false);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testDrawChannel() {
-  var name = 'testDrawChannel';
-  var arr = [0, 4, 0, 7];
-  var d = drawChannel(arr);
-  var result1 = (d[0] === 'drawChannel') ? true : false;
-  var result2 = (d[1] === 0) ? true : false;
-  var result3 = (d[2] === 4) ? true : false;
-  var result4 = (d[3] === 0) ? true : false;
-  var result5 = (d[4] === 7) ? true : false;
-  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  name = 'testDrawChannel';
+  arr = [0, 4, 0, 7];
+  d = drawChannel(arr);
+  result1 = (d[0] === 'drawChannel');
+  result2 = (d[1] === 0);
+  result3 = (d[2] === 4);
+  result4 = (d[3] === 0);
+  result5 = (d[4] === 7);
+  result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindColumnNeighborNorth() {
-  var name = 'testFindColumnNeighborNorth';
-  var currentCell = {
+  name = 'testFindColumnNeighborNorth';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
     'x4y3': { 'id' : 'x4y3', 'x': 4, 'y': 3}, 
     'x4y5': { 'id' : 'x4y5', 'x': 4, 'y': 5},
     'x5y5': { 'id' : 'x4y8', 'x': 4, 'y': 8}
   };
-  var neighbor = findColumnNeighbor(currentCell, existingCells, 'north');
-  var result1 = (neighbor.y === 5) ? true : false;
-  var result2 = (neighbor.x === 4) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findColumnNeighbor(currentCell, existingCells, 'north');
+  result1 = (neighbor.y === 5);
+  result2 = (neighbor.x === 4);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindColumnNeighborSouth() {
-  var name = 'testFindColumnNeighborSouth';
-  var currentCell = {
+  name = 'testFindColumnNeighborSouth';
+  currentCell = {
     'id': 'x4y3', 'x': 4, 'y': 3
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
     'x4y7': { 'id' : 'x4y3', 'x': 4, 'y': 7}, 
     'x4y5': { 'id' : 'x4y5', 'x': 4, 'y': 5},
     'x4y8': { 'id' : 'x4y8', 'x': 4, 'y': 8}
   };
-  var neighbor = findColumnNeighbor(currentCell, existingCells, 'south');
-  var result1 = (neighbor.y === 5) ? true : false;
-  var result2 = (neighbor.x === 4) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findColumnNeighbor(currentCell, existingCells, 'south');
+  result1 = (neighbor.y === 5);
+  result2 = (neighbor.x === 4);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindNoColumnNeighborSouth() {
-  var name = 'testFindColumnNeighborSouth';
-  var currentCell = {
+  name = 'testFindColumnNeighborSouth';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x3y0': { 'id' : 'x3y0', 'x': 3, 'y': 0}, 
     'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3}, 
     'x8y5': { 'id' : 'x8y5', 'x': 8, 'y': 5},
     'x10y8': { 'id' : 'x10y8', 'x': 10, 'y': 8}
   };
-  var neighbor = findColumnNeighbor(currentCell, existingCells, 'south');
-  var result1 = (neighbor.y === 7) ? true : false;
-  var result2 = (neighbor.x === 4) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findColumnNeighbor(currentCell, existingCells, 'south');
+  result1 = (neighbor.y === 7);
+  result2 = (neighbor.x === 4);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindNoColumnNeighborNorth() {
-  var name = 'testFindColumnNeighborNorth';
-  var currentCell = {
+  name = 'testFindColumnNeighborNorth';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x3y0': { 'id' : 'x3y0', 'x': 3, 'y': 0}, 
     'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3}, 
     'x8y5': { 'id' : 'x8y5', 'x': 8, 'y': 5},
     'x10y8': { 'id' : 'x10y8', 'x': 10, 'y': 8}
   };
-  var neighbor = findColumnNeighbor(currentCell, existingCells, 'north');
-  var result1 = (neighbor.y === 0) ? true : false;
-  var result2 = (neighbor.x === 4) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findColumnNeighbor(currentCell, existingCells, 'north');
+  result1 = (neighbor.y === 0);
+  result2 = (neighbor.x === 4);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindRowNeighborWest() {
-  var name = 'testFindRowNeighborWest';
-  var currentCell = {
+  name = 'testFindRowNeighborWest';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
     'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
     'x1y7': { 'id' : 'x1y7', 'x': 1, 'y': 7},
     'x2y7': { 'id' : 'x2y7', 'x': 2, 'y': 7}
   };
-  var neighbor = findRowNeighbor(currentCell, existingCells, 'west');
-  var result1 = (neighbor.y === 7) ? true : false;
-  var result2 = (neighbor.x === 2) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findRowNeighbor(currentCell, existingCells, 'west');
+  result1 = (neighbor.y === 7);
+  result2 = (neighbor.x === 2);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindRowNeighborEast() {
-  var name = 'testFindRowNeighborWest';
-  var currentCell = {
+  name = 'testFindRowNeighborWest';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
     'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
     'x15y7': { 'id' : 'x15y7', 'x': 15, 'y': 7},
     'x14y7': { 'id' : 'x14y7', 'x': 14, 'y': 7}
   };
-  var neighbor = findRowNeighbor(currentCell, existingCells, 'east');
-  var result1 = (neighbor.y === 7) ? true : false;
-  var result2 = (neighbor.x === 14) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findRowNeighbor(currentCell, existingCells, 'east');
+  result1 = (neighbor.y === 7);
+  result2 = (neighbor.x === 14);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindNoRowNeighborEast() {
-  var name = 'testFindNoRowNeighborEast';
-  var currentCell = {
+  name = 'testFindNoRowNeighborEast';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
     'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
   };
-  var neighbor = findRowNeighbor(currentCell, existingCells, 'east');
-  var result1 = (neighbor.y === 7) ? true : false;
-  var result2 = (neighbor.x === 15) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findRowNeighbor(currentCell, existingCells, 'east');
+  result1 = (neighbor.y === 7);
+  result2 = (neighbor.x === 15);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testFindNoRowNeighborWest() {
-  var name = 'testFindNoRowNeighborWest';
-  var currentCell = {
+  name = 'testFindNoRowNeighborWest';
+  currentCell = {
     'id': 'x4y7', 'x': 4, 'y': 7
   };
-  var existingCells = { 
+  existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x15y7': { 'id' : 'x15y7', 'x': 15, 'y': 7},
     'x14y7': { 'id' : 'x14y7', 'x': 14, 'y': 7}
   };
-  var neighbor = findRowNeighbor(currentCell, existingCells, 'west');
-  var result1 = (neighbor.y === 7) ? true : false;
-  var result2 = (neighbor.x === 0) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  neighbor = findRowNeighbor(currentCell, existingCells, 'west');
+  result1 = (neighbor.y === 7);
+  result2 = (neighbor.x === 0);
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testPrepareCellChannels() {
-  var name = 'testPrepareCellChannels';
+  name = 'testPrepareCellChannels';
   field = { 
     'x0y0': { 'id' : 'x0y0', 'x': 0, 'y': 0}, 
     'x0y1': { 'id' : 'x0y1', 'x': 0, 'y': 1, 'route': 'esw'}, 
@@ -689,22 +688,22 @@ function testPrepareCellChannels() {
     'x11y7': { 'id' : 'x11y7', 'x': 11, 'y': 7}
     };
   
-  var channels1 = prepareCellChannels('x11y4');
-  var result1 = (channels1[0][1] === 11) ? true : false;
-  var result2 = (channels1[0][2] === 4) ? true : false;
-  var result3 = (channels1[0][3] === 11) ? true : false;
-  var result4 = (channels1[0][4] === 2) ? true : false;
-  var result5 = (channels1[1][3] === 15) ? true : false;
-  var result6 = (channels1[1][4] === 4) ? true : false;
-  var result7 = (channels1[3][3] === 7) ? true : false;
-  var result8 = (channels1[3][4] === 4) ? true : false;  
-  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
+  channels1 = prepareCellChannels('x11y4');
+  result1 = (channels1[0][1] === 11);
+  result2 = (channels1[0][2] === 4);
+  result3 = (channels1[0][3] === 11);
+  result4 = (channels1[0][4] === 2);
+  result5 = (channels1[1][3] === 15);
+  result6 = (channels1[1][4] === 4);
+  result7 = (channels1[3][3] === 7);
+  result8 = (channels1[3][4] === 4);  
+  result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
 
 function testDrawChannels() {
-  var name = 'testDrawChannels';
+  name = 'testDrawChannels';
   field = { 
     'x6y3': { 'id' : 'x6y3', 'x': 6, 'y': 3, 'route': 'all'}, 
     'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3, 'route': 'esw'}, 
@@ -716,60 +715,60 @@ function testDrawChannels() {
     'x17y3': { 'id' : 'x17y3', 'x': 17, 'y': 3, 'route': 'ee'}, 
     'x6y7': { 'id' : 'x6y7', 'x': 6, 'y': 7, 'route': 'ss'}, 
     };
-  var channels = drawChannels('x6y3');
-  var result1 = (channels[0][0] == 'drawChannel') ? true : false;
-  var result2 = (channels[0][3] == 6) ? true : false;
-  var result3 = (channels[0][4] == 1) ? true : false;
-  var result4 = (channels[1][3] == 11) ? true : false;
-  var result5 = (channels[1][4] == 3) ? true : false;
-  var result6 = (channels[2][3] == 6) ? true : false;
-  var result7 = (channels[2][4] == 6) ? true : false;  
-  var result8 = (channels[3][3] == 1) ? true : false;
-  var result9 = (channels[3][4] == 3) ? true : false;  
-  var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8 && result9) ? 'pass' : 'fail';
+  channels = drawChannels('x6y3');
+  result1 = (channels[0][0] == 'drawChannel');
+  result2 = (channels[0][3] == 6);
+  result3 = (channels[0][4] == 1);
+  result4 = (channels[1][3] == 11);
+  result5 = (channels[1][4] == 3);
+  result6 = (channels[2][3] == 6);
+  result7 = (channels[2][4] == 6);  
+  result8 = (channels[3][3] == 1);
+  result9 = (channels[3][4] == 3);  
+  result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8 && result9) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetSelectedCellId() {
-  var name = 'testGetSelectedCellId';
+  name = 'testGetSelectedCellId';
   state.selectedCellId = 'kfajslkdfj';
-  var result1 = getSelectedCellId();
-  var result = (result1 == 'kfajslkdfj') ? 'pass' : 'fail';
+  result1 = getSelectedCellId();
+  result = (result1 == 'kfajslkdfj') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetIsMenuActive() {
-  var name = 'testGetIsMenuActive';
-  var result1 = getIsMenuActive();
+  name = 'testGetIsMenuActive';
+  result1 = getIsMenuActive();
   state.isMenuActive = true;
-  var result2 = getIsMenuActive();
-  var result = (!result1 && result2) ? 'pass' : 'fail';
+  result2 = getIsMenuActive();
+  result = (!result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetIsMidiPaletteActive() {
-  var name = 'testGetisMidiPaletteActive';
-  var result1 = getIsMidiPaletteActive();
+  name = 'testGetisMidiPaletteActive';
+  result1 = getIsMidiPaletteActive();
   state.isMidiPaletteActive = true;
-  var result2 = getIsMidiPaletteActive();
-  var result = (!result1 && result2) ? 'pass' : 'fail';
+  result2 = getIsMidiPaletteActive();
+  result = (!result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testRollRandomRoute() {
-  var name = 'testRollRandomRoute';
-  var random = rollRandomRoute();
-  var result = (Array.isArray(random)) ? 'pass' : 'fail';
+  name = 'testRollRandomRoute';
+  random = rollRandomRoute();
+  result = (Array.isArray(random)) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetCellsByStructure() {
-  var name = 'testGetCellsByStructure';
+  name = 'testGetCellsByStructure';
   field.x0y0.isExists = true;
   field.x0y2.isExists = true;
   field.x0y3.isExists = true;
@@ -785,17 +784,17 @@ function testGetCellsByStructure() {
   field.x0y0.structure = 'hive';
   field.x0y2.structure = 'nomad';
   field.x0y3.structure = 'hive';
-  var hives = getCellsByStructure('hive');
-  var result1 = (hives[0].id === 'x0y3') ? true : false;
-  var result2 = (hives[0].structure === 'hive') ? true : false;
-  var result3 = (hives.length == 2) ? true : false;
-  var result = (result1 && result2 && result3) ? 'pass' : 'fail';
+  hives = getCellsByStructure('hive');
+  result1 = (hives[0].id === 'x0y3');
+  result2 = (hives[0].structure === 'hive');
+  result3 = (hives.length == 2);
+  result = (result1 && result2 && result3) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testBirthSignals() {
-  var name = 'testBirthSignals';
+  name = 'testBirthSignals';
   field.x0y0.isExists = true;
   field.x2y7.isExists = true;
   field.x11y5.isExists = true;
@@ -811,10 +810,10 @@ function testBirthSignals() {
   field.x0y0.structure = 'hive';
   field.x2y7.structure = 'hive';
   field.x11y5.structure = 'hive';
-  var signals = birthSignals();
+  signals = birthSignals();
   // this is a very important test...
   // THINK OF THE CHILDREN
-  var result = (
+  result = (
     (signals[0].id === 'x2y6') &&
     (signals[0].x === 2) &&
     (signals[0].y === 6) &&
@@ -857,111 +856,174 @@ function testBirthSignals() {
 }
 
 function testEnrichHiveWithRouteDirections() {
-  var name = 'testEnrichHiveWithRouteDirections';
-  var hives = [{ 'route' : 'nes' }, { 'route' : 'ww' }];
-  var enriched =  enrichWithHiveRouteDirections(hives);
-  var result1 = (enriched[0].hiveRouteDirections[0] === 'n');
-  var result2 = (enriched[0].hiveRouteDirections[1] === 'e');
-  var result3 = (enriched[0].hiveRouteDirections[2] === 's');
-  var result4 = (enriched[1].hiveRouteDirections[0] === 'w');
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  name = 'testEnrichHiveWithRouteDirections';
+  hives = [{ 'route' : 'nes' }, { 'route' : 'ww' }];
+  enriched =  enrichWithHiveRouteDirections(hives);
+  result1 = (enriched[0].hiveRouteDirections[0] === 'n');
+  result2 = (enriched[0].hiveRouteDirections[1] === 'e');
+  result3 = (enriched[0].hiveRouteDirections[2] === 's');
+  result4 = (enriched[1].hiveRouteDirections[0] === 'w');
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testCancelCollidingSignals() {
-  var name = 'testCancelCollidingSignals';
-  var s1 = makeSignal(0, 0, 's');
-  var s2 = makeSignal(3, 3, 'n');
-  var s3 = makeSignal(6, 4, 'w');
+  name = 'testCancelCollidingSignals';
+  s1 = makeSignal(0, 0, 's');
+  s2 = makeSignal(3, 3, 'n');
+  s3 = makeSignal(6, 4, 'w');
   signals[s1.id] = s1;
   signals[s2.id] = s2;
   signals[s3.id] = s3;
-  var existingSignals = getExistingSignals();
-  var b1 = makeSignal(0, 0, 'n');
-  var b1id = b1.id;
-  var b2 = makeSignal(3, 3, 'e');
-  var b2id = b2.id;
-  var b3 = makeSignal(6, 3, 'w');
-  var b3id = b3.id;
-  var birthedSignals = {x0y0 : b1, x3y3 : b2, x6y3 : b3};
-  var survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
-  var result1 = (survivingSignals.x6y4.direction === 'w');
-  var result2 = (survivingSignals.x6y3.direction === 'w');
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  existingSignals = getSignals();
+  b1 = makeSignal(0, 0, 'n');
+  b1id = b1.id;
+  b2 = makeSignal(3, 3, 'e');
+  b2id = b2.id;
+  b3 = makeSignal(6, 3, 'w');
+  b3id = b3.id;
+  birthedSignals = {x0y0 : b1, x3y3 : b2, x6y3 : b3};
+  survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
+  result1 = (survivingSignals.x6y4.direction === 'w');
+  result2 = (survivingSignals.x6y3.direction === 'w');
+  result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetWidth() {
-  var name = 'testGetWidth';
-  var result = (getWidth() === 16) ? 'pass' : 'fail';
+  name = 'testGetWidth';
+  result = (getWidth() === 16) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testGetHeight() {
-  var name = 'testGetWidth';
-  var result = (getHeight() === 8) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testGetExistingSignals() {
-  var name = 'testGetExistingSignals';
-  signals = {test: "Me and him, we're from... different ancient tribes"};
-  var existing = getExistingSignals();
-  var result = (signals.test == existing.test) ? 'pass' : 'fail';
+  name = 'testGetWidth';
+  result = (getHeight() === 8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testCollideSignalsWithCells() {
-  var name = 'testCollideSignalsWithCells';
-  var result = (false) ? 'pass' : 'fail';
+  name = 'testCollideSignalsWithCells';
+  result = (false) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
 function testIsHiveBirthing() {
-  var name = 'testIsHiveBirthing';
+  name = 'testIsHiveBirthing';
   setGeneration(1);
-  var result1 = (isHiveBirthing(1)) ? true : false;
-  var result2 = (!isHiveBirthing(2)) ? true : false;
-  var result3 = (!isHiveBirthing(3)) ? true : false;
-  var result4 = (!isHiveBirthing(4)) ? true : false;
-  var result5 = (!isHiveBirthing(5)) ? true : false;
-  var result6 = (!isHiveBirthing(6)) ? true : false;
-  var generationOneResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+  result1 = (isHiveBirthing(1));
+  result2 = (!isHiveBirthing(2));
+  result3 = (!isHiveBirthing(3));
+  result4 = (!isHiveBirthing(4));
+  result5 = (!isHiveBirthing(5));
+  result6 = (!isHiveBirthing(6));
+  generationOneResult = (result1 && result2 && result3 && result4 && result5 && result6);
 
   setGeneration(2);
-  var result1 = (isHiveBirthing(1)) ? true : false;
-  var result2 = (isHiveBirthing(2)) ? true : false;
-  var result3 = (!isHiveBirthing(3)) ? true : false;
-  var result4 = (!isHiveBirthing(4)) ? true : false;
-  var result5 = (!isHiveBirthing(5)) ? true : false;
-  var result6 = (!isHiveBirthing(6)) ? true : false;
-  var generationTwoResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+  result1 = (isHiveBirthing(1));
+  result2 = (isHiveBirthing(2));
+  result3 = (!isHiveBirthing(3));
+  result4 = (!isHiveBirthing(4));
+  result5 = (!isHiveBirthing(5));
+  result6 = (!isHiveBirthing(6));
+  generationTwoResult = (result1 && result2 && result3 && result4 && result5 && result6);
 
   setGeneration(36);
-  var result1 = (isHiveBirthing(1)) ? true : false;
-  var result2 = (isHiveBirthing(2)) ? true : false;
-  var result3 = (isHiveBirthing(3)) ? true : false;
-  var result4 = (isHiveBirthing(4)) ? true : false;
-  var result5 = (!isHiveBirthing(5)) ? true : false;
-  var result6 = (isHiveBirthing(6)) ? true : false;
-  var generationThreeResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+  result1 = (isHiveBirthing(1));
+  result2 = (isHiveBirthing(2));
+  result3 = (isHiveBirthing(3));
+  result4 = (isHiveBirthing(4));
+  result5 = (!isHiveBirthing(5));
+  result6 = (isHiveBirthing(6));
+  generationThreeResult = (result1 && result2 && result3 && result4 && result5 && result6);
 
   setGeneration(105);
-  var result1 = (isHiveBirthing(1)) ? true : false;
-  var result2 = (!isHiveBirthing(2)) ? true : false;
-  var result3 = (isHiveBirthing(3)) ? true : false;
-  var result4 = (!isHiveBirthing(4)) ? true : false;
-  var result5 = (isHiveBirthing(5)) ? true : false;
-  var result6 = (!isHiveBirthing(6)) ? true : false;
-  var generationFourResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+  result1 = (isHiveBirthing(1));
+  result2 = (!isHiveBirthing(2));
+  result3 = (isHiveBirthing(3));
+  result4 = (!isHiveBirthing(4));
+  result5 = (isHiveBirthing(5));
+  result6 = (!isHiveBirthing(6));
+  generationFourResult = (result1 && result2 && result3 && result4 && result5 && result6);
 
-  var result = (generationOneResult && generationTwoResult && generationThreeResult && generationFourResult ) ? 'pass' : 'fail';
+  result = (generationOneResult && generationTwoResult && generationThreeResult && generationFourResult ) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testIsInBounds() {
+  name = 'testIsInBounds';
+  result1 = isInBounds('x0y0');
+  result2 = !isInBounds('x6y39');
+  result3 = !isInBounds('x-1y9');
+  result4 = isInBounds('x4y4');
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testCancelOutOfBoundsSignals() {
+  name = 'testCancelOutOfBoundsSignals';
+  testSignals = [
+    {'id': 'x0y0'},
+    {'id': 'x26y39'},
+    {'id': 'x1y9'},
+    {'id': 'x4y5'}
+  ];
+  testSignals = cancelOutOfBoundsSignals(testSignals);
+  result = (testSignals[0].id == 'x0y0' && testSignals[1].id == 'x4y5') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetGeneration() {
+  name = 'testGetGeneration';
+  setGeneration(45);
+  result = (getGeneration() == 45) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetSignals() {
+  name = 'testGetSignals';
+  signals = { 'id' : 'anything' };
+  result = (getSignals().id == 'anything') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testPropagateSignals() {
+  name = 'testPropagateSignals';
+  testSignals = [
+    {'id': 'x0y0', 'x': 0, 'y': 0, 'direction': 's'},
+    {'id': 'x6y3', 'x': 6, 'y': 3, 'direction': 'e'},
+    {'id': 'x1y3', 'x': 1, 'y': 3, 'direction': 'w'},
+    {'id': 'x4y5', 'x': 4, 'y': 5, 'direction': 'n'}
+  ];
+
+  propagateSignals(testSignals);
+  checkSignals = getSignals();
+  result1 = (checkSignals[0].id == 'x0y1');
+  result2 = (checkSignals[1].id == 'x7y3');
+  result3 = (checkSignals[2].id == 'x0y3');
+  result4 = (checkSignals[3].id == 'x4y4');
+  result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDrawSignals() {
+  name = 'testDrawSignals';
+  signals = [
+    {'id': 'x0y0', 'x': 0, 'y': 0, 'direction': 's'},
+  ];
+  drawArray = drawSignals();
+  result = (drawArray[0] == 'drawSignals' && drawArray[1] == 'x0y0') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -982,7 +1044,7 @@ function resetTestSuite() {
 
 function testSuiteOne() {
 
-  var results = [];
+  results = [];
 
   resetTestSuite();
   results.push(testGetWidth());
@@ -996,10 +1058,10 @@ function testSuiteOne() {
   results.push(testGetSignalSpeed());
   results.push(testDeleteSignal());
   results.push(testRollRandomRoute());
-  results.push(testGetCellStructureIsInitializedToNone());
+  results.push(testGetCellStructure());
   results.push(testArrayContains());
   results.push(testObjectSize());
-  results.push(testMakeFieldIsStructuredToSpec());
+  results.push(testMakeField());
   results.push(testSetMenu());
   results.push(testSetMidiPalette());
   results.push(testSetTime());
@@ -1023,7 +1085,7 @@ function testSuiteOne() {
 
 function testSuiteTwo() {
 
-  var results = [];
+  results = [];
 
   resetTestSuite();
   results.push(testOut());
@@ -1093,12 +1155,23 @@ function testSuiteTwo() {
   results.push(testEnrichHiveWithRouteDirections());
 
   resetTestSuite();
-  results.push(testGetExistingSignals());
   results.push(testCancelCollidingSignals());
 
   resetTestSuite();
-  //results.push(testCollideSignalsWithCells());
   results.push(testIsHiveBirthing());
+  results.push(testIsInBounds());
+  results.push(testCancelOutOfBoundsSignals());
+  results.push(testGetGeneration());
+  results.push(testGetSignals());
+
+  resetTestSuite();
+  results.push(testPropagateSignals());
+
+  resetTestSuite();
+  results.push(testDrawSignals());
+
+  //results.push(testCollideSignalsWithCells());
+
 
   return results;
 }
@@ -1106,51 +1179,30 @@ function testSuiteTwo() {
 /*
  * Test Framework
  * ============================================================================
- * This is a simple functional test framework made from scratch.
- * Jasmine, Cucumber, Tape, Mocha... none of them could 1.) easily
- * support simple functional tests, 2.) be compatible with the JS
- * that Max understands (I think), 3.) not require dozens of dependencies.
- *
  */
-
-function drawLine() {
-  console.log('+----------------------------------+');
-}
 
 function drawBorder() {
   console.log('+==================================+');
 }
 
 function testOutput(name, result) {
-  console.log('Test:\t\t' + name);
-  if (result != 'pass') {
-    console.log('Result:\t!! ---- ' + result);
-  } else {
-    console.log('Result:\t\t' + result);
-  }
-  console.log('\n');
+  testResult = (result != 'pass') ? '\x1b[7m' : '';
+  testResult += result + '\t' + name;
+  testResult += (result != 'pass') ? '\x1b[0m' : '';
+  console.log(testResult);
 }
 
 function runTestSuite() {
-  console.log('\n');
-  console.log('\n             Test Suite');
   drawBorder();
-  console.log('\n');
-  var results = [];
+  results = [];
   results = results.concat(testSuiteOne());
   results = results.concat(testSuiteTwo());
-  var counts = {};
+  counts = {};
   results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
+  drawBorder();
   console.log('Final Results:');
   console.log(counts);
   drawBorder();
-  console.log('\n');
 }
 
-/*
- * Test Runner
- * ============================================================================
- */
 runTestSuite();
-
-isInBounds('x8y8');

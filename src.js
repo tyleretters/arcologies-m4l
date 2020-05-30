@@ -30,12 +30,11 @@ function advance() {
   post('generation: ' + getGeneration());
   hivesSing();
   
+  var existingCells = getExistingCells();
   var birthedSignals = birthSignals();
-  var existingSignals = getExistingSignals();
+  var existingSignals = getSignals();
   var survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
-  //post(JSON.stringify(survivingSignals));
-  //var existingCells = getExistingCells();
-  //var signals = cancelCollidingSignalsAndCells(survivingSignals, existingCells);
+  var survivingSignals = cancelCollidingSignalsAndCells(survivingSignals, existingCells);
 
   survivingSignals = cancelOutOfBoundsSignals(survivingSignals);
   propagateSignals(survivingSignals);
@@ -58,7 +57,14 @@ function advance() {
 
 }
 
+
 // beta wip
+function cancelCollidingSignalsAndCells(existingSignals, existingCells) {
+
+  getRouteDirections(existingCell)
+}
+
+// tested
 function propagateSignals(survivingSignals) {
 
   var propagatedSignals = [];
@@ -71,13 +77,7 @@ function propagateSignals(survivingSignals) {
       var y = thisSignal.y - 1;
       var id = makeId(x, y);
       var direction = 'n';
-      var s = {
-        id: id,
-        x: x,
-        y: y,
-        direction: direction
-       };
-      propagatedSignals.push(s);
+      propagatedSignals.push(makeSignal(x, y, direction));
     }
 
     if (thisSignal.direction === 's') {
@@ -85,13 +85,7 @@ function propagateSignals(survivingSignals) {
       var y = thisSignal.y + 1;
       var id = makeId(x, y);
       var direction = 's';
-      var s = {
-        id: id,
-        x: x,
-        y: y,
-        direction: direction
-       };
-      propagatedSignals.push(s);
+      propagatedSignals.push(makeSignal(x, y, direction));
     }
 
     if (thisSignal.direction === 'e') {
@@ -99,13 +93,7 @@ function propagateSignals(survivingSignals) {
       var y = thisSignal.y;
       var id = makeId(x, y);
       var direction = 'e';
-      var s = {
-        id: id,
-        x: x,
-        y: y,
-        direction: direction
-       };
-      propagatedSignals.push(s);
+      propagatedSignals.push(makeSignal(x, y, direction));
     }
 
     if (thisSignal.direction === 'w') {
@@ -113,13 +101,7 @@ function propagateSignals(survivingSignals) {
       var y = thisSignal.y;
       var id = makeId(x, y);
       var direction = 'w';
-      var s = {
-        id: id,
-        x: x,
-        y: y,
-        direction: direction
-       };
-      propagatedSignals.push(s);
+      propagatedSignals.push(makeSignal(x, y, direction));
     }
   });
   signals = null;
@@ -146,7 +128,7 @@ function hivesSing() {
 
 }
 
-// beta wip
+// tested
 function cancelOutOfBoundsSignals(survivingSignals) {
   var inBoundsSignals = [];
   Object.keys(survivingSignals).forEach(function(key) {
@@ -157,22 +139,15 @@ function cancelOutOfBoundsSignals(survivingSignals) {
   return inBoundsSignals;
 } 
 
-// beta wip
+// tested
 function isInBounds(id) {
-  var parts = id.split('');
+  var parts = id.split(/([0-9]+)/);
   var okWest = (parts[1] >= 0);
   var okEast = (parts[1] < getWidth());
   var okNorth = (parts[3] >= 0);
   var okSouth = (parts[3] < getHeight());
   return (okWest && okEast && okNorth && okSouth);
 }
-
-// beta wip
-function cancelCollidingSignalsAndCells(existingSignals, existingCells) {
-
-}
-
-
 
 // tested
 function rollRandomRoute() {
@@ -244,6 +219,11 @@ function birthSignals() {
 
 }
 
+// tested
+// merges both sets and delets any collisions, *should* account for:
+// - birthed colliding with existing
+// - birthed colliding with birthed
+// - existing colliding with existing
 function cancelCollidingSignals(birthedSignals, existingSignals) {
 
   var existingIds = [];
@@ -275,15 +255,23 @@ function getCellsByStructure(structure) {
   return cells;
 }
 
-// beta wip
+// tested
 function drawSignals() {
 
-  var existingSignals = getExistingSignals();
-
+  var drawArray = [];
+  var existingSignals = getSignals();
+  
   Object.keys(existingSignals).forEach(function(key) {
-    out(['drawSignals', existingSignals[key].id]);
+    drawArray.push(['drawSignals', existingSignals[key].id]);
   });
 
+  for (i = 0; i < drawArray.length; i++) {
+    if (state.outletsOn) {
+      out(drawArray[i]);
+    } else {
+      return drawArray[i];
+    }
+  }
 
 }
 
@@ -920,11 +908,6 @@ function getExistingCells() {
 }
 
 // tested
-function getExistingSignals() {
-  return signals;
-}
-
-// tested
 function getIds(obj) {
   var arr = [];
   for (var key in obj) {
@@ -1103,7 +1086,7 @@ function dumpExistingCells() {
 
 // untested
 function dumpExistingSignals() {
-  var obj = getExistingSignals();
+  var obj = getSignals();
   if (state.outletsOn) {
     out(JSON.stringify(obj));
   } else {
@@ -1185,9 +1168,14 @@ function getSignalSpeed() {
   return state.signalSpeed;
 }
 
-// beta wip
+// tested
 function getGeneration() {
   return state.generation;
+}
+
+// tested
+function getSignals() {
+  return signals;
 }
 
 // tested
