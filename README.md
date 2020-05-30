@@ -1,7 +1,6 @@
 # ecologies
 
- - [Docs](https://tyleretters.github.io/ecologis)
- - [Lines](#)
+ - [Docs](https://tyleretters.github.io/ecologies)
 
 ## Technical
 
