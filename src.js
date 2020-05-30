@@ -25,30 +25,154 @@
  * ==============================================================================
  */
 
-// wip
+// beta wip
 function advance() {
+  post('generation: ' + getGeneration());
+  hivesSing();
+  
+  var birthedSignals = birthSignals();
+  var existingSignals = getExistingSignals();
+  var survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
+  //post(JSON.stringify(survivingSignals));
+  //var existingCells = getExistingCells();
+  //var signals = cancelCollidingSignalsAndCells(survivingSignals, existingCells);
 
-  propagateSignals();
+  survivingSignals = cancelOutOfBoundsSignals(survivingSignals);
+  propagateSignals(survivingSignals);
+
+
+  //portsSing();
+  //nomadsSing();
 
   if (!getSelectedCellId() &&
       !getIsMenuActive() &&
       !getIsMidiPaletteActive()) {
-    // don't redraw when
+    // don't redraw when:
     // - a cell is selected
     // - the menu is active
     // - the palette is active
     clearField();
-    drawSignals();
+    //drawSignals();
     drawCells();
   }
 
 }
 
-// wip
-function propagateSignals() {
-  birthSignals();
-  out('propagateSignals');
+// beta wip
+function propagateSignals(survivingSignals) {
+
+  var propagatedSignals = [];
+
+  Object.keys(survivingSignals).forEach(function(key) {
+    thisSignal = survivingSignals[key];
+    
+    if (thisSignal.direction === 'n') {
+      var x = thisSignal.x;
+      var y = thisSignal.y - 1;
+      var id = makeId(x, y);
+      var direction = 'n';
+      var s = {
+        id: id,
+        x: x,
+        y: y,
+        direction: direction
+       };
+      propagatedSignals.push(s);
+    }
+
+    if (thisSignal.direction === 's') {
+      var x = thisSignal.x;
+      var y = thisSignal.y + 1;
+      var id = makeId(x, y);
+      var direction = 's';
+      var s = {
+        id: id,
+        x: x,
+        y: y,
+        direction: direction
+       };
+      propagatedSignals.push(s);
+    }
+
+    if (thisSignal.direction === 'e') {
+      var x = thisSignal.x + 1;
+      var y = thisSignal.y;
+      var id = makeId(x, y);
+      var direction = 'e';
+      var s = {
+        id: id,
+        x: x,
+        y: y,
+        direction: direction
+       };
+      propagatedSignals.push(s);
+    }
+
+    if (thisSignal.direction === 'w') {
+      var x = thisSignal.x - 1;
+      var y = thisSignal.y;
+      var id = makeId(x, y);
+      var direction = 'w';
+      var s = {
+        id: id,
+        x: x,
+        y: y,
+        direction: direction
+       };
+      propagatedSignals.push(s);
+    }
+  });
+  signals = null;
+  signals = propagatedSignals;
 }
+
+// beta wip
+function hivesSing() {
+
+  var hiveChorus = ['playMidi'];
+  var hives = getCellsByStructure('hive');
+
+  Object.keys(hives).forEach(function(key) {
+    thisHive = hives[key];
+    var note = isHiveBirthing(thisHive.interval) ? thisHive.note : false;
+    if (note) {
+      hiveChorus.push(note);
+    }
+  });
+
+  if (hiveChorus.length > 1) {
+    out(hiveChorus);
+  }
+
+}
+
+// beta wip
+function cancelOutOfBoundsSignals(survivingSignals) {
+  var inBoundsSignals = [];
+  Object.keys(survivingSignals).forEach(function(key) {
+    if (isInBounds(survivingSignals[key].id)) {
+      inBoundsSignals.push(survivingSignals[key]);
+    };
+  });
+  return inBoundsSignals;
+} 
+
+// beta wip
+function isInBounds(id) {
+  var parts = id.split('');
+  var okWest = (parts[1] >= 0);
+  var okEast = (parts[1] < getWidth());
+  var okNorth = (parts[3] >= 0);
+  var okSouth = (parts[3] < getHeight());
+  return (okWest && okEast && okNorth && okSouth);
+}
+
+// beta wip
+function cancelCollidingSignalsAndCells(existingSignals, existingCells) {
+
+}
+
+
 
 // tested
 function rollRandomRoute() {
@@ -56,57 +180,86 @@ function rollRandomRoute() {
   return getRouteDirections(routes[ Math.floor(Math.random() * routes.length)]);
 }
 
+// tested
+function enrichWithHiveRouteDirections(hives) {
+  Object.keys(hives).forEach(function(key) {
+    hive = hives[key];
+    hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
+    hives[key].hiveRouteDirections = hiveRouteDirections;
+  });
+  return hives;
+}
 
-// wip
+// tested
+// very brittle test - if you change the sorting
+// of the array the test will break
 function birthSignals() {
 
   var newSignals = [];
   var hives = getCellsByStructure('hive');
+  hives = enrichWithHiveRouteDirections(hives);
 
-  Object.keys(hives).forEach(function(key) {
-    var hive = hives[key];
-    var hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
+  for( i = 0; i < hives.length; i++) {
 
-    for( i = 0; i < hiveRouteDirections.length; i++) {
+    var thisHive = hives[i];
 
-      if (hiveRouteDirections[i] === '') continue; // rollRandomRoute came up empty
-
-      var x;
-      var y      
-      var signalId;
-      if (hiveRouteDirections[i] === 'n') {
-        var x = ((hive.x - 1) < 0 ) ? 0 : (hive.x - 1);
-        var y = hive.y;
-        signalId = makeId(x, y);    
+    if (thisHive.hiveRouteDirections.contains('n')) {
+      // one cell north means subtract one from the hive
+      // check y against zero
+      y = thisHive.y - 1;
+      if (y >= 0) {
+        newSignals.push(makeSignal( thisHive.x, y, 'n'));
       }
-      if (hiveRouteDirections[i] === 'e') {
-        var x = hive.x;
-        var y = ((hive.y + 1) > state.gridHeight) ? state.gridHeight : hive.y + 1;
-        signalId = makeId(x, y);    
-      }
-      if (hiveRouteDirections[i] === 's') {
-        var x = ((hive.x + 1) > state.gridWidth) ? state.gridWidth : hive.x + 1;
-        var y = hive.y;
-        signalId = makeId(x, y);    
-      }
-      if (hiveRouteDirections[i] === 'w') {
-        var x = hive.x;
-        var y = ((hive.y - 1) < 0 ) ? 0 : (hive.y - 1) ;
-        signalId = makeId(x, y);    
-      }
+    }
 
-      signal = {
-        'id' : signalId,
-        'x' : x,
-        'y' : y,
-        'direction' : hiveRouteDirections[i]
-      };
-      newSignals.push(signal);
-    };
-  });
-  
+    if (thisHive.hiveRouteDirections.contains('e')) {
+      // one cell east means add one to the hive
+      // check x against grid width less one for zero index
+      x = thisHive.x + 1;
+      if (x <= getWidth() - 1) {
+        newSignals.push(makeSignal( x, thisHive.y, 'e'));
+      }
+    }
+
+    if (thisHive.hiveRouteDirections.contains('s')) {
+      // one cell south means add one to the hive
+      // check y against grid height less one for zero index
+      y = thisHive.y + 1;
+      if (y <= getHeight() - 1) {
+        newSignals.push(makeSignal( thisHive.x, y, 's'));
+      }
+    }
+
+    if (thisHive.hiveRouteDirections.contains('w')) {
+      // one cell west means subtract one from the hive
+      // check x against 0
+      x = thisHive.x - 1;
+      if (x >= 0 ) {
+        newSignals.push(makeSignal( x, thisHive.y, 'w'));
+      }
+    }
+  }
+
   return newSignals;
 
+}
+
+function cancelCollidingSignals(birthedSignals, existingSignals) {
+
+  var existingIds = [];
+
+  Object.keys(existingSignals).forEach(function(key) {
+    existingIds.push(existingSignals[key].id);
+  });
+
+  for (i = 0; i < existingIds.length; i++) {
+    var id = existingIds[i];
+    if(birthedSignals.hasOwnProperty(id)){
+      delete birthedSignals[id];
+      delete existingSignals[id];
+    }
+  }
+  return Object.assign(birthedSignals, existingSignals);
 }
 
 // tested
@@ -122,8 +275,15 @@ function getCellsByStructure(structure) {
   return cells;
 }
 
-// wip
+// beta wip
 function drawSignals() {
+
+  var existingSignals = getExistingSignals();
+
+  Object.keys(existingSignals).forEach(function(key) {
+    out(['drawSignals', existingSignals[key].id]);
+  });
+
 
 }
 
@@ -187,7 +347,7 @@ function findColumnNeighbor(currentCell, existingCells, direction) {
        neighbor = 0;
     }
     if (direction == 'south') {
-      neighbor = state.height - 1; // account for zero index on grid
+      neighbor = getHeight() - 1; // account for zero index on grid
     }
   }
 
@@ -234,7 +394,7 @@ function findRowNeighbor(currentCell, existingCells, direction) {
        neighbor = 0;
     }
     if (direction == 'east') {
-      neighbor = state.width - 1; // account for zero index on grid
+      neighbor = getWidth() - 1; // account for zero index on grid
     }
   }
 
@@ -672,8 +832,8 @@ function drawMenuInterval(x) {
 
 // tested
 function makeField() {
-  x = state.width;
-  y = state.height;
+  x = getWidth();
+  y = getHeight();
   var out = {};
   for (var iy = y - 1; iy >= 0; iy--) {
     for (var ix = x - 1; ix >= 0; ix--) {
@@ -735,8 +895,8 @@ function makeSignal(x, y, direction) {
     'x' : x,
     'y' : y,
     'direction' : direction
-  }
-  signals[id] = newSignal;
+  };
+  return newSignal;
 }
 
 // tested
@@ -757,6 +917,11 @@ function getExistingCells() {
     }
   }
   return obj;
+}
+
+// tested
+function getExistingSignals() {
+  return signals;
 }
 
 // tested
@@ -831,7 +996,7 @@ function init() {
   state = null;
   state = {};
   state.outletsOn = false;
-  state.lifespan = 0;
+  state.generation = 0;
   state.time = 0;
   state.width = 0;
   state.height = 0;
@@ -936,6 +1101,16 @@ function dumpExistingCells() {
   }
 }
 
+// untested
+function dumpExistingSignals() {
+  var obj = getExistingSignals();
+  if (state.outletsOn) {
+    out(JSON.stringify(obj));
+  } else {
+    return obj;
+  }
+}
+
 // tested
 function outletsOn() {
   state.outletsOn = true;
@@ -986,13 +1161,33 @@ function setWidth(val) {
 }
 
 // tested
+function setGeneration(val) {
+  state.generation = val;
+}
+
+// tested
+function getWidth() {
+  return state.width;
+}
+
+// tested
 function setHeight(val) {
   state.height = val;
 }
 
 // tested
+function getHeight() {
+  return state.height;
+}
+
+// tested
 function getSignalSpeed() {
   return state.signalSpeed;
+}
+
+// beta wip
+function getGeneration() {
+  return state.generation;
 }
 
 // tested
@@ -1008,6 +1203,11 @@ function getIsMenuActive() {
 // tested
 function getIsMidiPaletteActive() {
   return state.isMidiPaletteActive;
+}
+
+// tested
+function isHiveBirthing(hiveInterval) {
+  return (getGeneration() % hiveInterval === 0) ? true : false;
 }
 
 // tested
@@ -1050,6 +1250,37 @@ if (!Object.prototype.size) {
       }
       return size;
     }
+  });
+}
+
+// tested by proxy
+if (typeof Object.assign !== 'function') {
+  // Must be writable: true, enumerable: false, configurable: true
+  Object.defineProperty(Object, "assign", {
+    value: function assign(target, varArgs) { // .length of function is 2
+      'use strict';
+      if (target === null || target === undefined) {
+        throw new TypeError('Cannot convert undefined or null to object');
+      }
+
+      var to = Object(target);
+
+      for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+
+        if (nextSource !== null && nextSource !== undefined) { 
+          for (var nextKey in nextSource) {
+            // Avoid bugs when hasOwnProperty is shadowed
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+      }
+      return to;
+    },
+    writable: true,
+    configurable: true
   });
 }
 

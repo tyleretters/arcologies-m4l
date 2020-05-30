@@ -66,7 +66,7 @@ function testGetCell() {
 
 function testGetSignal() {
   var name = 'testGetSignal';
-  makeSignal(3, 3, 'n');
+  signals.x3y3 = makeSignal(3, 3, 'n');
   var signal = getSignal(3, 3);
   var result1 = (typeof signal === 'object' && signal !== null) ? true : false;
   var result2 = (signal.x === 3) ? true : false;
@@ -78,8 +78,7 @@ function testGetSignal() {
 
 function testMakeSignal() {
   var name = 'testMakeSignal';
-  makeSignal(4, 5, 'e');
-  signal = signals.x4y5;
+  signal = makeSignal(4, 5, 'e');
   var result1 = (signal.id === 'x4y5') ? true : false;
   var result2 = (signal.x === 4) ? true : false;
   var result3 = (signal.y === 5) ? true : false;
@@ -194,6 +193,14 @@ function testSetHeight() {
   var name = 'testSetHeight';
   setHeight(48);
   var result = (state.height == 48) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSetGeneration() {
+  var name = 'testSetGeneration';
+  setGeneration(51);
+  var result = (state.generation == 51) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -793,8 +800,8 @@ function testBirthSignals() {
   field.x2y7.isExists = true;
   field.x11y5.isExists = true;
   field.x0y0.route = 'all';
-  field.x2y7.route = 'ss';
-  field.x11y5.route = 'nse';
+  field.x2y7.route = 'all';
+  field.x11y5.route = 'all';
   field.x0y0.x = 0;
   field.x2y7.x = 2;
   field.x11y5.x = 11;
@@ -805,13 +812,158 @@ function testBirthSignals() {
   field.x2y7.structure = 'hive';
   field.x11y5.structure = 'hive';
   var signals = birthSignals();
-  console.log(signals);
-  // var result1 = (hives[0].id === 'x0y3') ? true : false;
-  // var result2 = (hives[0].structure === 'hive') ? true : false;
-  // var result3 = (hives.length == 2) ? true : false;
-  // var result = (result1 && result2 && result3) ? 'pass' : 'fail';
-  testOutput(name, false);
-  //return result;
+  // this is a very important test...
+  // THINK OF THE CHILDREN
+  var result = (
+    (signals[0].id === 'x2y6') &&
+    (signals[0].x === 2) &&
+    (signals[0].y === 6) &&
+    (signals[0].direction === 'n') &&
+    (signals[1].id === 'x3y7') &&
+    (signals[1].x === 3) &&
+    (signals[1].y === 7) &&
+    (signals[1].direction === 'e') &&
+    (signals[2].id === 'x1y7') &&
+    (signals[2].x === 1) &&
+    (signals[2].y === 7) &&
+    (signals[2].direction === 'w') &&
+    (signals[3].id === 'x11y4') &&
+    (signals[3].x === 11) &&
+    (signals[3].y === 4) &&
+    (signals[3].direction === 'n') &&
+    (signals[4].id === 'x12y5') &&
+    (signals[4].x === 12) &&
+    (signals[4].y === 5) &&
+    (signals[4].direction === 'e') &&
+    (signals[5].id === 'x11y6') &&
+    (signals[5].x === 11) &&
+    (signals[5].y === 6) &&
+    (signals[5].direction === 's') &&
+    (signals[6].id === 'x10y5') &&
+    (signals[6].x === 10) &&
+    (signals[6].y === 5) &&
+    (signals[6].direction === 'w') &&
+    (signals[7].id === 'x1y0') &&
+    (signals[7].x === 1) &&
+    (signals[7].y === 0) &&
+    (signals[7].direction === 'e') &&
+    (signals[8].id === 'x0y1') &&
+    (signals[8].x === 0) &&
+    (signals[8].y === 1) &&
+    (signals[8].direction === 's')
+  ) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testEnrichHiveWithRouteDirections() {
+  var name = 'testEnrichHiveWithRouteDirections';
+  var hives = [{ 'route' : 'nes' }, { 'route' : 'ww' }];
+  var enriched =  enrichWithHiveRouteDirections(hives);
+  var result1 = (enriched[0].hiveRouteDirections[0] === 'n');
+  var result2 = (enriched[0].hiveRouteDirections[1] === 'e');
+  var result3 = (enriched[0].hiveRouteDirections[2] === 's');
+  var result4 = (enriched[1].hiveRouteDirections[0] === 'w');
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testCancelCollidingSignals() {
+  var name = 'testCancelCollidingSignals';
+  var s1 = makeSignal(0, 0, 's');
+  var s2 = makeSignal(3, 3, 'n');
+  var s3 = makeSignal(6, 4, 'w');
+  signals[s1.id] = s1;
+  signals[s2.id] = s2;
+  signals[s3.id] = s3;
+  var existingSignals = getExistingSignals();
+  var b1 = makeSignal(0, 0, 'n');
+  var b1id = b1.id;
+  var b2 = makeSignal(3, 3, 'e');
+  var b2id = b2.id;
+  var b3 = makeSignal(6, 3, 'w');
+  var b3id = b3.id;
+  var birthedSignals = {x0y0 : b1, x3y3 : b2, x6y3 : b3};
+  var survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
+  var result1 = (survivingSignals.x6y4.direction === 'w');
+  var result2 = (survivingSignals.x6y3.direction === 'w');
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetWidth() {
+  var name = 'testGetWidth';
+  var result = (getWidth() === 16) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetHeight() {
+  var name = 'testGetWidth';
+  var result = (getHeight() === 8) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetExistingSignals() {
+  var name = 'testGetExistingSignals';
+  signals = {test: "Me and him, we're from... different ancient tribes"};
+  var existing = getExistingSignals();
+  var result = (signals.test == existing.test) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testCollideSignalsWithCells() {
+  var name = 'testCollideSignalsWithCells';
+  var result = (false) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testIsHiveBirthing() {
+  var name = 'testIsHiveBirthing';
+  setGeneration(1);
+  var result1 = (isHiveBirthing(1)) ? true : false;
+  var result2 = (!isHiveBirthing(2)) ? true : false;
+  var result3 = (!isHiveBirthing(3)) ? true : false;
+  var result4 = (!isHiveBirthing(4)) ? true : false;
+  var result5 = (!isHiveBirthing(5)) ? true : false;
+  var result6 = (!isHiveBirthing(6)) ? true : false;
+  var generationOneResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+
+  setGeneration(2);
+  var result1 = (isHiveBirthing(1)) ? true : false;
+  var result2 = (isHiveBirthing(2)) ? true : false;
+  var result3 = (!isHiveBirthing(3)) ? true : false;
+  var result4 = (!isHiveBirthing(4)) ? true : false;
+  var result5 = (!isHiveBirthing(5)) ? true : false;
+  var result6 = (!isHiveBirthing(6)) ? true : false;
+  var generationTwoResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+
+  setGeneration(36);
+  var result1 = (isHiveBirthing(1)) ? true : false;
+  var result2 = (isHiveBirthing(2)) ? true : false;
+  var result3 = (isHiveBirthing(3)) ? true : false;
+  var result4 = (isHiveBirthing(4)) ? true : false;
+  var result5 = (!isHiveBirthing(5)) ? true : false;
+  var result6 = (isHiveBirthing(6)) ? true : false;
+  var generationThreeResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+
+  setGeneration(105);
+  var result1 = (isHiveBirthing(1)) ? true : false;
+  var result2 = (!isHiveBirthing(2)) ? true : false;
+  var result3 = (isHiveBirthing(3)) ? true : false;
+  var result4 = (!isHiveBirthing(4)) ? true : false;
+  var result5 = (isHiveBirthing(5)) ? true : false;
+  var result6 = (!isHiveBirthing(6)) ? true : false;
+  var generationFourResult = (result1 && result2 && result3 && result4 && result5 && result6) ? true : false;
+
+  var result = (generationOneResult && generationTwoResult && generationThreeResult && generationFourResult ) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
 }
 
 /*
@@ -828,11 +980,13 @@ function resetTestSuite() {
   outletsOff();
 }
 
-function testSuite() {
+function testSuiteOne() {
 
   var results = [];
 
   resetTestSuite();
+  results.push(testGetWidth());
+  results.push(testGetHeight());
   results.push(testInitCell());
   results.push(testInitCellById());
   results.push(testMakeId());
@@ -851,6 +1005,7 @@ function testSuite() {
   results.push(testSetTime());
   results.push(testSetWidth());
   results.push(testSetHeight());
+  results.push(testSetGeneration());
   results.push(testOpenMenu());
   results.push(testOpenMidiPalette());
   results.push(testSingleMidiPaletteEvent());
@@ -862,6 +1017,13 @@ function testSuite() {
   results.push(testCloseMidiPalette());
   results.push(testOutletsOnOff());
   results.push(testClearField());
+
+  return results;
+}
+
+function testSuiteTwo() {
+
+  var results = [];
 
   resetTestSuite();
   results.push(testOut());
@@ -928,7 +1090,15 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testBirthSignals());
+  results.push(testEnrichHiveWithRouteDirections());
 
+  resetTestSuite();
+  results.push(testGetExistingSignals());
+  results.push(testCancelCollidingSignals());
+
+  resetTestSuite();
+  //results.push(testCollideSignalsWithCells());
+  results.push(testIsHiveBirthing());
 
   return results;
 }
@@ -966,7 +1136,9 @@ function runTestSuite() {
   console.log('\n             Test Suite');
   drawBorder();
   console.log('\n');
-  results = testSuite();
+  var results = [];
+  results = results.concat(testSuiteOne());
+  results = results.concat(testSuiteTwo());
   var counts = {};
   results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
   console.log('Final Results:');
@@ -979,5 +1151,6 @@ function runTestSuite() {
  * Test Runner
  * ============================================================================
  */
-
 runTestSuite();
+
+isInBounds('x8y8');
