@@ -163,8 +163,8 @@ layout: default
         <h4>Route Behavior</h4>
         <hr>
         <p>"All" and cardinal direction routes emit (in the case of hives) or route (in the case of ports and nomads) in the directions you would expect. Hives emit signals from all their open routes at a rate as defined by their interval. Ports and nomads route incoming signals to <em>every other</em> open route. So if a signal enters a "North East South" port from the east, it will split the signal into two and send them out of the north and south routes on the next beat.</p>
-        <p>Random structures emit or route signals at random.</p>
-        <p>Shell structures neither emit nor route signals. They're useful for stopping the flow of signals.</p>
+        <p>"Random" structures emit or route signals at random.</p>
+        <p>"Shell" structures neither emit nor route signals. They're useful for stopping the flow of signals.</p>
       </div>
     </div>
     <h4>Route Diagram</h4>
@@ -372,7 +372,7 @@ layout: default
   <div class="col mb-5">
     <h2 id="philosophy">Philosophy</h3>
     <hr>  
-    <p><strong>ecologies</strong> is an instrument for exploration and discovery. At it's core it is designed to be a deterministic compositional tool. Mastery of any medium depends on both familiarity and consistent response. This philosophy extends through all the code of <strong>ecologies</strong>. If a certain combination of events occur, the user ought to be able to reproduce it with 100% accuracy. With a certain initial configuration of cells, structures, notes, (and eventually nomads), entire songs could be emerge <em>and be replayed note-for-note</em> from a relatively simple set of rules.</p>
+    <p><strong>ecologies</strong> is an instrument for exploration and discovery. At it's core it is designed to be a deterministic compositional tool. Mastery of any medium depends on both familiarity and consistent response. This philosophy extends through all the code of <strong>ecologies</strong>. If a certain combination of events occur, the user ought to be able to reproduce it with 100% accuracy. With a given configuration of cells, structures, notes, (and eventually nomads), entire songs could be emerge <em>and be replayed note-for-note</em> from a relatively simple set of rules.</p>
     <p class="alert alert-primary"><i class="fas fa-exclamation-triangle"></i> All the data is stored as JSON and importing/exporting/sharing <strong>ecologies</strong> is on the roadmap.</p>
     <p>That said, entropy is a fundamental building block of reality. Despite it's (often valid) criticisms, randomness has proven to be a useful tool to artists. The "random" cell route has been included to satisfy the proclivities of these particular musical and compositional objectives. Let the decision to place this feature it at the bottom of the route list be a signal as to the creator's viewpoint on the topic.</p>
     <p>And, of course, <strong>ecologies</strong> is an <a href="https://github.com/tyleretters/ecologies">open source project</a>. Happy hacking.</p>
