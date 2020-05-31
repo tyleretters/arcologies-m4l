@@ -12,7 +12,10 @@
  *  - Draw
  *  - Time & Place
  *  - Initialize Functions
+ *  - Setters
+ *  - Getters
  *  - Max I/O
+ *  - Polyfills
  *  - Utility
  *
  * Notes:
@@ -1082,52 +1085,7 @@ function closeMidiPalette() {
   setMidiPalette(false);
 }
 
-// tested
-function dumpStructures() {
-  var arr = ECOLOGIES_GLOBAL_STATE.structures;
-  arr.unshift('structuresList');
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
 
-// tested
-function dumpRoutes() {
-  var arr = ECOLOGIES_GLOBAL_STATE.routes;
-  arr.unshift('routesList');
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
-
-// untested
-function dumpExistingCells() {
-  var obj = getExistingCells();
-  if (isOutletsOn()) {
-    out(JSON.stringify(obj));
-  } else {
-    return obj;
-  }
-}
-
-// untested
-function dumpExistingSignals() {
-  var obj = getSignals();
-  if (isOutletsOn()) {
-    out(JSON.stringify(obj));
-  } else {
-    return obj;
-  }
-}
-
-// tested
-function setOutlets(val) {
-  ECOLOGIES_GLOBAL_STATE.outletsOn = (val) ? true : false;
-}
 
 // tested
 function isOutletsOn() {
@@ -1148,6 +1106,11 @@ function out(val) {
  * ==============================================================================
  */
 
+// tested
+function setOutlets(val) {
+  ECOLOGIES_GLOBAL_STATE.outletsOn = (val) ? true : false;
+}
+
 // wip
 function setCell(id, obj) {
   if (!ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)){
@@ -1157,12 +1120,6 @@ function setCell(id, obj) {
     ECOLOGIES_GLOBAL_CELLS[id][key] = obj[key];
   });
 }
-
-// wip
-function getCell(id) {
-  return (ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_CELLS[id] : false;
-}
-
 
 // tested
 function setMenu(val) {
@@ -1190,28 +1147,8 @@ function setGeneration(val) {
 }
 
 // tested
-function getWidth() {
-  return ECOLOGIES_GLOBAL_STATE.width;
-}
-
-// tested
 function setHeight(val) {
   ECOLOGIES_GLOBAL_STATE.height = val;
-}
-
-// tested
-function getHeight() {
-  return ECOLOGIES_GLOBAL_STATE.height;
-}
-
-// tested
-function getSignalSpeed() {
-  return ECOLOGIES_GLOBAL_STATE.signalSpeed;
-}
-
-// tested
-function getGeneration() {
-  return ECOLOGIES_GLOBAL_STATE.generation;
 }
 
 // tested
@@ -1229,6 +1166,40 @@ function setSignals(newSignals) {
   ECOLOGIES_GLOBAL_SIGNALS = null;
   ECOLOGIES_GLOBAL_SIGNALS = newSignals;
 }
+
+/*
+ * Getters
+ * ==============================================================================
+ */
+
+// wip
+function getCell(id) {
+  return (ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_CELLS[id] : false;
+}
+
+// tested
+function getWidth() {
+  return ECOLOGIES_GLOBAL_STATE.width;
+}
+
+// tested
+function getHeight() {
+  return ECOLOGIES_GLOBAL_STATE.height;
+}
+
+// tested
+function getSignalSpeed() {
+  return ECOLOGIES_GLOBAL_STATE.signalSpeed;
+}
+
+// tested
+function getGeneration() {
+  return ECOLOGIES_GLOBAL_STATE.generation;
+}
+
+
+
+
 
 // tested
 function getSignals() {
@@ -1268,7 +1239,8 @@ function selectCell(val) {
 }
 
 /*
- * Utility
+ * Polyfills
+ * ==============================================================================
  */
 
 // tested
@@ -1329,14 +1301,60 @@ if (typeof Object.assign !== 'function') {
   });
 }
 
-// untested
-function dumpState() {
+/*
+ * Utility
+ * ==============================================================================
+ */
+
+ function dumpState() {
   out(JSON.stringify(ECOLOGIES_GLOBAL_STATE));
 }
 
 // untested
 function dumpCells() {
   out(JSON.stringify(ECOLOGIES_GLOBAL_CELLS));
+}
+
+// tested
+function dumpStructures() {
+  var arr = ECOLOGIES_GLOBAL_STATE.structures;
+  arr.unshift('structuresList');
+  if (isOutletsOn()) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// tested
+function dumpRoutes() {
+  var arr = ECOLOGIES_GLOBAL_STATE.routes;
+  arr.unshift('routesList');
+  if (isOutletsOn()) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// untested
+function dumpExistingCells() {
+  var obj = getExistingCells();
+  if (isOutletsOn()) {
+    out(JSON.stringify(obj));
+  } else {
+    return obj;
+  }
+}
+
+// untested
+function dumpExistingSignals() {
+  var obj = getSignals();
+  if (isOutletsOn()) {
+    out(JSON.stringify(obj));
+  } else {
+    return obj;
+  }
 }
 
 // untested...

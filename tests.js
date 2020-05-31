@@ -1031,6 +1031,14 @@ function testSetSignals() {
   return result;
 }
 
+function testSetCell() {
+  var name = 'testCell';
+  setCell('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'route': 'random'});
+  var result = (ECOLOGIES_GLOBAL_CELLS.x0y1.id == 'x0y1' && ECOLOGIES_GLOBAL_SIGNALS.x0y1.route == 'random') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
 function testCollideSignalsAndCells() {
   var name = 'testCollideSignalsAndCells';
 
@@ -1178,6 +1186,7 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testSetSignal());
+  results.push(testSetCell());
 
   resetTestSuite();
   results.push(testCollideSignalsAndCells());
