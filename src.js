@@ -17,7 +17,7 @@
  *
  * Notes:
  *  - Function "//tested" and "//untested" comments refers to test coverage in tests.js.
- *
+ *  - "midiPaletteEvent" "menuEvent" and "fieldEvent" are all types of "gridEvent".
  */
 
 /*
@@ -27,31 +27,39 @@
 
 // beta wip
 function advance() {
-  post('generation: ' + getGeneration());
-  hivesSing();
   
-  var existingCells = getExistingCells();
-  var birthedSignals = birthSignals();
-  var existingSignals = getSignals();
-  var survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
-  var survivingSignals = cancelCollidingSignalsAndCells(survivingSignals, existingCells);
+  var birthedSignals;
+  var existingSignals;
+  var propagatedSignals;
+  var survivingSignals;
+  var finalSignals;
+  var existingCells;
 
-  survivingSignals = cancelOutOfBoundsSignals(survivingSignals);
-  propagateSignals(survivingSignals);
+  // glorious birth...
+  hivesSing();
 
+  birthedSignals = birthSignals();
 
-  //portsSing();
-  //nomadsSing();
+  // & everything moves...
+  existingSignals = getSignals();
+  if (existingSignals === undefined) return; // ...unless there's nothing to move...
+  propagatedSignals = propagateSignals(existingSignals);
 
-  if (!getSelectedCellId() &&
-      !getIsMenuActive() &&
-      !getIsMidiPaletteActive()) {
-    // don't redraw when:
-    // - a cell is selected
-    // - the menu is active
-    // - the palette is active
+  // & some things die...
+  survivingSignals = cancelOutOfBoundsSignals(propagatedSignals);
+  survivingSignals = cancelCollidingSignals(birthedSignals, survivingSignals);
+  
+  // & some more things die but some things also sing...
+  existingCells = getExistingCells();
+  finalSignals = collide(survivingSignals, existingCells);
+
+  // & things are at rest
+  setSignals(finalSignals);
+
+  if (!getSelectedCellId() && !getIsMenuActive() && !getIsMidiPaletteActive()) {
+    // only redraw when a cell isn't selected, the menu isn't active, or the palette isn't active
     clearField();
-    //drawSignals();
+    drawSignals();
     drawCells();
   }
 
@@ -59,9 +67,29 @@ function advance() {
 
 
 // beta wip
-function cancelCollidingSignalsAndCells(existingSignals, existingCells) {
+// for signals that smash into:
+// - routed sides of ports / nomads
+// - routeless sides of ports / nomads
+// - any side of a hive
+function collide(survivingSignals, existingCells) {
 
-  getRouteDirections(existingCell)
+  var finalSurvivingSignals = [];
+
+  // filter by signals with same x, y as cells, leave rest alone
+  // delete signals collidng with hives
+  // delete signals collding with routless ports / nomads
+  // portsSing() & nomadsSing()
+  // split signals those leaving multi route ports / nomads (nes)
+  // update direction otherwise (ne)
+  // return final signals
+
+
+  Object.keys(survivingSignals).forEach(function(key) {
+    var thisSignal = survivingSignals[key];
+
+
+  });
+    
 }
 
 // tested
@@ -70,42 +98,49 @@ function propagateSignals(survivingSignals) {
   var propagatedSignals = [];
 
   Object.keys(survivingSignals).forEach(function(key) {
-    thisSignal = survivingSignals[key];
+    var thisSignal = survivingSignals[key];
+    var x;
+    var y;
+    var id;
+    var direction;
+
+    // don't propagate signals that were just born
+    if (thisSignal.generation === getGeneration()) return;
     
     if (thisSignal.direction === 'n') {
-      var x = thisSignal.x;
-      var y = thisSignal.y - 1;
-      var id = makeId(x, y);
-      var direction = 'n';
+      x = thisSignal.x;
+      y = thisSignal.y - 1;
+      id = makeId(x, y);
+      direction = 'n';
       propagatedSignals.push(makeSignal(x, y, direction));
     }
 
     if (thisSignal.direction === 's') {
-      var x = thisSignal.x;
-      var y = thisSignal.y + 1;
-      var id = makeId(x, y);
-      var direction = 's';
+      x = thisSignal.x;
+      y = thisSignal.y + 1;
+      id = makeId(x, y);
+      direction = 's';
       propagatedSignals.push(makeSignal(x, y, direction));
     }
 
     if (thisSignal.direction === 'e') {
-      var x = thisSignal.x + 1;
-      var y = thisSignal.y;
-      var id = makeId(x, y);
-      var direction = 'e';
+      x = thisSignal.x + 1;
+      y = thisSignal.y;
+      id = makeId(x, y);
+      direction = 'e';
       propagatedSignals.push(makeSignal(x, y, direction));
     }
 
     if (thisSignal.direction === 'w') {
-      var x = thisSignal.x - 1;
-      var y = thisSignal.y;
-      var id = makeId(x, y);
-      var direction = 'w';
+      x = thisSignal.x - 1;
+      y = thisSignal.y;
+      id = makeId(x, y);
+      direction = 'w';
       propagatedSignals.push(makeSignal(x, y, direction));
     }
   });
-  signals = null;
-  signals = propagatedSignals;
+
+  return propagatedSignals;
 }
 
 // beta wip
@@ -115,7 +150,7 @@ function hivesSing() {
   var hives = getCellsByStructure('hive');
 
   Object.keys(hives).forEach(function(key) {
-    thisHive = hives[key];
+    var thisHive = hives[key];
     var note = isHiveBirthing(thisHive.interval) ? thisHive.note : false;
     if (note) {
       hiveChorus.push(note);
@@ -134,7 +169,7 @@ function cancelOutOfBoundsSignals(survivingSignals) {
   Object.keys(survivingSignals).forEach(function(key) {
     if (isInBounds(survivingSignals[key].id)) {
       inBoundsSignals.push(survivingSignals[key]);
-    };
+    }
   });
   return inBoundsSignals;
 } 
@@ -158,8 +193,8 @@ function rollRandomRoute() {
 // tested
 function enrichWithHiveRouteDirections(hives) {
   Object.keys(hives).forEach(function(key) {
-    hive = hives[key];
-    hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
+    var hive = hives[key];
+    var hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
     hives[key].hiveRouteDirections = hiveRouteDirections;
   });
   return hives;
@@ -174,9 +209,11 @@ function birthSignals() {
   var hives = getCellsByStructure('hive');
   hives = enrichWithHiveRouteDirections(hives);
 
-  for( i = 0; i < hives.length; i++) {
+  for(var i = 0; i < hives.length; i++) {
 
     var thisHive = hives[i];
+    var y;
+    var x;
 
     if (thisHive.hiveRouteDirections.contains('n')) {
       // one cell north means subtract one from the hive
@@ -232,7 +269,7 @@ function cancelCollidingSignals(birthedSignals, existingSignals) {
     existingIds.push(existingSignals[key].id);
   });
 
-  for (i = 0; i < existingIds.length; i++) {
+  for (var i = 0; i < existingIds.length; i++) {
     var id = existingIds[i];
     if(birthedSignals.hasOwnProperty(id)){
       delete birthedSignals[id];
@@ -260,13 +297,14 @@ function drawSignals() {
 
   var drawArray = [];
   var existingSignals = getSignals();
-  
+  if (existingSignals === undefined) return;
+
   Object.keys(existingSignals).forEach(function(key) {
     drawArray.push(['drawSignals', existingSignals[key].id]);
   });
 
-  for (i = 0; i < drawArray.length; i++) {
-    if (state.outletsOn) {
+  for (var i = 0; i < drawArray.length; i++) {
+    if (isOutletsOn()) {
       out(drawArray[i]);
     } else {
       return drawArray[i];
@@ -278,7 +316,7 @@ function drawSignals() {
 // tested
 function drawChannels(id) {
 
-  cell = field[id];
+  var cell = getCell(id);
   
   if (cell.route == 'off') return;
   if (cell.route == 'shell') return;
@@ -286,7 +324,7 @@ function drawChannels(id) {
   var channels = [];
   channels = channels.concat(prepareCellChannels(cell.id));
   
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     channels.forEach(function(channel){
       out(channel);
     });
@@ -295,7 +333,6 @@ function drawChannels(id) {
   }
 
 } 
-
 
 // tested
 function findColumnNeighbor(currentCell, existingCells, direction) {
@@ -393,7 +430,7 @@ function findRowNeighbor(currentCell, existingCells, direction) {
 // tested
 function prepareCellChannels(cellId) {
 
-  var currentCell = field[cellId];
+  var currentCell = getCell(cellId);
   var currentCellRouteDirections = getRouteDirections(currentCell.route); // eg, ['n', 's']
   var existingCells = getExistingCells();
   var filteredTermini = [];
@@ -420,63 +457,67 @@ function prepareCellChannels(cellId) {
 
 // untested
 function gridEvent(press, x, y) {
-  if (x > state.x) return;
-  if (y > state.y) return;
-  if (getIsMenuActive()) {
+  if (x > getWidth() - 1) return;
+  if (y > getHeight() - 1) return;
+
+  if (getIsMidiPaletteActive()) {
+    midiPaletteEvent(press, x, y);
+  } else if (getIsMenuActive()) {
     menuEvent(press, x, y);
   } else {
     fieldEvent(press, x, y);
   }
+
 }
 
 // untested
 function menuEvent(press, x, y) {
-  if (!getIsMidiPaletteActive()) {
-    switch(press) {
-      case 'single':
-        // the menu is always [x1y1, x6y6] on any sized grid
-        // and pressing anywhere outside this square closes it
-        if (x > 0 && x < 7 && y > 0 && y < 7) {
-          singleMenuEvent(x, y);
-        } else {
-          closeMenu();
-          clearField();
-          drawChannels(getSelectedCellId());
-          out(drawRoute(getSelectedCellId()));
-          drawCells();
-        }
-        break;
-      case 'double':
-        // no double press events exist in the menu
-        break;
-      case 'long':
-        // no long press events exist in the menu
-        break;
-    }
+  switch(press) {
+    case 'single':
+      // the menu is always [x1y1, x6y6] on any sized grid
+      // and pressing anywhere outside this square closes it
+      if (x > 0 && x < 7 && y > 0 && y < 7) {
+        singleMenuEvent(x, y);
+      } else {
+        closeMenu();
+        clearField();
+        drawChannels(getSelectedCellId());
+        out(drawRoute(getSelectedCellId()));
+        drawCells();
+      }
+      break;
+    case 'double':
+      // no double press events exist in the menu
+      break;
+    case 'long':
+      // no long press events exist in the menu
+      break;
   }
-  if (getIsMidiPaletteActive()) {
-    switch(press) {
-      case 'single':
-        // the midi palette is always [x1y1, x6y6] on any sized grid
-        // and pressing anywhere outside this square closes it
-        if (x > 0 && x < 7 && y > 0 && y < 7) {
-          singleMidiPaletteEvent(x, y);
-        } else {
-          closeMidiPalette();
-          clearField();
-          openMenu();
-          drawMenu(getSelectedCellId());
-        }
-        break;
-      case 'double':
-        // no double press events exist in the midi palette
-        break;
-      case 'long':
-        // no long press events exist in the midi palette
-        break;
-    }
-  } 
 }
+
+// untested
+function midiPaletteEvent(press, x, y) {
+  switch(press) {
+    case 'single':
+      // the midi palette is always [x1y1, x6y6] on any sized grid
+      // and pressing anywhere outside this square closes it
+      if (x > 0 && x < 7 && y > 0 && y < 7) {
+        singleMidiPaletteEvent(x, y);
+      } else {
+        closeMidiPalette();
+        clearField();
+        openMenu();
+        drawMenu(getSelectedCellId());
+      }
+      break;
+    case 'double':
+      // no double press events exist in the midi palette
+      break;
+    case 'long':
+      // no long press events exist in the midi palette
+      break;
+  }
+} 
 
 // tested
 function singleMidiPaletteEvent(x, y) {
@@ -484,9 +525,9 @@ function singleMidiPaletteEvent(x, y) {
   // 6x6 = 36 = 3 octaves = C3, C4, C5
   var note = getNote(x, y);
   var id = getSelectedCellId();
-  field[id].note = note;
+  setCell(id, { 'note' : note});
   var arr = ['animateMidiNotePress', x, y];
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(arr);
   } else {
     return arr;
@@ -588,7 +629,7 @@ function singleFieldEvent(x, y) {
 // untested
 function cycleThroughFieldRoutes(x, y) {
   
-  var cell = getCell(x, y);
+  var cell = getCellByCoords(x, y);
   var id = makeId(x, y);
 
   if (!cell.isExists) {
@@ -600,7 +641,7 @@ function cycleThroughFieldRoutes(x, y) {
     cell.route = cycleRoutes(cell.route);
   }
 
-  field[id] = cell;
+  setCell(id, cell);
 
   drawChannels(id); // eh?
   out(drawRoute(id));
@@ -675,30 +716,28 @@ function longFieldEvent(x, y) {
     clearField();
     openMenu();
     drawMenu(id);
+  } else if (getSelectedCellId()) {
+    deselectCell();
+    clearField();
+    drawCells();
   } else {
-    if (getSelectedCellId()) {
-      deselectCell();
-      clearField();
-      drawCells();
-    } else {
-      // reserved for global menu
-    }
+    // reserved for global menu
   }
 
 }
 
 // untested
 function singleMenuEvent(x, y) {
-  // note this x, y does not correspond to the field.xNyN values!
+  // note this x, y does not correspond to the ECOLOGIES_GLOBAL_FIELD.xNyN values!
   // so we cannot use them to lookup the cells we have to getSelectedCellId()[id]
   var id = getSelectedCellId();
-  var cell = field[id];
+  var cell = getCell(id);
 
   // the nw corner is the route symbole &
   // 2,2 lets you change the route:
   if (x === 2 && y === 2) {
     cell.route = cycleRoutes(cell.route);
-    field[id] = cell;
+    setCell(id, cell);
     out(drawMenuRoute(id));
   }
 
@@ -714,7 +753,7 @@ function singleMenuEvent(x, y) {
     if (y === 3) {
       cell.structure = 'hive';
     }
-    field[id] = cell;
+    setCell(id, cell);
     out(drawMenuStructure(id));
   }
 
@@ -727,7 +766,7 @@ function singleMenuEvent(x, y) {
   // row 5 sets the interval
   if (y === 5) {
     // we know x can only be 1-6 due to previous validation
-    field[id].interval = x;
+    setCell(id, { 'interval' : x });
     out(drawMenuInterval(x));
   }
 
@@ -750,7 +789,7 @@ function clearField() {
 
   var msg = 'clearField';
 
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(msg);
   } else {
     return msg;
@@ -763,13 +802,14 @@ function drawCells() {
   
   var arr = ['drawCells'];
   var cells = getExistingCells();
-  
+  if (cells === undefined) return;
+
   if (Object.size(cells) > 0) {
     for (var key in cells) {
         if (!cells.hasOwnProperty(key)) continue;
         arr.push(cells[key].id);
     }
-    if (state.outletsOn) {
+    if (isOutletsOn()) {
       out(arr);
     } else {
       return arr;
@@ -785,7 +825,7 @@ function drawChannel(arr) {
 
 // tested
 function drawRoute(id) {
-  var cell = field[id];
+  var cell = getCell(id);
   return ['drawRoute', cell.route, cell.x, cell.y];
 }
 
@@ -793,18 +833,18 @@ function drawRoute(id) {
 function drawMenu(id) {
   out(drawMenuRoute(id));
   out(drawMenuStructure(id));
-  out(drawMenuInterval(field[id].interval));
+  out(drawMenuInterval(getCell(id).interval));
 }
 
 // tested
 function drawMenuRoute(id) {
-  var cell = field[id];
+  var cell = getCell(id);
   return ['drawRoute', cell.route, 2, 2];
 }
 
 // tested
 function drawMenuStructure(id) {
-  var cell = field[id];
+  var cell = getCell(id);
   return ['drawStructure', cell.structure];
 }
 
@@ -819,18 +859,18 @@ function drawMenuInterval(x) {
  */
 
 // tested
-function makeField() {
-  x = getWidth();
-  y = getHeight();
-  var out = {};
+function initCells() {
+  ECOLOGIES_GLOBAL_CELLS = null;
+  ECOLOGIES_GLOBAL_CELLS = {};
+  var x = getWidth();
+  var y = getHeight();
   for (var iy = y - 1; iy >= 0; iy--) {
     for (var ix = x - 1; ix >= 0; ix--) {
       var cellId = 'x' + ix + 'y' + iy;
       var cell = initCell(ix, iy);
-      out[cellId] = cell;
+      setCell(cellId, cell);
     }
   }
-  return out;
 }
 
 // tested
@@ -843,7 +883,8 @@ function initCell(x, y) {
     route: 'off',
     structure: 'none',
     note: 60,
-    interval: 4
+    interval: 4,
+    generation: 0
   };
 }
 
@@ -862,16 +903,12 @@ function makeId(x, y) {
 // tested
 function getSignal(x, y) {
   var id = makeId(x, y);
-  if ((typeof signals[id] === 'object' && signal[id] !== null)) {
-    return signals[id];
-  } else {
-    return false;
-  }
+  return (ECOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_SIGNALS[id] : false;
 }
 
 // tested
 function deleteSignal(id) {
-  delete signals.id;
+  delete ECOLOGIES_GLOBAL_SIGNALS.id;
 }
 
 // tested
@@ -882,24 +919,25 @@ function makeSignal(x, y, direction) {
     'id' : id,
     'x' : x,
     'y' : y,
-    'direction' : direction
+    'direction' : direction,
+    'generation' : getGeneration()
   };
   return newSignal;
 }
 
 // tested
-function getCell(x, y) {
+function getCellByCoords(x, y) {
   var id = makeId(x, y);
-  return field[id];
+  return getCell(id);
 }
 
 // tested
 function getExistingCells() {
-  var f = field;
+  var c = ECOLOGIES_GLOBAL_CELLS;
   var obj = {};
-  for (var key in f) {
-    if (f.hasOwnProperty(key)) {
-        cell = f[key];
+  for (var key in c) {
+    if (c.hasOwnProperty(key)) {
+        var cell = c[key];
         if (cell.isExists === false) continue;
         obj[cell.id] = cell;
     }
@@ -912,7 +950,7 @@ function getIds(obj) {
   var arr = [];
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
-      cell = obj[key];
+      var cell = obj[key];
       arr.push(cell.id);
     }
   }
@@ -945,24 +983,23 @@ function getRouteDirections(route) {
 // tested
 function moveCell(originId, destinationId) {
 
-  // write the destination
-  field[destinationId].isExists = true;
-  field[destinationId].route = field[originId].route;
-  field[destinationId].structure = field[originId].structure;
-  field[destinationId].note = field[originId].note;
+  // write the destination then erase the origin
+  var destination = {
+    'isExists' : true,
+    'route' : getCell(originId).route,
+    'structure' : getCell(originId).structure,
+    'note' : getCell(originId).note
+  };
+  setCell(destinationId, destination);
 
-  // erase the origin
-  field[originId].isExists = false;
-  field[originId].route = 'off';
-  field[originId].structure = 'none';
-  field[originId].note = 60;
+  setCell(originId, initCellById(originId));
 
 }
 
 // tested
 function deleteCell(id) {
   deselectCell();
-  field[id] = initCellById(id);
+  setCell(id, initCellById(id));
 }
 
 /*
@@ -970,40 +1007,33 @@ function deleteCell(id) {
  * ==============================================================================
  */
 
-var state = {};
-var field = {};
-var signals = {};
+var ECOLOGIES_GLOBAL_STATE = {};
+var ECOLOGIES_GLOBAL_CELLS = {};
+var ECOLOGIES_GLOBAL_SIGNALS = {};
 
 // tested by proxy
 function init() {
-  state = null;
-  state = {};
-  state.outletsOn = false;
-  state.generation = 0;
-  state.time = 0;
-  state.width = 0;
-  state.height = 0;
-  state.isMenuActive = false;
-  state.isMidiPaletteActive = false;
-  state.routes = [
-    'all', 'random', 'shell', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 
-    'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'off'
+  ECOLOGIES_GLOBAL_STATE = null;
+  ECOLOGIES_GLOBAL_STATE = {};
+  ECOLOGIES_GLOBAL_STATE.outletsOn = false;
+  ECOLOGIES_GLOBAL_STATE.generation = 0;
+  ECOLOGIES_GLOBAL_STATE.width = 0;
+  ECOLOGIES_GLOBAL_STATE.height = 0;
+  ECOLOGIES_GLOBAL_STATE.isMenuActive = false;
+  ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
+  ECOLOGIES_GLOBAL_STATE.routes = [
+    'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
+    'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'random', 'shell', 'off'
   ];
-  state.structures = ['hive', 'port', 'nomad'];
-  state.selectedCellId = false;
-  state.signalSpeed = 1;
-}
-
-// tested by proxy
-function initField() {
-  field = null;
-  field = makeField();
+  ECOLOGIES_GLOBAL_STATE.structures = ['hive', 'port', 'nomad'];
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
+  ECOLOGIES_GLOBAL_STATE.signalSpeed = 1;
 }
 
 // tested by proxy
 function initSignals() {
-  signals = null;
-  signals = {};
+  ECOLOGIES_GLOBAL_SIGNALS = null;
+  ECOLOGIES_GLOBAL_SIGNALS = {};
 }
 
 /*
@@ -1018,7 +1048,7 @@ var outlets = 1;
 function openMenu() {
   setMenu(true);
   var msg = 'openMenu';
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(msg);
   } else {
     return msg;
@@ -1029,7 +1059,7 @@ function openMenu() {
 function closeMenu() {
   setMenu(false);
   var msg = 'closeMenu';
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(msg);
   } else {
     return msg;
@@ -1039,8 +1069,8 @@ function closeMenu() {
 // tested
 function openMidiPalette() {
   setMidiPalette(true);
-  msg = 'drawMidiPalette';
-  if (state.outletsOn) {
+  var msg = 'drawMidiPalette';
+  if (isOutletsOn()) {
     out(msg);
   } else {
     return msg;
@@ -1054,9 +1084,9 @@ function closeMidiPalette() {
 
 // tested
 function dumpStructures() {
-  var arr = state.structures;
+  var arr = ECOLOGIES_GLOBAL_STATE.structures;
   arr.unshift('structuresList');
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(arr);
   } else {
     return arr;
@@ -1065,9 +1095,9 @@ function dumpStructures() {
 
 // tested
 function dumpRoutes() {
-  var arr = state.routes;
+  var arr = ECOLOGIES_GLOBAL_STATE.routes;
   arr.unshift('routesList');
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(arr);
   } else {
     return arr;
@@ -1077,7 +1107,7 @@ function dumpRoutes() {
 // untested
 function dumpExistingCells() {
   var obj = getExistingCells();
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(JSON.stringify(obj));
   } else {
     return obj;
@@ -1087,7 +1117,7 @@ function dumpExistingCells() {
 // untested
 function dumpExistingSignals() {
   var obj = getSignals();
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     out(JSON.stringify(obj));
   } else {
     return obj;
@@ -1095,18 +1125,18 @@ function dumpExistingSignals() {
 }
 
 // tested
-function outletsOn() {
-  state.outletsOn = true;
+function setOutlets(val) {
+  ECOLOGIES_GLOBAL_STATE.outletsOn = (val) ? true : false;
 }
 
 // tested
-function outletsOff() {
-  state.outletsOn = false;
+function isOutletsOn() {
+  return ECOLOGIES_GLOBAL_STATE.outletsOn;
 }
 
 // tested
 function out(val) {
-  if (state.outletsOn) {
+  if (isOutletsOn()) {
     outlet(0, val);
   } else {
     return val;
@@ -1118,79 +1148,106 @@ function out(val) {
  * ==============================================================================
  */
 
+// wip
+function setCell(id, obj) {
+  if (!ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)){
+    ECOLOGIES_GLOBAL_CELLS[id] = {};
+  }
+ Object.keys(obj).forEach(function(key) {
+    ECOLOGIES_GLOBAL_CELLS[id][key] = obj[key];
+  });
+}
+
+// wip
+function getCell(id) {
+  return (ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_CELLS[id] : false;
+}
+
+
 // tested
 function setMenu(val) {
-  state.isMenuActive = val;
+  ECOLOGIES_GLOBAL_STATE.isMenuActive = val;
 }
 
 // tested
 function setMidiPalette(val) {
-  state.isMidiPaletteActive = val;
+  ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = val;
 }
 
 // tested
 function setLifespan(val) {
-  state.lifespan = val;
-}
-
-// tested
-function setTime(val) {
-  state.time = val;
+  ECOLOGIES_GLOBAL_STATE.lifespan = val;
 }
 
 // tested
 function setWidth(val) {
-  state.width = val;
+  ECOLOGIES_GLOBAL_STATE.width = val;
 }
 
 // tested
 function setGeneration(val) {
-  state.generation = val;
+  ECOLOGIES_GLOBAL_STATE.generation = val;
 }
 
 // tested
 function getWidth() {
-  return state.width;
+  return ECOLOGIES_GLOBAL_STATE.width;
 }
 
 // tested
 function setHeight(val) {
-  state.height = val;
+  ECOLOGIES_GLOBAL_STATE.height = val;
 }
 
 // tested
 function getHeight() {
-  return state.height;
+  return ECOLOGIES_GLOBAL_STATE.height;
 }
 
 // tested
 function getSignalSpeed() {
-  return state.signalSpeed;
+  return ECOLOGIES_GLOBAL_STATE.signalSpeed;
 }
 
 // tested
 function getGeneration() {
-  return state.generation;
+  return ECOLOGIES_GLOBAL_STATE.generation;
+}
+
+// tested
+function setSignal(id, obj) {
+  if (!ECOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)){
+    ECOLOGIES_GLOBAL_SIGNALS[id] = {};
+  }
+ Object.keys(obj).forEach(function(key) {
+    ECOLOGIES_GLOBAL_SIGNALS[id][key] = obj[key];
+  });
+}
+
+// tested
+function setSignals(newSignals) {
+  ECOLOGIES_GLOBAL_SIGNALS = null;
+  ECOLOGIES_GLOBAL_SIGNALS = newSignals;
 }
 
 // tested
 function getSignals() {
-  return signals;
+  return ECOLOGIES_GLOBAL_SIGNALS;
 }
 
 // tested
 function getSelectedCellId() {
-  return state.selectedCellId;
+  return ECOLOGIES_GLOBAL_STATE.selectedCellId;
 }
 
 // tested
 function getIsMenuActive() {
-  return state.isMenuActive;
+  return ECOLOGIES_GLOBAL_STATE.isMenuActive;
 }
 
 // tested
 function getIsMidiPaletteActive() {
-  return state.isMidiPaletteActive;
+  return ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive;
 }
 
 // tested
@@ -1200,13 +1257,13 @@ function isHiveBirthing(hiveInterval) {
 
 // tested
 function deselectCell() {
-  state.selectedCellId = false;
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
   out('deselectCell');
 }
 
 // tested
 function selectCell(val) {
-  state.selectedCellId = val;
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = val;
   out(['selectCell', val]);
 }
 
@@ -1274,12 +1331,12 @@ if (typeof Object.assign !== 'function') {
 
 // untested
 function dumpState() {
-  out(JSON.stringify(state));
+  out(JSON.stringify(ECOLOGIES_GLOBAL_STATE));
 }
 
 // untested
-function dumpField() {
-  out(SON.stringify(field));
+function dumpCells() {
+  out(JSON.stringify(ECOLOGIES_GLOBAL_CELLS));
 }
 
 // untested...
