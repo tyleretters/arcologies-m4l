@@ -76,7 +76,7 @@ function advance() {
 // - any side of a hive
 function collide(survivingSignals, existingCells) {
 
-  var finalSurvivingSignals = [];
+  var finalSurvivingSignals = {};
 
   // filter by signals with same x, y as cells, leave rest alone
   // delete signals collidng with hives
@@ -242,9 +242,11 @@ function cancelCollidingSignals(birthedSignals, existingSignals) {
 
   var existingIds = [];
 
-  Object.keys(existingSignals).forEach(function(key) {
-    existingIds.push(existingSignals[key].id);
-  });
+  // Object.keys(existingSignals).forEach(function(key) {
+  //   existingIds.push(existingSignals[key].id);
+  // });
+
+  existingIds = getIds(existingSignals);
 
   for (var i = 0; i < existingIds.length; i++) {
     var id = existingIds[i];
@@ -443,7 +445,6 @@ function midiPaletteEvent(press, x, y) {
   }
 } 
 
-
 // tested
 function singleMidiPaletteEvent(x, y) {
   // all midi palette events do the same thing - set the note
@@ -638,7 +639,7 @@ function longFieldEvent(x, y) {
 }
 
 /*
- * Draw
+ * Draws
  * ==============================================================================
  */
 
@@ -818,43 +819,6 @@ function selectCell(val) {
 }
 
 /*
- * TBD
- * ==============================================================================
- */
-
-
-
-
-// tested
-function deleteSignal(id) {
-  delete ECOLOGIES_GLOBAL_SIGNALS.id;
-}
-
-
-
-// tested
-function moveCell(originId, destinationId) {
-
-  // write the destination then erase the origin
-  var destination = {
-    'isExists' : true,
-    'route' : getCell(originId).route,
-    'structure' : getCell(originId).structure,
-    'note' : getCell(originId).note
-  };
-  setCell(destinationId, destination);
-
-  setCell(originId, initCellById(originId));
-
-}
-
-// tested
-function deleteCell(id) {
-  deselectCell();
-  setCell(id, initCellById(id));
-}
-
-/*
  * Initialize Functions
  * ==============================================================================
  */
@@ -989,6 +953,34 @@ function setSignal(id, obj) {
 function setSignals(newSignals) {
   ECOLOGIES_GLOBAL_SIGNALS = null;
   ECOLOGIES_GLOBAL_SIGNALS = newSignals;
+}
+
+
+// tested
+function moveCell(originId, destinationId) {
+
+  // write the destination then erase the origin
+  var destination = {
+    'isExists' : true,
+    'route' : getCell(originId).route,
+    'structure' : getCell(originId).structure,
+    'note' : getCell(originId).note
+  };
+  setCell(destinationId, destination);
+
+  setCell(originId, initCellById(originId));
+
+}
+
+// tested
+function deleteCell(id) {
+  deselectCell();
+  setCell(id, initCellById(id));
+}
+
+// tested
+function deleteSignal(id) {
+  delete ECOLOGIES_GLOBAL_SIGNALS.id;
 }
 
 
