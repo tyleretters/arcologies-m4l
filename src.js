@@ -8,15 +8,16 @@
  * License:   Attribution 4.0 International (CC BY 4.0)
  *
  * File Organization:
- *  - Event Handlers
- *  - Draw
- *  - Time & Place
+ *  - Core
+ *  - Events
+ *  - Draws
+ *  - Max I/O
  *  - Initialize Functions
  *  - Setters
- *  - Getters
- *  - Max I/O
+ *  - Higher Level Getters
+ *  - Lower Level Getters
  *  - Polyfills
- *  - Utility
+ *  - Utility & Helpers
  *
  * Notes:
  *  - Function "//tested" and "//untested" comments refers to test coverage in tests.js.
@@ -24,7 +25,7 @@
  */
 
 /*
- * Event Handlers
+ * Core
  * ==============================================================================
  */
 
@@ -67,7 +68,6 @@ function advance() {
   }
 
 }
-
 
 // beta wip
 // for signals that smash into:
@@ -178,32 +178,6 @@ function cancelOutOfBoundsSignals(survivingSignals) {
 } 
 
 // tested
-function isInBounds(id) {
-  var parts = id.split(/([0-9]+)/);
-  var okWest = (parts[1] >= 0);
-  var okEast = (parts[1] < getWidth());
-  var okNorth = (parts[3] >= 0);
-  var okSouth = (parts[3] < getHeight());
-  return (okWest && okEast && okNorth && okSouth);
-}
-
-// tested
-function rollRandomRoute() {
-  var routes = ['all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'shell'];
-  return getRouteDirections(routes[ Math.floor(Math.random() * routes.length)]);
-}
-
-// tested
-function enrichWithHiveRouteDirections(hives) {
-  Object.keys(hives).forEach(function(key) {
-    var hive = hives[key];
-    var hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
-    hives[key].hiveRouteDirections = hiveRouteDirections;
-  });
-  return hives;
-}
-
-// tested
 // very brittle test - if you change the sorting
 // of the array the test will break
 function birthSignals() {
@@ -281,61 +255,6 @@ function cancelCollidingSignals(birthedSignals, existingSignals) {
   }
   return Object.assign(birthedSignals, existingSignals);
 }
-
-// tested
-function getCellsByStructure(structure) {
-
-  var existingCells = getExistingCells();
-  var cells = [];
-  Object.keys(existingCells).forEach(function(key) {
-    if (existingCells[key].structure == structure) {
-      cells.push(existingCells[key]);
-    }
-  });
-  return cells;
-}
-
-// tested
-function drawSignals() {
-
-  var drawArray = [];
-  var existingSignals = getSignals();
-  if (existingSignals === undefined) return;
-
-  Object.keys(existingSignals).forEach(function(key) {
-    drawArray.push(['drawSignals', existingSignals[key].id]);
-  });
-
-  for (var i = 0; i < drawArray.length; i++) {
-    if (isOutletsOn()) {
-      out(drawArray[i]);
-    } else {
-      return drawArray[i];
-    }
-  }
-
-}
-
-// tested
-function drawChannels(id) {
-
-  var cell = getCell(id);
-  
-  if (cell.route == 'off') return;
-  if (cell.route == 'shell') return;
-
-  var channels = [];
-  channels = channels.concat(prepareCellChannels(cell.id));
-  
-  if (isOutletsOn()) {
-    channels.forEach(function(channel){
-      out(channel);
-    });
-  } else {
-      return channels;
-  }
-
-} 
 
 // tested
 function findColumnNeighbor(currentCell, existingCells, direction) {
@@ -458,6 +377,34 @@ function prepareCellChannels(cellId) {
   return cellChannels;
 }
 
+
+// untested
+function cycleThroughFieldRoutes(x, y) {
+  
+  var cell = getCellByCoords(x, y);
+  var id = makeId(x, y);
+
+  if (!cell.isExists) {
+    // new cells start as a "hive" with "all" routes on
+    cell.structure = 'hive';
+    cell.route = 'all';
+    cell.isExists = true;
+  } else {
+    cell.route = cycleRoutes(cell.route);
+  }
+
+  setCell(id, cell);
+
+  drawChannels(id); // eh?
+  out(drawRoute(id));
+
+}
+
+/*
+ * Events
+ * ==============================================================================
+ */
+
 // untested
 function gridEvent(press, x, y) {
   if (x > getWidth() - 1) return;
@@ -470,7 +417,46 @@ function gridEvent(press, x, y) {
   } else {
     fieldEvent(press, x, y);
   }
+}
 
+// untested
+function midiPaletteEvent(press, x, y) {
+  switch(press) {
+    case 'single':
+      // the midi palette is always [x1y1, x6y6] on any sized grid
+      // and pressing anywhere outside this square closes it
+      if (x > 0 && x < 7 && y > 0 && y < 7) {
+        singleMidiPaletteEvent(x, y);
+      } else {
+        closeMidiPalette();
+        clearField();
+        openMenu();
+        drawMenu(getSelectedCellId());
+      }
+      break;
+    case 'double':
+      // no double press events exist in the midi palette
+      break;
+    case 'long':
+      // no long press events exist in the midi palette
+      break;
+  }
+} 
+
+
+// tested
+function singleMidiPaletteEvent(x, y) {
+  // all midi palette events do the same thing - set the note
+  // 6x6 = 36 = 3 octaves = C3, C4, C5
+  var note = getNote(x, y);
+  var id = getSelectedCellId();
+  setCell(id, { 'note' : note});
+  var arr = ['animateMidiNotePress', x, y];
+  if (isOutletsOn()) {
+    out(arr);
+  } else {
+    return arr;
+  }
 }
 
 // untested
@@ -499,88 +485,56 @@ function menuEvent(press, x, y) {
 }
 
 // untested
-function midiPaletteEvent(press, x, y) {
-  switch(press) {
-    case 'single':
-      // the midi palette is always [x1y1, x6y6] on any sized grid
-      // and pressing anywhere outside this square closes it
-      if (x > 0 && x < 7 && y > 0 && y < 7) {
-        singleMidiPaletteEvent(x, y);
-      } else {
-        closeMidiPalette();
-        clearField();
-        openMenu();
-        drawMenu(getSelectedCellId());
-      }
-      break;
-    case 'double':
-      // no double press events exist in the midi palette
-      break;
-    case 'long':
-      // no long press events exist in the midi palette
-      break;
-  }
-} 
-
-// tested
-function singleMidiPaletteEvent(x, y) {
-  // all midi palette events do the same thing - set the note
-  // 6x6 = 36 = 3 octaves = C3, C4, C5
-  var note = getNote(x, y);
+function singleMenuEvent(x, y) {
+  // note this x, y does not correspond to the ECOLOGIES_GLOBAL_FIELD.xNyN values!
+  // so we cannot use them to lookup the cells we have to getSelectedCellId()[id]
   var id = getSelectedCellId();
-  setCell(id, { 'note' : note});
-  var arr = ['animateMidiNotePress', x, y];
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
+  var cell = getCell(id);
 
-// tested
-function getNote(x, y) {
-  // row 1
-  if (x == 1 && y == 1) return 48;
-  if (x == 2 && y == 1) return 49;
-  if (x == 3 && y == 1) return 50;
-  if (x == 4 && y == 1) return 51;
-  if (x == 5 && y == 1) return 52;
-  if (x == 6 && y == 1) return 53;
-  // row 2
-  if (x == 1 && y == 2) return 54;
-  if (x == 2 && y == 2) return 55;
-  if (x == 3 && y == 2) return 56;
-  if (x == 4 && y == 2) return 57;
-  if (x == 5 && y == 2) return 58;
-  if (x == 6 && y == 2) return 59;
-  // row 3
-  if (x == 1 && y == 3) return 60;
-  if (x == 2 && y == 3) return 61;
-  if (x == 3 && y == 3) return 62;
-  if (x == 4 && y == 3) return 63;
-  if (x == 5 && y == 3) return 64;
-  if (x == 6 && y == 3) return 65;
-  // row 4
-  if (x == 1 && y == 4) return 66;
-  if (x == 2 && y == 4) return 67;
-  if (x == 3 && y == 4) return 68;
-  if (x == 4 && y == 4) return 69;
-  if (x == 5 && y == 4) return 70;
-  if (x == 6 && y == 4) return 71;
-  // row 5
-  if (x == 1 && y == 5) return 72;
-  if (x == 2 && y == 5) return 73;
-  if (x == 3 && y == 5) return 74;
-  if (x == 4 && y == 5) return 75;
-  if (x == 5 && y == 5) return 76;
-  if (x == 6 && y == 5) return 77;
-  // row 6
-  if (x == 1 && y == 6) return 78;
-  if (x == 2 && y == 6) return 79;
-  if (x == 3 && y == 6) return 80;
-  if (x == 4 && y == 6) return 81;
-  if (x == 5 && y == 6) return 82;
-  if (x == 6 && y == 6) return 83;
+  // the nw corner is the route symbole &
+  // 2,2 lets you change the route:
+  if (x === 2 && y === 2) {
+    cell.route = cycleRoutes(cell.route);
+    setCell(id, cell);
+    out(drawMenuRoute(id));
+  }
+
+  // the ne corner is divided into 3 1x3 row
+  // with which you can set the structure:
+  if (x === 4 || x === 5 || x === 6) {
+    if (y === 1) {
+      cell.structure = 'nomad';
+    }
+    if (y === 2) {
+      cell.structure = 'port';
+    }
+    if (y === 3) {
+      cell.structure = 'hive';
+    }
+    setCell(id, cell);
+    out(drawMenuStructure(id));
+  }
+
+  // row 4 toggles the midi palette
+  if (y === 4) {
+    out('animateMidiPalettePress');
+    openMidiPalette();
+  }
+
+  // row 5 sets the interval
+  if (y === 5) {
+    // we know x can only be 1-6 due to previous validation
+    setCell(id, { 'interval' : x });
+    out(drawMenuInterval(x));
+  }
+
+  // row 6 is delete:
+   if (y === 6) {
+      deleteCell(id);
+      out('deleteCell');
+      // closeMenu() is then called from Max once the animation is complete
+  } 
+
 }
 
 // untested
@@ -627,52 +581,6 @@ function singleFieldEvent(x, y) {
     // we've pressed an empty cell and are ready to do something else
     deselectCell();
   }
-}
-
-// untested
-function cycleThroughFieldRoutes(x, y) {
-  
-  var cell = getCellByCoords(x, y);
-  var id = makeId(x, y);
-
-  if (!cell.isExists) {
-    // new cells start as a "hive" with "all" routes on
-    cell.structure = 'hive';
-    cell.route = 'all';
-    cell.isExists = true;
-  } else {
-    cell.route = cycleRoutes(cell.route);
-  }
-
-  setCell(id, cell);
-
-  drawChannels(id); // eh?
-  out(drawRoute(id));
-
-}
-
-// tested
-function cycleRoutes(route) {
-  // this pattern is hardcoded for the user's benefit
-  // (i don't want errant array sorting changing it)
-  if  (route === 'all')    return 'ne';
-  if  (route === 'ne')     return 'se';
-  if  (route === 'se')     return 'sw';
-  if  (route === 'sw')     return 'nw';
-  if  (route === 'nw')     return 'ns';
-  if  (route === 'ns')     return 'ew';
-  if  (route === 'ew')     return 'nes';
-  if  (route === 'nes')    return 'esw';
-  if  (route === 'esw')    return 'swn';
-  if  (route === 'swn')    return 'wne';
-  if  (route === 'wne')    return 'nn';
-  if  (route === 'nn')     return 'ee';
-  if  (route === 'ee')     return 'ss';
-  if  (route === 'ss')     return 'ww';
-  if  (route === 'ww')     return 'random';
-  if  (route === 'random') return 'shell';
-  if  (route === 'shell')  return 'all';
-  return 'all';
 }
 
 // untested
@@ -729,59 +637,6 @@ function longFieldEvent(x, y) {
 
 }
 
-// untested
-function singleMenuEvent(x, y) {
-  // note this x, y does not correspond to the ECOLOGIES_GLOBAL_FIELD.xNyN values!
-  // so we cannot use them to lookup the cells we have to getSelectedCellId()[id]
-  var id = getSelectedCellId();
-  var cell = getCell(id);
-
-  // the nw corner is the route symbole &
-  // 2,2 lets you change the route:
-  if (x === 2 && y === 2) {
-    cell.route = cycleRoutes(cell.route);
-    setCell(id, cell);
-    out(drawMenuRoute(id));
-  }
-
-  // the ne corner is divided into 3 1x3 row
-  // with which you can set the structure:
-  if (x === 4 || x === 5 || x === 6) {
-    if (y === 1) {
-      cell.structure = 'nomad';
-    }
-    if (y === 2) {
-      cell.structure = 'port';
-    }
-    if (y === 3) {
-      cell.structure = 'hive';
-    }
-    setCell(id, cell);
-    out(drawMenuStructure(id));
-  }
-
-  // row 4 toggles the midi palette
-  if (y === 4) {
-    out('animateMidiPalettePress');
-    openMidiPalette();
-  }
-
-  // row 5 sets the interval
-  if (y === 5) {
-    // we know x can only be 1-6 due to previous validation
-    setCell(id, { 'interval' : x });
-    out(drawMenuInterval(x));
-  }
-
-  // row 6 is delete:
-   if (y === 6) {
-      deleteCell(id);
-      out('deleteCell');
-      // closeMenu() is then called from Max once the animation is complete
-  } 
-
-}
-
 /*
  * Draw
  * ==============================================================================
@@ -789,16 +644,55 @@ function singleMenuEvent(x, y) {
 
 // tested
 function clearField() {
-
   var msg = 'clearField';
-
   if (isOutletsOn()) {
     out(msg);
   } else {
     return msg;
   }
+}
+
+// tested
+function drawSignals() {
+
+  var drawArray = [];
+  var existingSignals = getSignals();
+  if (existingSignals === undefined) return;
+
+  Object.keys(existingSignals).forEach(function(key) {
+    drawArray.push(['drawSignals', existingSignals[key].id]);
+  });
+
+  for (var i = 0; i < drawArray.length; i++) {
+    if (isOutletsOn()) {
+      out(drawArray[i]);
+    } else {
+      return drawArray[i];
+    }
+  }
 
 }
+
+// tested
+function drawChannels(id) {
+
+  var cell = getCell(id);
+  
+  if (cell.route == 'off') return;
+  if (cell.route == 'shell') return;
+
+  var channels = [];
+  channels = channels.concat(prepareCellChannels(cell.id));
+  
+  if (isOutletsOn()) {
+    channels.forEach(function(channel){
+      out(channel);
+    });
+  } else {
+      return channels;
+  }
+
+} 
 
 // tested
 function drawCells() {
@@ -857,195 +751,21 @@ function drawMenuInterval(x) {
 }
 
 /*
- * Time & Place
- * ==============================================================================
- */
-
-// tested
-function initCells() {
-  ECOLOGIES_GLOBAL_CELLS = null;
-  ECOLOGIES_GLOBAL_CELLS = {};
-  var x = getWidth();
-  var y = getHeight();
-  for (var iy = y - 1; iy >= 0; iy--) {
-    for (var ix = x - 1; ix >= 0; ix--) {
-      var cellId = 'x' + ix + 'y' + iy;
-      var cell = initCell(ix, iy);
-      setCell(cellId, cell);
-    }
-  }
-}
-
-// tested
-function initCell(x, y) {
-  return {
-    id: makeId(x, y),
-    isExists: false,
-    x: x,
-    y: y,
-    route: 'off',
-    structure: 'none',
-    note: 60,
-    interval: 4,
-    generation: 0
-  };
-}
-
-// tested
-function initCellById(id) {
-  var splitX = id.split('x');
-  var arr = splitX[1].split('y');
-  return initCell(arr[0], arr[1]);
-}
-
-// tested
-function makeId(x, y) {
-  return 'x' + x + 'y' + y;
-}
-
-// tested
-function getSignal(x, y) {
-  var id = makeId(x, y);
-  return (ECOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_SIGNALS[id] : false;
-}
-
-// tested
-function deleteSignal(id) {
-  delete ECOLOGIES_GLOBAL_SIGNALS.id;
-}
-
-// tested
-function makeSignal(x, y, direction) {
-  var id = makeId(x, y);
-  var newSignal = {};
-  newSignal = {
-    'id' : id,
-    'x' : x,
-    'y' : y,
-    'direction' : direction,
-    'generation' : getGeneration()
-  };
-  return newSignal;
-}
-
-// tested
-function getCellByCoords(x, y) {
-  var id = makeId(x, y);
-  return getCell(id);
-}
-
-// tested
-function getExistingCells() {
-  var c = ECOLOGIES_GLOBAL_CELLS;
-  var obj = {};
-  for (var key in c) {
-    if (c.hasOwnProperty(key)) {
-        var cell = c[key];
-        if (cell.isExists === false) continue;
-        obj[cell.id] = cell;
-    }
-  }
-  return obj;
-}
-
-// tested
-function getIds(obj) {
-  var arr = [];
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      var cell = obj[key];
-      arr.push(cell.id);
-    }
-  }
-  return arr;
-} 
-
-// tested
-function getRouteDirections(route) {
-  if  (route == 'all')    return ['n', 'e', 's', 'w'];
-  if  (route == 'ne')     return ['n', 'e'];
-  if  (route == 'se')     return ['s', 'e'];
-  if  (route == 'sw')     return ['s', 'w'];
-  if  (route == 'nw')     return ['n', 'w'];
-  if  (route == 'ns')     return ['n', 's'];
-  if  (route == 'ew')     return ['e', 'w'];
-  if  (route == 'nes')    return ['n', 'e', 's'];
-  if  (route == 'esw')    return ['e', 's', 'w'];
-  if  (route == 'swn')    return ['s', 'w', 'n'];
-  if  (route == 'wne')    return ['w', 'n', 'e'];
-  if  (route == 'nn')     return ['n'];
-  if  (route == 'ee')     return ['e'];
-  if  (route == 'ss')     return ['s'];
-  if  (route == 'ww')     return ['w'];
-  if  (route == 'random') return ['n', 'e', 's', 'w'];
-  if  (route == 'shell')  return [];
-  if  (route == 'off')     return [];
-  return  [];
-}
-
-// tested
-function moveCell(originId, destinationId) {
-
-  // write the destination then erase the origin
-  var destination = {
-    'isExists' : true,
-    'route' : getCell(originId).route,
-    'structure' : getCell(originId).structure,
-    'note' : getCell(originId).note
-  };
-  setCell(destinationId, destination);
-
-  setCell(originId, initCellById(originId));
-
-}
-
-// tested
-function deleteCell(id) {
-  deselectCell();
-  setCell(id, initCellById(id));
-}
-
-/*
- * Initialize
- * ==============================================================================
- */
-
-var ECOLOGIES_GLOBAL_STATE = {};
-var ECOLOGIES_GLOBAL_CELLS = {};
-var ECOLOGIES_GLOBAL_SIGNALS = {};
-
-// tested by proxy
-function init() {
-  ECOLOGIES_GLOBAL_STATE = null;
-  ECOLOGIES_GLOBAL_STATE = {};
-  ECOLOGIES_GLOBAL_STATE.outletsOn = false;
-  ECOLOGIES_GLOBAL_STATE.generation = 0;
-  ECOLOGIES_GLOBAL_STATE.width = 0;
-  ECOLOGIES_GLOBAL_STATE.height = 0;
-  ECOLOGIES_GLOBAL_STATE.isMenuActive = false;
-  ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
-  ECOLOGIES_GLOBAL_STATE.routes = [
-    'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
-    'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'random', 'shell', 'off'
-  ];
-  ECOLOGIES_GLOBAL_STATE.structures = ['hive', 'port', 'nomad'];
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
-  ECOLOGIES_GLOBAL_STATE.signalSpeed = 1;
-}
-
-// tested by proxy
-function initSignals() {
-  ECOLOGIES_GLOBAL_SIGNALS = null;
-  ECOLOGIES_GLOBAL_SIGNALS = {};
-}
-
-/*
- * I/O
+ * Max I/O
  * ==============================================================================
  */
 
 var inlets = 1;
 var outlets = 1;
+
+// tested
+function out(val) {
+  if (isOutletsOn()) {
+    outlet(0, val);
+  } else {
+    return val;
+  }
+}
 
 // tested
 function openMenu() {
@@ -1085,20 +805,124 @@ function closeMidiPalette() {
   setMidiPalette(false);
 }
 
-
-
 // tested
-function isOutletsOn() {
-  return ECOLOGIES_GLOBAL_STATE.outletsOn;
+function deselectCell() {
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
+  out('deselectCell');
 }
 
 // tested
-function out(val) {
-  if (isOutletsOn()) {
-    outlet(0, val);
-  } else {
-    return val;
+function selectCell(val) {
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = val;
+  out(['selectCell', val]);
+}
+
+/*
+ * TBD
+ * ==============================================================================
+ */
+
+
+
+
+// tested
+function deleteSignal(id) {
+  delete ECOLOGIES_GLOBAL_SIGNALS.id;
+}
+
+
+
+// tested
+function moveCell(originId, destinationId) {
+
+  // write the destination then erase the origin
+  var destination = {
+    'isExists' : true,
+    'route' : getCell(originId).route,
+    'structure' : getCell(originId).structure,
+    'note' : getCell(originId).note
+  };
+  setCell(destinationId, destination);
+
+  setCell(originId, initCellById(originId));
+
+}
+
+// tested
+function deleteCell(id) {
+  deselectCell();
+  setCell(id, initCellById(id));
+}
+
+/*
+ * Initialize Functions
+ * ==============================================================================
+ */
+
+var ECOLOGIES_GLOBAL_STATE = {};
+var ECOLOGIES_GLOBAL_CELLS = {};
+var ECOLOGIES_GLOBAL_SIGNALS = {};
+
+// tested by proxy
+function init() {
+  ECOLOGIES_GLOBAL_STATE = null;
+  ECOLOGIES_GLOBAL_STATE = {};
+  ECOLOGIES_GLOBAL_STATE.outletsOn = false;
+  ECOLOGIES_GLOBAL_STATE.generation = 0;
+  ECOLOGIES_GLOBAL_STATE.width = 0;
+  ECOLOGIES_GLOBAL_STATE.height = 0;
+  ECOLOGIES_GLOBAL_STATE.isMenuActive = false;
+  ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
+  ECOLOGIES_GLOBAL_STATE.routes = [
+    'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
+    'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'random', 'shell', 'off'
+  ];
+  ECOLOGIES_GLOBAL_STATE.structures = ['hive', 'port', 'nomad'];
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
+  ECOLOGIES_GLOBAL_STATE.signalSpeed = 1;
+}
+
+// tested by proxy
+function initSignals() {
+  ECOLOGIES_GLOBAL_SIGNALS = null;
+  ECOLOGIES_GLOBAL_SIGNALS = {};
+}
+
+// tested
+function initCells() {
+  ECOLOGIES_GLOBAL_CELLS = null;
+  ECOLOGIES_GLOBAL_CELLS = {};
+  var x = getWidth();
+  var y = getHeight();
+  for (var iy = y - 1; iy >= 0; iy--) {
+    for (var ix = x - 1; ix >= 0; ix--) {
+      var cellId = 'x' + ix + 'y' + iy;
+      var cell = initCell(ix, iy);
+      setCell(cellId, cell);
+    }
   }
+}
+
+// tested
+function initCell(x, y) {
+  return {
+    id: makeId(x, y),
+    isExists: false,
+    x: x,
+    y: y,
+    route: 'off',
+    structure: 'none',
+    note: 60,
+    interval: 4,
+    generation: 0
+  };
+}
+
+// tested
+function initCellById(id) {
+  var splitX = id.split('x');
+  var arr = splitX[1].split('y');
+  return initCell(arr[0], arr[1]);
 }
 
 /*
@@ -1111,7 +935,7 @@ function setOutlets(val) {
   ECOLOGIES_GLOBAL_STATE.outletsOn = (val) ? true : false;
 }
 
-// wip
+// tested
 function setCell(id, obj) {
   if (!ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)){
     ECOLOGIES_GLOBAL_CELLS[id] = {};
@@ -1167,8 +991,183 @@ function setSignals(newSignals) {
   ECOLOGIES_GLOBAL_SIGNALS = newSignals;
 }
 
+
 /*
- * Getters
+ * Higher Level Getters
+ * ==============================================================================
+ */
+
+// tested
+function getCellByCoords(x, y) {
+  var id = makeId(x, y);
+  return getCell(id);
+}
+
+// tested
+function getCellsByStructure(structure) {
+  var existingCells = getExistingCells();
+  var cells = [];
+  Object.keys(existingCells).forEach(function(key) {
+    if (existingCells[key].structure == structure) {
+      cells.push(existingCells[key]);
+    }
+  });
+  return cells;
+}
+
+// tested
+function getExistingCells() {
+  var c = ECOLOGIES_GLOBAL_CELLS;
+  var obj = {};
+  for (var key in c) {
+    if (c.hasOwnProperty(key)) {
+        var cell = c[key];
+        if (cell.isExists === false) continue;
+        obj[cell.id] = cell;
+    }
+  }
+  return obj;
+}
+
+// tested
+function getIds(obj) {
+  var arr = [];
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      var cell = obj[key];
+      arr.push(cell.id);
+    }
+  }
+  return arr;
+}
+
+// tested
+function getSignal(x, y) {
+  var id = makeId(x, y);
+  return (ECOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_SIGNALS[id] : false;
+}
+
+// tested
+function rollRandomRoute() {
+  var routes = ['all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'shell'];
+  return getRouteDirections(routes[ Math.floor(Math.random() * routes.length)]);
+}
+
+// tested
+function cycleRoutes(route) {
+  // this pattern is hardcoded for the user's benefit
+  // (i don't want errant array sorting changing it)
+  if  (route === 'all')    return 'ne';
+  if  (route === 'ne')     return 'se';
+  if  (route === 'se')     return 'sw';
+  if  (route === 'sw')     return 'nw';
+  if  (route === 'nw')     return 'ns';
+  if  (route === 'ns')     return 'ew';
+  if  (route === 'ew')     return 'nes';
+  if  (route === 'nes')    return 'esw';
+  if  (route === 'esw')    return 'swn';
+  if  (route === 'swn')    return 'wne';
+  if  (route === 'wne')    return 'nn';
+  if  (route === 'nn')     return 'ee';
+  if  (route === 'ee')     return 'ss';
+  if  (route === 'ss')     return 'ww';
+  if  (route === 'ww')     return 'random';
+  if  (route === 'random') return 'shell';
+  if  (route === 'shell')  return 'all';
+  return 'all';
+}
+
+// tested
+function getRouteDirections(route) {
+  if  (route == 'all')    return ['n', 'e', 's', 'w'];
+  if  (route == 'ne')     return ['n', 'e'];
+  if  (route == 'se')     return ['s', 'e'];
+  if  (route == 'sw')     return ['s', 'w'];
+  if  (route == 'nw')     return ['n', 'w'];
+  if  (route == 'ns')     return ['n', 's'];
+  if  (route == 'ew')     return ['e', 'w'];
+  if  (route == 'nes')    return ['n', 'e', 's'];
+  if  (route == 'esw')    return ['e', 's', 'w'];
+  if  (route == 'swn')    return ['s', 'w', 'n'];
+  if  (route == 'wne')    return ['w', 'n', 'e'];
+  if  (route == 'nn')     return ['n'];
+  if  (route == 'ee')     return ['e'];
+  if  (route == 'ss')     return ['s'];
+  if  (route == 'ww')     return ['w'];
+  if  (route == 'random') return ['n', 'e', 's', 'w'];
+  if  (route == 'shell')  return [];
+  if  (route == 'off')     return [];
+  return  [];
+}
+
+// tested
+function enrichWithHiveRouteDirections(hives) {
+  Object.keys(hives).forEach(function(key) {
+    var hive = hives[key];
+    var hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
+    hives[key].hiveRouteDirections = hiveRouteDirections;
+  });
+  return hives;
+}
+
+// tested
+function getNote(x, y) {
+  // row 1
+  if (x == 1 && y == 1) return 48;
+  if (x == 2 && y == 1) return 49;
+  if (x == 3 && y == 1) return 50;
+  if (x == 4 && y == 1) return 51;
+  if (x == 5 && y == 1) return 52;
+  if (x == 6 && y == 1) return 53;
+  // row 2
+  if (x == 1 && y == 2) return 54;
+  if (x == 2 && y == 2) return 55;
+  if (x == 3 && y == 2) return 56;
+  if (x == 4 && y == 2) return 57;
+  if (x == 5 && y == 2) return 58;
+  if (x == 6 && y == 2) return 59;
+  // row 3
+  if (x == 1 && y == 3) return 60;
+  if (x == 2 && y == 3) return 61;
+  if (x == 3 && y == 3) return 62;
+  if (x == 4 && y == 3) return 63;
+  if (x == 5 && y == 3) return 64;
+  if (x == 6 && y == 3) return 65;
+  // row 4
+  if (x == 1 && y == 4) return 66;
+  if (x == 2 && y == 4) return 67;
+  if (x == 3 && y == 4) return 68;
+  if (x == 4 && y == 4) return 69;
+  if (x == 5 && y == 4) return 70;
+  if (x == 6 && y == 4) return 71;
+  // row 5
+  if (x == 1 && y == 5) return 72;
+  if (x == 2 && y == 5) return 73;
+  if (x == 3 && y == 5) return 74;
+  if (x == 4 && y == 5) return 75;
+  if (x == 5 && y == 5) return 76;
+  if (x == 6 && y == 5) return 77;
+  // row 6
+  if (x == 1 && y == 6) return 78;
+  if (x == 2 && y == 6) return 79;
+  if (x == 3 && y == 6) return 80;
+  if (x == 4 && y == 6) return 81;
+  if (x == 5 && y == 6) return 82;
+  if (x == 6 && y == 6) return 83;
+}
+
+// tested
+function isInBounds(id) {
+  var parts = id.split(/([0-9]+)/);
+  var okWest = (parts[1] >= 0);
+  var okEast = (parts[1] < getWidth());
+  var okNorth = (parts[3] >= 0);
+  var okSouth = (parts[3] < getHeight());
+  return (okWest && okEast && okNorth && okSouth);
+}
+
+/*
+ * Lower Level Getters
  * ==============================================================================
  */
 
@@ -1197,10 +1196,6 @@ function getGeneration() {
   return ECOLOGIES_GLOBAL_STATE.generation;
 }
 
-
-
-
-
 // tested
 function getSignals() {
   return ECOLOGIES_GLOBAL_SIGNALS;
@@ -1227,15 +1222,8 @@ function isHiveBirthing(hiveInterval) {
 }
 
 // tested
-function deselectCell() {
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
-  out('deselectCell');
-}
-
-// tested
-function selectCell(val) {
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = val;
-  out(['selectCell', val]);
+function isOutletsOn() {
+  return ECOLOGIES_GLOBAL_STATE.outletsOn;
 }
 
 /*
@@ -1302,9 +1290,28 @@ if (typeof Object.assign !== 'function') {
 }
 
 /*
- * Utility
+ * Utility & Helpers
  * ==============================================================================
  */
+
+// tested
+function makeId(x, y) {
+  return 'x' + x + 'y' + y;
+}
+
+// tested
+function makeSignal(x, y, direction) {
+  var id = makeId(x, y);
+  var newSignal = {};
+  newSignal = {
+    'id' : id,
+    'x' : x,
+    'y' : y,
+    'direction' : direction,
+    'generation' : getGeneration()
+  };
+  return newSignal;
+}
 
  function dumpState() {
   out(JSON.stringify(ECOLOGIES_GLOBAL_STATE));
