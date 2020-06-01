@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/tyleretters/ecologies/workflows/Node.js%20CI/badge.svg?branch=master)
+
 # ecologies
 
  - [Docs](https://tyleretters.github.io/ecologies)
