@@ -1,4 +1,4 @@
-name: JSHint
+name: JSHint Testing
 on:
   push:
     branches: [ master ]
