@@ -19,7 +19,7 @@ const github = require('@actions/github');
 
 function testInitCell() {
   var name = 'testInitCell';
-  var cell = initCell(7, 14);
+  var cell = initCell(6, 14);
   var result1 = (cell.id == 'x6y14');
   var result2 = (cell.isExists == false);
   var result3 = (cell.x == 6);
