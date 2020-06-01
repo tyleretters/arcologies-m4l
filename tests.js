@@ -132,14 +132,13 @@ function testObjectSize() {
 function testInitCells() {
   var name = 'testInitCells';
   initCells();
-  var cell = getCell('x10y4'); // arbitrary id
-  var isExists = (cell.isExists === false);
+  var cell = getCell('x10y4');
   var x = (cell.x == 10);
   var y = (cell.y == 4);
   var route = (cell.route == 'off');
   var structure = (cell.structure == 'none');
   var note = (cell.note == 60);
-  var result = (isExists && x && y && route && structure && note) ? 'pass' : 'fail';
+  var result = (x && y && route && structure && note) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -781,6 +780,7 @@ function testGetCellsByStructure() {
 
 function testBirthSignals() {
   var name = 'testBirthSignals';
+  setGeneration(0);
   ECOLOGIES_GLOBAL_CELLS.x0y0.isExists = true;
   ECOLOGIES_GLOBAL_CELLS.x2y7.isExists = true;
   ECOLOGIES_GLOBAL_CELLS.x11y5.isExists = true;
@@ -800,55 +800,55 @@ function testBirthSignals() {
   // this is a very important test...
   // THINK OF THE CHILDREN
   var result = (
-    (signals[0].id === 'x2y6') &&
-    (signals[0].x === 2) &&
-    (signals[0].y === 6) &&
-    (signals[0].direction === 'n') &&
-    (signals[1].id === 'x3y7') &&
-    (signals[1].x === 3) &&
-    (signals[1].y === 7) &&
-    (signals[1].direction === 'e') &&
-    (signals[2].id === 'x1y7') &&
-    (signals[2].x === 1) &&
-    (signals[2].y === 7) &&
-    (signals[2].direction === 'w') &&
-    (signals[3].id === 'x11y4') &&
-    (signals[3].x === 11) &&
-    (signals[3].y === 4) &&
-    (signals[3].direction === 'n') &&
-    (signals[4].id === 'x12y5') &&
-    (signals[4].x === 12) &&
-    (signals[4].y === 5) &&
-    (signals[4].direction === 'e') &&
-    (signals[5].id === 'x11y6') &&
-    (signals[5].x === 11) &&
-    (signals[5].y === 6) &&
-    (signals[5].direction === 's') &&
-    (signals[6].id === 'x10y5') &&
-    (signals[6].x === 10) &&
-    (signals[6].y === 5) &&
-    (signals[6].direction === 'w') &&
-    (signals[7].id === 'x1y0') &&
-    (signals[7].x === 1) &&
-    (signals[7].y === 0) &&
-    (signals[7].direction === 'e') &&
-    (signals[8].id === 'x0y1') &&
-    (signals[8].x === 0) &&
-    (signals[8].y === 1) &&
-    (signals[8].direction === 's')
+    (signals.x2y6.id === 'x2y6') &&
+    (signals.x2y6.x === 2) &&
+    (signals.x2y6.y === 6) &&
+    (signals.x2y6.direction === 'n') &&
+    (signals.x3y7.id === 'x3y7') &&
+    (signals.x3y7.x === 3) &&
+    (signals.x3y7.y === 7) &&
+    (signals.x3y7.direction === 'e') &&
+    (signals.x1y7.id === 'x1y7') &&
+    (signals.x1y7.x === 1) &&
+    (signals.x1y7.y === 7) &&
+    (signals.x1y7.direction === 'w') &&
+    (signals.x11y4.id === 'x11y4') &&
+    (signals.x11y4.x === 11) &&
+    (signals.x11y4.y === 4) &&
+    (signals.x11y4.direction === 'n') &&
+    (signals.x12y5.id === 'x12y5') &&
+    (signals.x12y5.x === 12) &&
+    (signals.x12y5.y === 5) &&
+    (signals.x12y5.direction === 'e') &&
+    (signals.x11y6.id === 'x11y6') &&
+    (signals.x11y6.x === 11) &&
+    (signals.x11y6.y === 6) &&
+    (signals.x11y6.direction === 's') &&
+    (signals.x10y5.id === 'x10y5') &&
+    (signals.x10y5.x === 10) &&
+    (signals.x10y5.y === 5) &&
+    (signals.x10y5.direction === 'w') &&
+    (signals.x1y0.id === 'x1y0') &&
+    (signals.x1y0.x === 1) &&
+    (signals.x1y0.y === 0) &&
+    (signals.x1y0.direction === 'e') &&
+    (signals.x0y1.id === 'x0y1') &&
+    (signals.x0y1.x === 0) &&
+    (signals.x0y1.y === 1) &&
+    (signals.x0y1.direction === 's')
   ) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
 
-function testEnrichHiveWithRouteDirections() {
-  var name = 'testEnrichHiveWithRouteDirections';
+function testEnrichWithRouteDirections() {
+  var name = 'testEnrichWithRouteDirections';
   var hives = [{ 'route' : 'nes' }, { 'route' : 'ww' }];
-  var enriched =  enrichWithHiveRouteDirections(hives);
-  var result1 = (enriched[0].hiveRouteDirections[0] === 'n');
-  var result2 = (enriched[0].hiveRouteDirections[1] === 'e');
-  var result3 = (enriched[0].hiveRouteDirections[2] === 's');
-  var result4 = (enriched[1].hiveRouteDirections[0] === 'w');
+  var enriched =  enrichWithRouteDirections(hives);
+  var result1 = (enriched[0].routeDirections[0] === 'n');
+  var result2 = (enriched[0].routeDirections[1] === 'e');
+  var result3 = (enriched[0].routeDirections[2] === 's');
+  var result4 = (enriched[1].routeDirections[0] === 'w');
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -941,10 +941,10 @@ function testIsHiveBirthing() {
 
 function testIsInBounds() {
   var name = 'testIsInBounds';
-  var result1 = isInBounds('x0y0');
-  var result2 = !isInBounds('x6y39');
-  var result3 = !isInBounds('x-1y9');
-  var result4 = isInBounds('x4y4');
+  var result1 = isInBounds(0, 0);
+  var result2 = !isInBounds(6, 39);
+  var result3 = !isInBounds(-1, 9);
+  var result4 = isInBounds(4, 4);
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -953,13 +953,13 @@ function testIsInBounds() {
 function testCancelOutOfBoundsSignals() {
   var name = 'testCancelOutOfBoundsSignals';
   var testSignals = [
-    {'id': 'x0y0'},
-    {'id': 'x26y39'},
-    {'id': 'x1y9'},
-    {'id': 'x4y5'}
+    {'id': 'x0y0', 'x': 0, 'y': 0},
+    {'id': 'x26y39', 'x': 26, 'y': 39},
+    {'id': 'x1y9', 'x': 1, 'y': 9},
+    {'id': 'x4y5', 'x': 4, 'y': 5}
   ];
   testSignals = cancelOutOfBoundsSignals(testSignals);
-  var result = (testSignals[0].id == 'x0y0' && testSignals[1].id == 'x4y5') ? 'pass' : 'fail';
+  var result = (testSignals.x0y0.id == 'x0y0' && testSignals.x4y5.id == 'x4y5') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -993,10 +993,10 @@ function testPropagateSignals() {
 
   setSignals(propagateSignals(testSignals));
   var checkSignals = getSignals();
-  var result1 = (checkSignals[0].id == 'x0y1');
-  var result2 = (checkSignals[1].id == 'x7y3');
-  var result3 = (checkSignals[2].id == 'x0y3');
-  var result4 = (checkSignals[3].id == 'x4y4');
+  var result1 = (checkSignals.hasOwnProperty('x0y1'));
+  var result2 = (checkSignals.hasOwnProperty('x7y3'));
+  var result3 = (checkSignals.hasOwnProperty('x0y3'));
+  var result4 = (checkSignals.hasOwnProperty('x4y4'));
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -1012,9 +1012,13 @@ function testSetSignal() {
 
 function testDrawSignals() {
   var name = 'testDrawSignals';
-  setSignal('x0y0', {'id': 'x0y0', 'x': 0, 'y': 0, 'direction': 's', 'generation' : 0});
+  setGeneration(10);
+  setSignal('x0y0', {'id': 'x0y0', 'x': 0, 'y': 0, 'direction': 's', 'generation' : 10});
+  setSignal('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'direction': 's', 'generation' : 11});
   var drawArray = drawSignals();
-  var result = (drawArray[0] == 'drawSignals' && drawArray[1] == 'x0y0') ? 'pass' : 'fail';
+  var result1 = (drawArray[0][0] == 'drawSignals' && drawArray[0][1] == 'x0y0');
+  var result2 = (drawArray.length == 1);
+  var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1039,13 +1043,133 @@ function testSetCell() {
   return result;
 }
 
-function testCollideSignalsAndCells() {
-  var name = 'testCollideSignalsAndCells';
+function testCollide() {
+  var name = 'testCollide';
+  
+  setGeneration(10);
 
-  var result = false;
+  // test collide with a hive and all ports open: destroy the signal
+  var signal1 = makeSignal(0, 1, 'w');
+  setCell('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'route': 'all', 'structure': 'hive', 'isExists': true});
+
+  // test collide with a port from a closed route: destroy the signal
+  setCell('x5y5', {'id': 'x5y5', 'x': 5, 'y': 5, 'route': 'nn', 'structure': 'port', 'isExists': true});
+  var signal2 = makeSignal(5, 5, 'e');
+  
+  // test collide with a port from an open route: reroute the signal
+  var signal3 = makeSignal(6, 6, 's');
+  setCell('x6y6', {'id': 'x6y6', 'x': 6, 'y': 6, 'route': 'nn', 'structure': 'port', 'isExists': true});
+
+  // test collide with a port with multiple routes
+  // should result in: x10y4 n, x9y5 w, x11y5 e
+  var signal4 = makeSignal(10, 5, 'n'); // entering from the south
+  setCell('x10y5', {'id': 'x10y5', 'x': 10, 'y': 5, 'route': 'all', 'structure': 'port', 'isExists': true});
+
+  var signals = { 'x0y1' : signal1, 'x5y5' : signal2, 'x6y6' : signal3, 'x10y5' : signal4 };
+  var finalSurvivingSignals = collide(signals);
+
+  var result1 = !getIds(finalSurvivingSignals).contains('x0y1');
+  var result2 = !getIds(finalSurvivingSignals).contains('x5y5');
+  var result3 = !getIds(finalSurvivingSignals).contains('x6y6');
+
+  var result4a = getIds(finalSurvivingSignals).contains('x6y5');
+  var result4b = (finalSurvivingSignals.x6y5.direction == 'n');
+  var result4c = (finalSurvivingSignals.x6y5.generation == 11);
+
+  var result5a = getIds(finalSurvivingSignals).contains('x10y4');
+  var result5b = (finalSurvivingSignals.x10y4.direction == 'n');
+  var result5c = (finalSurvivingSignals.x10y4.generation == 11);
+
+  var result6a = getIds(finalSurvivingSignals).contains('x9y5');
+  var result6b = (finalSurvivingSignals.x9y5.direction == 'w');
+  var result6c = (finalSurvivingSignals.x9y5.generation == 11);
+
+  var result7a = getIds(finalSurvivingSignals).contains('x11y5');
+  var result7b = (finalSurvivingSignals.x11y5.direction == 'e');
+  var result7c = (finalSurvivingSignals.x11y5.generation == 11);
+
+  var result = (result1 && result2 && result3 && result4a && 
+    result4b && result4c && result5a && result5b && result6c && 
+    result6a && result6b && result6c && result7a && result7b &&
+    result7c) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
+
+function testEastToSouthRoute() {
+  var name = 'testEastToSouthRoute';
+  
+  setGeneration(10);
+
+  // test collide with a sw port
+  var signal = makeSignal(3, 0, 'e', 8, false);
+  setCell('x4y0', {'id': 'x4y0', 'x': 4, 'y': 0, 'route': 'sw', 'structure': 'port', 'isExists': true});
+
+  var signals = { 'x4y0' : signal };
+  setSignals(signals);
+
+  advance();
+  finalSurvivingSignals = getSignals();
+
+  var result1 = getIds(finalSurvivingSignals).contains('x4y1');
+  var result2 = (finalSurvivingSignals.x4y1.direction == 's');
+  var result3 = (finalSurvivingSignals.x4y1.generation == 11);
+  var result4 = !getIds(finalSurvivingSignals).contains('x4y0');
+  var result5 = !getIds(finalSurvivingSignals).contains('x5y0');
+
+  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testNorthToNorthRoute() {
+  var name = 'testNorthToNorthRoute';
+  
+  setGeneration(10);
+
+  // test collide with a ws port
+  var signal = makeSignal(1, 0, 's');
+  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'route': 'nn', 'structure': 'port', 'isExists': true});
+
+  var signals = { 'x1y1' : signal };
+  setSignals(signals);
+
+  advance();
+
+  var finalSurvivingSignals = getSignals();;
+
+  var result1 = getIds(finalSurvivingSignals).contains('x1y0');
+  var result2 = (finalSurvivingSignals.x1y0.direction == 'n');
+  var result3 = (finalSurvivingSignals.x1y0.generation == 11);
+  var result4 = !getIds(finalSurvivingSignals).contains('x1y1');
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSignalJSONIntegrityMaintainsOverGenerations() {
+  var name = "testSignalJSONIntegrityMaintainsOverGenerations";
+
+  var signal = makeSignal(1, 1, 's', 5);
+  setSignal(signal.id, signal);
+  setGeneration(10);
+
+  advance();
+
+  var signals = getSignals();
+  var result = (
+    signals.hasOwnProperty('x1y2') &&
+    signals.x1y2.id == 'x1y2' &&
+    signals.x1y2.x == 1 &&
+    signals.x1y2.y == 2 &&
+    signals.x1y2.direction == 's' &&
+    signals.x1y2.generation == 10
+  ) ? 'pass' : 'fail';
+
+  testOutput(name, result);
+  return result;
+}
+
 
 /*
  * Orchestration
@@ -1163,7 +1287,7 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testBirthSignals());
-  results.push(testEnrichHiveWithRouteDirections());
+  results.push(testEnrichWithRouteDirections());
 
   resetTestSuite();
   results.push(testCancelCollidingSignals());
@@ -1189,7 +1313,17 @@ function testSuite() {
   results.push(testSetCell());
 
   resetTestSuite();
-  results.push(testCollideSignalsAndCells());
+  results.push(testCollide());
+
+  resetTestSuite();
+  results.push(testEastToSouthRoute());
+
+  resetTestSuite();
+  results.push(testNorthToNorthRoute());
+
+  resetTestSuite();
+  results.push(testSignalJSONIntegrityMaintainsOverGenerations());
+
 
   return results;
 }

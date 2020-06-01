@@ -21,8 +21,8 @@ layout: default
             <li>Change a cell's structure to define behavior.</li>
             <li>Change a cell's route to create channels.</li>
             <li>Signals emerge from hive cells.</li>
-            <li>Signals change directions via from port cells.</li>
             <li>Signals play a cell's note when they collide.</li>
+            <li>Finally, depending on how the colliding cell is configured, the signal could be re-routed, split, or destroyed.</li>
           </ul>
           <p>It is an M4L midi instrument that pairs especially well with drum racks and <a href="https://www.ableton.com/en/manual/instrument-drum-and-effect-racks/#18-5-2-key-zones">zoned instrument racks</a>.</p>
           <p>Inspired by tools like <a href="https://monome.org/docs/meadowphysics/">meadowphysics</a>, <a href="https://100r.co/site/orca.html">Orca</a>, and <a href="https://warmplace.ru/soft/sunvox/">Sunvox</a>. But also other curios like <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>, the <a href="https://en.wikipedia.org/wiki/Tower_defense">tower defense</a> genre, and the <a href="http://generativemusic.com/">Eno / Chilvers</a> suite of generative applications.</p>
@@ -264,7 +264,15 @@ layout: default
     <h2 id="signals">Signals</h2>
     <hr>
     <p>Signals have a position (<code>x</code> & <code>y</code>) and a direction (<code>n</code>, <code>e</code>, <code>s</code>, or <code>w</code>).
-    <p>If a signal collides into the side of a cell without an open route, the signal disappears into silence (the poor little signal just smashed into a wall.) The same is true if it wanders off the field. The same is true if they collide with a hive. If two (or more) signals collide, both (or all) will be destroyed. If two (or more) signals meet at a port, the port only sees one of them. Specifically, it prioritizes northern signals first, eastern second, southern third, and western last. If a channel disappears from beneath a signal, the signal will continue along. Perhaps you can help it will find its way again?</p>
+    <p>If a signal collides into the side of a cell without an open route, the signal disappears into silence (the poor little signal just smashed into a wall.) The same is true if it wanders off the field. The same is true if they collide with a hive. If a channel disappears from beneath a signal, the signal will continue along. Perhaps you can help it will find its way again?</p>
+  </div>
+</div>
+<div class="row">
+  <div class="col mb-5">
+    <h3 id="signal-collisions">Signal Collisions</h3>
+    <hr>
+    <p>If two (or more) signals land at the same place at the same time -- either in the field or at a cell -- both will be destroyed. However, signals may "pass" through each other so long as they wouldn't land at the same cell on the same beat.</p>
+    <img src="signal diagrams" />
   </div>
 </div>
 
@@ -272,7 +280,7 @@ layout: default
   <div class="col mb-5">
     <h2 id="channels">Channels</h2>
     <hr>
-    <p>Channels are defined by cell routes. Signals flow through channels. Note that channels can cross over each other without consequence. However, if two signals collide, they cancel each other out.</p>
+    <p>Channels are defined by cell routes. Signals flow through channels. Channels can cross over each other without consequence.</p>
   </div>
 </div>
 

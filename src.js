@@ -31,7 +31,7 @@
 
 // beta wip
 function advance() {
-  
+
   var birthedSignals;
   var existingSignals;
   var propagatedSignals;
@@ -46,19 +46,20 @@ function advance() {
 
   // & everything moves...
   existingSignals = getSignals();
+
   if (existingSignals === undefined) return; // ...unless there's nothing to move...
   propagatedSignals = propagateSignals(existingSignals);
 
   // & some things die...
   survivingSignals = cancelOutOfBoundsSignals(propagatedSignals);
   survivingSignals = cancelCollidingSignals(birthedSignals, survivingSignals);
-  
+
   // & some more things die but some things also sing...
-  existingCells = getExistingCells();
-  finalSignals = collide(survivingSignals, existingCells);
+  // moved to propagate
+  // finalSignals = collide(survivingSignals);
 
   // & things are at rest
-  setSignals(finalSignals);
+  setSignals(survivingSignals);
 
   if (!getSelectedCellId() && !getIsMenuActive() && !getIsMidiPaletteActive()) {
     // only redraw when a cell isn't selected, the menu isn't active, or the palette isn't active
@@ -69,81 +70,238 @@ function advance() {
 
 }
 
-// beta wip
-// for signals that smash into:
-// - routed sides of ports / nomads
-// - routeless sides of ports / nomads
-// - any side of a hive
-function collide(survivingSignals, existingCells) {
 
-  var finalSurvivingSignals = {};
+// tested
+function collide(signals) {
 
-  // filter by signals with same x, y as cells, leave rest alone
-  // delete signals collidng with hives
-  // delete signals collding with routless ports / nomads
-  // portsSing() & nomadsSing()
-  // split signals those leaving multi route ports / nomads (nes)
-  // update direction otherwise (ne)
-  // return final signals
+  var collisionResults = signals;
+  var cells = enrichWithRouteDirections(getExistingCells());
+  var hives = getCellsByStructure('hive');
+  var ports = getCellsByStructure('port');
+  var nomads = getCellsByStructure('nomad');
+  var portsAndNomads = Object.assign(ports, nomads);
 
-
-  Object.keys(survivingSignals).forEach(function(key) {
-    var thisSignal = survivingSignals[key];
-
-
+  Object.keys(signals).forEach(function(signalKey) {
+    var thisSignal = signals[signalKey];
+    Object.keys(hives).forEach(function(hiveKey) {
+     var thisHive = hives[hiveKey];
+     if (thisHive.id == thisSignal.id) {
+       delete collisionResults[thisSignal.id];
+     }
+    });
   });
-    
+
+  var newSignals = {};
+  Object.keys(signals).forEach(function(signalKey) {
+    var thisSignal = signals[signalKey];
+    Object.keys(portsAndNomads).forEach(function(portsAndNomadsKey) {
+     var thisCell = portsAndNomads[portsAndNomadsKey];
+     var idMatch = (thisCell.id == thisSignal.id);
+     var isRouteMatch = routeMatch(thisCell.routeDirections, thisSignal.direction);
+
+    // the cell and signal occupy the same spot, but the route/direction is not compatible
+    if (idMatch && !isRouteMatch) {
+      delete collisionResults[thisSignal.id];
+    }
+
+    // this is a valid interaction
+    if (idMatch && isRouteMatch) {
+      delete collisionResults[thisSignal.id];
+      cellSing(thisCell.id);
+      newSignals = Object.assign(routeSignals(thisCell, thisSignal), newSignals);
+    }
+
+    });
+  });
+  collisionResults = Object.assign(collisionResults, newSignals);
+  return collisionResults;
+}
+
+// tested (via testCollide)
+function routeSignals(cell, signal) {
+  var newSignals = {};
+  var originSignal = signal;
+  if (cell.id != originSignal.id) return; // defensive coding, should never happen
+
+  // a northbound will emerge next generation if the signal
+  // did not enter from the south of the cell
+  // unless it is it "nn" (u-turn) cell
+  if ((cell.routeDirections.contains('n') && (originSignal.direction != 's')) || cell.route == 'nn') {
+    newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'n'));
+  }
+
+  // an eastbound signal will emerge next generation if the signal
+  // did not enter from the west of the cell
+  // OR it ee "u-turn"
+  if ((cell.routeDirections.contains('e') && (originSignal.direction != 'w')) || cell.route == 'ee') {
+    newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'e'));
+  }
+
+  // a southbound signal will emerge next generation if the signal
+  // did not enter from the south of the cell
+  // OR it ss "u-turn"
+  if ((cell.routeDirections.contains('s') && (originSignal.direction != 'n')) || cell.route == 'ss') {
+    newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 's'));
+  }
+
+  // a westbound signal will emerge next generation if the signal
+  // did not enter from the east of the cell
+  // OR it ww "u-turn"
+  if ((cell.routeDirections.contains('w') && (originSignal.direction != 'e')) || cell.route == 'ww') {
+    newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'w'));
+  }
+
+  return newSignals;
+}
+
+// wip
+function cellRouteSignal(cell, originSignal, direction) {
+  var cellRouteSignalResults = {};
+  var routeDirectionsLength = cell.routeDirections.length;
+
+  for (i = 0; i < routeDirectionsLength; i++) {
+
+    if (cell.routeDirections[i] == direction) {
+      var uTurnSignal;
+      if (direction == 'n') uTurnSignal = makeSignal( originSignal.x, originSignal.y - 1, 'n' );
+      if (direction == 'e') uTurnSignal = makeSignal( originSignal.x + 1, originSignal.y, 'e' );
+      if (direction == 's') uTurnSignal = makeSignal( originSignal.x, originSignal.y + 1, 's' );
+      if (direction == 'w') uTurnSignal = makeSignal( originSignal.x - 1, originSignal.y, 'w' );
+      uTurnSignal.generation = getGeneration() + 1;
+      cellRouteSignalResults[uTurnSignal.id] = uTurnSignal;
+      continue;
+    }
+
+    if (cell.routeDirections[i] == 's' && originSignal.direction != 'n') {      
+      var northernSignal = makeSignal(
+          originSignal.x,
+          originSignal.y - 1,
+          'n',
+          getGeneration() + 1,
+          true
+        );
+      cellRouteSignalResults[northernSignal.id] = northernSignal;
+    }
+
+    if (cell.routeDirections[i] == 'w' && originSignal.direction != 'e') {      
+      var easternSignal = makeSignal(
+        originSignal.x + 1,
+        originSignal.y,
+        'e',
+        getGeneration() + 1,
+        true
+      );
+      cellRouteSignalResults[easternSignal.id] = easternSignal;
+    }
+
+    if (cell.routeDirections[i] == 'n' && originSignal.direction != 's') {      
+      var southernSignal = makeSignal(
+        originSignal.x,
+        originSignal.y + 1,
+        's',
+        getGeneration() + 1,
+        true
+      );
+      cellRouteSignalResults[southernSignal.id] = southernSignal;
+    }
+
+    if (cell.routeDirections[i] == 'e' && originSignal.direction != 'w') {      
+      var westernSignal = makeSignal(
+        originSignal.x - 1,
+        originSignal.y,
+        'w',
+        getGeneration() + 1,
+        true
+      );
+      cellRouteSignalResults[westernSignal.id] = westernSignal;
+    }
+
+  }
+  return cellRouteSignalResults;
+
+}
+
+// wip
+// north direction matches south route
+// south direction matches north route
+// east direction matches west route
+// west direction matches east route
+function routeMatch(routes, direction) {
+  if (direction === 'n') return routes.contains('s');
+  if (direction === 'e') return routes.contains('w');
+  if (direction === 's') return routes.contains('n');
+  if (direction === 'w') return routes.contains('e');
+  return false;
 }
 
 // tested
-function propagateSignals(survivingSignals) {
+function propagateSignals(signals) {
 
-  var propagatedSignals = [];
+  var propagatedSignals = {};
+  var collisions = {};
 
-  Object.keys(survivingSignals).forEach(function(key) {
-    var thisSignal = survivingSignals[key];
-    var x;
-    var y;
-    var id;
-    var direction;
+  Object.keys(signals).forEach(function(key) {
+    var thisSignal = signals[key];
 
     // don't propagate signals that were just born
-    if (thisSignal.generation === getGeneration()) return;
-    
+    if (thisSignal.isJustBorn === true) {
+      propagatedSignals[thisSignal.id].isJustBorn = false;
+      return;
+    }
+
     if (thisSignal.direction === 'n') {
-      x = thisSignal.x;
-      y = thisSignal.y - 1;
-      id = makeId(x, y);
-      direction = 'n';
-      propagatedSignals.push(makeSignal(x, y, direction));
+      var xN = thisSignal.x;
+      var yN = thisSignal.y - 1;
+      var idN = makeId(xN, yN);
+      var directionN = 'n';
+      if (getCellByCoords(xN, yN).isExists) {
+        collisions[idN] = makeSignal(xN, yN, directionN);
+      } else {
+        propagatedSignals[idN] = makeSignal(xN, yN, directionN);
+      }
     }
 
     if (thisSignal.direction === 's') {
-      x = thisSignal.x;
-      y = thisSignal.y + 1;
-      id = makeId(x, y);
-      direction = 's';
-      propagatedSignals.push(makeSignal(x, y, direction));
+      var xS = thisSignal.x;
+      var yS = thisSignal.y + 1;
+      var idS = makeId(xS, yS);
+      var directionS = 's';
+      if (getCellByCoords(xS, yS).isExists) {
+        collisions[idS] = makeSignal(xS, yS, directionS);
+      } else {
+        propagatedSignals[idS] = makeSignal(xS, yS, directionS);
+      }
     }
 
     if (thisSignal.direction === 'e') {
-      x = thisSignal.x + 1;
-      y = thisSignal.y;
-      id = makeId(x, y);
-      direction = 'e';
-      propagatedSignals.push(makeSignal(x, y, direction));
+      var xE = thisSignal.x + 1;
+      var yE = thisSignal.y;
+      var idE = makeId(xE, yE);
+      var directionE = 'e';
+      if (getCellByCoords(xE, yE).isExists) {
+        collisions[idE] = makeSignal(xE, yE, directionE);
+      } else {
+        propagatedSignals[idE] = makeSignal(xE, yE, directionE);
+      }
     }
 
     if (thisSignal.direction === 'w') {
-      x = thisSignal.x - 1;
-      y = thisSignal.y;
-      id = makeId(x, y);
-      direction = 'w';
-      propagatedSignals.push(makeSignal(x, y, direction));
+      var xW = thisSignal.x - 1;
+      var yW = thisSignal.y;
+      var idW = makeId(xW, yW);
+      var directionW = 'w';
+      if (getCellByCoords(xW, yW).isExists) {
+        collisions[idW] = makeSignal(xW, yW, directionW);
+      } else {
+        propagatedSignals[idW] = makeSignal(xW, yW, directionW);
+      }
     }
+
   });
 
-  return propagatedSignals;
+  var collisionResults = collide(collisions);
+
+  return Object.assign(propagatedSignals, collisionResults);
 }
 
 // beta wip
@@ -166,12 +324,26 @@ function hivesSing() {
 
 }
 
+// wip
+function cellSing(id) {
+
+  var cellNote = ['playMidi', getCell(id).note];
+  
+  if (isOutletsOn()) {
+    out(cellNote);
+  } else {
+    return cellNote;
+  }
+
+}
+
 // tested
 function cancelOutOfBoundsSignals(survivingSignals) {
-  var inBoundsSignals = [];
+  var inBoundsSignals = {};
   Object.keys(survivingSignals).forEach(function(key) {
-    if (isInBounds(survivingSignals[key].id)) {
-      inBoundsSignals.push(survivingSignals[key]);
+    if (isInBounds(survivingSignals[key].x, survivingSignals[key].y)) {
+      var id = survivingSignals[key].id;
+      inBoundsSignals[id] = survivingSignals[key];
     }
   });
   return inBoundsSignals;
@@ -182,79 +354,67 @@ function cancelOutOfBoundsSignals(survivingSignals) {
 // of the array the test will break
 function birthSignals() {
 
+  var birthedSignals = {};
   var newSignals = [];
   var hives = getCellsByStructure('hive');
-  hives = enrichWithHiveRouteDirections(hives);
+  hives = enrichWithRouteDirections(hives);
 
-  for(var i = 0; i < hives.length; i++) {
+  var hivesLength = hives.length;
 
+  for(var i = 0; i < hivesLength; i++) {
     var thisHive = hives[i];
-    var y;
-    var x;
 
-    if (thisHive.hiveRouteDirections.contains('n')) {
+    if (!isHiveBirthing(thisHive.interval)) continue;
+
+    if (thisHive.routeDirections.contains('n')) {
       // one cell north means subtract one from the hive
       // check y against zero
-      y = thisHive.y - 1;
-      if (y >= 0) {
-        newSignals.push(makeSignal( thisHive.x, y, 'n'));
+      var y1 = thisHive.y - 1;
+      if (y1 >= 0) {
+        newSignals.push(makeSignal( thisHive.x, y1, 'n', getGeneration(), true));
       }
     }
 
-    if (thisHive.hiveRouteDirections.contains('e')) {
+    if (thisHive.routeDirections.contains('e')) {
       // one cell east means add one to the hive
       // check x against grid width less one for zero index
-      x = thisHive.x + 1;
-      if (x <= getWidth() - 1) {
-        newSignals.push(makeSignal( x, thisHive.y, 'e'));
+      var x1 = thisHive.x + 1;
+      if (x1 <= getWidth() - 1) {
+        newSignals.push(makeSignal( x1, thisHive.y, 'e', getGeneration(), true));
       }
     }
 
-    if (thisHive.hiveRouteDirections.contains('s')) {
+    if (thisHive.routeDirections.contains('s')) {
       // one cell south means add one to the hive
       // check y against grid height less one for zero index
-      y = thisHive.y + 1;
-      if (y <= getHeight() - 1) {
-        newSignals.push(makeSignal( thisHive.x, y, 's'));
+      var y2 = thisHive.y + 1;
+      if (y2 <= getHeight() - 1) {
+        newSignals.push(makeSignal( thisHive.x, y2, 's', getGeneration(), true));
       }
     }
 
-    if (thisHive.hiveRouteDirections.contains('w')) {
+    if (thisHive.routeDirections.contains('w')) {
       // one cell west means subtract one from the hive
       // check x against 0
-      x = thisHive.x - 1;
-      if (x >= 0 ) {
-        newSignals.push(makeSignal( x, thisHive.y, 'w'));
+      var x2 = thisHive.x - 1;
+      if (x2 >= 0 ) {
+        newSignals.push(makeSignal( x2, thisHive.y, 'w', getGeneration(), true));
       }
     }
   }
 
-  return newSignals;
+  var newSignalsLength = newSignals.length;
+  for (i = 0; i < newSignalsLength; i++) {
+    var thisSignal = newSignals[i];
+    birthedSignals[thisSignal.id] = thisSignal;
+  }
+
+  return birthedSignals;
 
 }
 
 // tested
-// merges both sets and delets any collisions, *should* account for:
-// - birthed colliding with existing
-// - birthed colliding with birthed
-// - existing colliding with existing
 function cancelCollidingSignals(birthedSignals, existingSignals) {
-
-  var existingIds = [];
-
-  // Object.keys(existingSignals).forEach(function(key) {
-  //   existingIds.push(existingSignals[key].id);
-  // });
-
-  existingIds = getIds(existingSignals);
-
-  for (var i = 0; i < existingIds.length; i++) {
-    var id = existingIds[i];
-    if(birthedSignals.hasOwnProperty(id)){
-      delete birthedSignals[id];
-      delete existingSignals[id];
-    }
-  }
   return Object.assign(birthedSignals, existingSignals);
 }
 
@@ -388,14 +548,10 @@ function cycleThroughFieldRoutes(x, y) {
 
   if (!cell.isExists) {
     // new cells start as a "hive" with "all" routes on
-    cell.structure = 'hive';
-    cell.route = 'all';
-    cell.isExists = true;
+    setCell(id, { 'structure' : 'hive', 'route' : 'all', 'isExists' : true } );
   } else {
-    cell.route = cycleRoutes(cell.route);
+    setCell(id, { 'route' : cycleRoutes(cell.route) });
   }
-
-  setCell(id, cell);
 
   drawChannels(id); // eh?
   out(drawRoute(id));
@@ -474,6 +630,7 @@ function menuEvent(press, x, y) {
         drawChannels(getSelectedCellId());
         out(drawRoute(getSelectedCellId()));
         drawCells();
+        drawSignals();
       }
       break;
     case 'double':
@@ -561,16 +718,18 @@ function singleFieldEvent(x, y) {
   var ids = getIds(existingCells);
 
   if (!ids.contains(id)) {
-    // this sell doesn't exist so create it
+    // this cell doesn't exist so create it (via cycle...)
     selectCell(id);
     clearField();
     cycleThroughFieldRoutes(x, y);    
     drawCells();
+    drawSignals();
   } else if (getSelectedCellId() == id) {
     // we're pressing the already selected cell, so cycle through the routes
     clearField();
     cycleThroughFieldRoutes(x, y);
     drawCells();
+    drawSignals();
   } else if (getSelectedCellId() !== id && ids.contains(id)) {
     // we've pressed a different existing cell and want to select it
     selectCell(id);
@@ -578,9 +737,13 @@ function singleFieldEvent(x, y) {
     drawChannels(id);
     out(drawRoute(id));
     drawCells();
+    drawSignals();
   } else {
-    // we've pressed an empty cell and are ready to do something else
+    // this shouldn't happen but fallback to resting state
     deselectCell();
+    clearField();
+    drawCells();
+    drawSignals();
   }
 }
 
@@ -632,6 +795,7 @@ function longFieldEvent(x, y) {
     deselectCell();
     clearField();
     drawCells();
+    drawSignals();
   } else {
     // reserved for global menu
   }
@@ -661,14 +825,16 @@ function drawSignals() {
   if (existingSignals === undefined) return;
 
   Object.keys(existingSignals).forEach(function(key) {
-    drawArray.push(['drawSignals', existingSignals[key].id]);
+    if(existingSignals[key].generation <= getGeneration()) {
+      drawArray.push(['drawSignals', existingSignals[key].id]);
+    }
   });
 
   for (var i = 0; i < drawArray.length; i++) {
     if (isOutletsOn()) {
       out(drawArray[i]);
     } else {
-      return drawArray[i];
+      return drawArray;
     }
   }
 
@@ -1093,13 +1259,13 @@ function getRouteDirections(route) {
 }
 
 // tested
-function enrichWithHiveRouteDirections(hives) {
-  Object.keys(hives).forEach(function(key) {
-    var hive = hives[key];
-    var hiveRouteDirections = (hive.route === 'random') ? rollRandomRoute() : getRouteDirections(hive.route);
-    hives[key].hiveRouteDirections = hiveRouteDirections;
+function enrichWithRouteDirections(cells) {
+  Object.keys(cells).forEach(function(key) {
+    var cell = cells[key];
+    var routeDirections = (cell.route === 'random') ? rollRandomRoute() : getRouteDirections(cell.route);
+    cells[key].routeDirections = routeDirections;
   });
-  return hives;
+  return cells;
 }
 
 // tested
@@ -1149,12 +1315,11 @@ function getNote(x, y) {
 }
 
 // tested
-function isInBounds(id) {
-  var parts = id.split(/([0-9]+)/);
-  var okWest = (parts[1] >= 0);
-  var okEast = (parts[1] < getWidth());
-  var okNorth = (parts[3] >= 0);
-  var okSouth = (parts[3] < getHeight());
+function isInBounds(x, y) {
+  var okWest = (x >= 0);
+  var okEast = (x < getWidth());
+  var okNorth = (y >= 0);
+  var okSouth = (y < getHeight());
   return (okWest && okEast && okNorth && okSouth);
 }
 
@@ -1292,7 +1457,7 @@ function makeId(x, y) {
 }
 
 // tested
-function makeSignal(x, y, direction) {
+function makeSignal(x, y, direction, generation, isJustBorn) {
   var id = makeId(x, y);
   var newSignal = {};
   newSignal = {
@@ -1300,7 +1465,8 @@ function makeSignal(x, y, direction) {
     'x' : x,
     'y' : y,
     'direction' : direction,
-    'generation' : getGeneration()
+    'generation' : generation || getGeneration(),
+    'isJustBorn' : false
   };
   return newSignal;
 }
