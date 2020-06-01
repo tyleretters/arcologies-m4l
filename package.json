@@ -1,5 +1,14 @@
 {
   "scripts": {
     "test": "cat src.js tests.js > tmp.js && node tmp.js && rm tmp.js"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tyleretters/ecologies.git"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^2.2.0"
+  },
+    "license" : "CC-BY-4.0" 
 }

@@ -1,2 +1,4 @@
 .DS_Store
 content
+tmp.js
+node_modules/

@@ -14,6 +14,9 @@
  *
  */
 
+const core = require('@actions/core');
+const github = require('@actions/github');
+
 function testInitCell() {
   var name = 'testInitCell';
   var cell = initCell(7, 14);
@@ -1350,13 +1353,14 @@ function runTestSuite() {
     var results = testSuite();
     var counts = {};
     results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
-    if (results.contains('fail')) throw 'failures';
+    if (results.contains('fail')) throw 'error';
     drawBorder();
     console.log('Final Results:');
     console.log(counts);
     drawBorder();
-} catch(error) {
-  core.setFailed(error.message);
+  } catch(error) {
+    core.setFailed(error.message);
+  }
 }
 
 runTestSuite();
