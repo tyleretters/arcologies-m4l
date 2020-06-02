@@ -1332,13 +1332,9 @@ function testSuite() {
 }
 
 /*
- * Test Framework
+ * Test "Framework"
  * ============================================================================
  */
-
-function drawBorder() {
-  console.log('+==================================+');
-}
 
 function testOutput(name, result) {
   var testResult = (result != 'pass') ? '\x1b[7m' : '';
@@ -1349,15 +1345,15 @@ function testOutput(name, result) {
 
 function runTestSuite() {
   try {
-    drawBorder();
+    console.log('+==================================+');
     var results = testSuite();
     var counts = {};
     results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
     if (results.contains('fail')) throw 'error';
-    drawBorder();
+    console.log('+==================================+');
     console.log('Final Results:');
     console.log(counts);
-    drawBorder();
+    console.log('+==================================+');
   } catch(error) {
     core.setFailed(error.message);
   }

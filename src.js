@@ -626,9 +626,8 @@ function menuEvent(press, x, y) {
         singleMenuEvent(x, y);
       } else {
         closeMenu();
+        deselectCell();
         clearField();
-        drawChannels(getSelectedCellId());
-        out(drawRoute(getSelectedCellId()));
         drawCells();
         drawSignals();
       }
@@ -717,9 +716,15 @@ function singleFieldEvent(x, y) {
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
 
-  if (!ids.contains(id)) {
-    // this cell doesn't exist so create it (via cycle...)
-    selectCell(id);
+  if (getSelectedCellId() === id && !ids.contains(id)) {
+    // we're pressing an empty cell, so deslect the cell
+    deselectCell();
+    clearField();
+    drawCells();
+    drawSignals();
+  } else if (getSelectedCellId() === false && !ids.contains(id)) {
+    // no cell is selected and this cell doesn't exist so create it (via cycle...)
+    selectCell(id, true);
     clearField();
     cycleThroughFieldRoutes(x, y);    
     drawCells();
@@ -732,7 +737,7 @@ function singleFieldEvent(x, y) {
     drawSignals();
   } else if (getSelectedCellId() !== id && ids.contains(id)) {
     // we've pressed a different existing cell and want to select it
-    selectCell(id);
+    selectCell(id, true);
     clearField();
     drawChannels(id);
     out(drawRoute(id));
@@ -756,25 +761,13 @@ function doubleFieldEvent(x, y) {
 
   clearField();
 
-  if (getSelectedCellId() === false && ids.contains(id)) {
-    // we are selecting an existing cell without cycling it
-    selectCell(id);
-  } else if (getSelectedCellId() === false && !ids.contains(id)) {
-    // we are double pressing an empty cell with nothing already selected
-    // do nothing
-  } else if (getSelectedCellId() === id ) {
-    // we're double pressing the current cell
-    deselectCell();
-  } else {
-    // we are moving the cell and either placing it at an empty
-    // cell or copying over an existing cell
-    moveCell(getSelectedCellId(), id);
-    selectCell(id);
-    drawChannels(id);
-    out(drawRoute(id));
+  if (ids.contains(id)) {
+    // we are doulbe pressing any existing cell
+    selectCell(id, false);
+    clearField();
+    openMenu();
+    drawMenu(id);
   }
-
-  drawCells();
 
 }
 
@@ -786,16 +779,9 @@ function longFieldEvent(x, y) {
   var ids = getIds(existingCells);
 
   if (ids.contains(id)) {
-    // activate menu for this cell
-    selectCell(id);
-    clearField();
-    openMenu();
-    drawMenu(id);
+    // removed long press field events for occupied cells v0.3-beta
   } else if (getSelectedCellId()) {
-    deselectCell();
-    clearField();
-    drawCells();
-    drawSignals();
+    // removed long press field events for un-occupied cells in v0.3-beta
   } else {
     // reserved for global menu
   }
@@ -979,9 +965,11 @@ function deselectCell() {
 }
 
 // tested
-function selectCell(val) {
+function selectCell(val, display) {
   ECOLOGIES_GLOBAL_STATE.selectedCellId = val;
-  out(['selectCell', val]);
+  if (display) {
+    out(['selectCell', val]);
+  }
 }
 
 /*
