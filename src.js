@@ -1258,48 +1258,48 @@ function enrichWithRouteDirections(cells) {
 
 // tested
 function getNote(x, y) {
-  // row 1
-  if (x == 1 && y == 1) return 48;
-  if (x == 2 && y == 1) return 49;
-  if (x == 3 && y == 1) return 50;
-  if (x == 4 && y == 1) return 51;
-  if (x == 5 && y == 1) return 52;
-  if (x == 6 && y == 1) return 53;
+    // row 1
+  if (x == 1 && y == 1) return 83;
+  if (x == 2 && y == 1) return 82;
+  if (x == 3 && y == 1) return 81;
+  if (x == 4 && y == 1) return 80;
+  if (x == 5 && y == 1) return 79;
+  if (x == 6 && y == 1) return 78;
   // row 2
-  if (x == 1 && y == 2) return 54;
-  if (x == 2 && y == 2) return 55;
-  if (x == 3 && y == 2) return 56;
-  if (x == 4 && y == 2) return 57;
-  if (x == 5 && y == 2) return 58;
-  if (x == 6 && y == 2) return 59;
+  if (x == 1 && y == 2) return 77;
+  if (x == 2 && y == 2) return 76;
+  if (x == 3 && y == 2) return 75;
+  if (x == 4 && y == 2) return 74;
+  if (x == 5 && y == 2) return 73;
+  if (x == 6 && y == 2) return 72;
   // row 3
-  if (x == 1 && y == 3) return 60;
-  if (x == 2 && y == 3) return 61;
-  if (x == 3 && y == 3) return 62;
-  if (x == 4 && y == 3) return 63;
-  if (x == 5 && y == 3) return 64;
-  if (x == 6 && y == 3) return 65;
+  if (x == 1 && y == 3) return 71;
+  if (x == 2 && y == 3) return 70;
+  if (x == 3 && y == 3) return 69;
+  if (x == 4 && y == 3) return 68;
+  if (x == 5 && y == 3) return 67;
+  if (x == 6 && y == 3) return 66;
   // row 4
-  if (x == 1 && y == 4) return 66;
-  if (x == 2 && y == 4) return 67;
-  if (x == 3 && y == 4) return 68;
-  if (x == 4 && y == 4) return 69;
-  if (x == 5 && y == 4) return 70;
-  if (x == 6 && y == 4) return 71;
+  if (x == 1 && y == 4) return 65;
+  if (x == 2 && y == 4) return 64;
+  if (x == 3 && y == 4) return 63;
+  if (x == 4 && y == 4) return 62;
+  if (x == 5 && y == 4) return 61;
+  if (x == 6 && y == 4) return 60;
   // row 5
-  if (x == 1 && y == 5) return 72;
-  if (x == 2 && y == 5) return 73;
-  if (x == 3 && y == 5) return 74;
-  if (x == 4 && y == 5) return 75;
-  if (x == 5 && y == 5) return 76;
-  if (x == 6 && y == 5) return 77;
+  if (x == 1 && y == 5) return 59;
+  if (x == 2 && y == 5) return 58;
+  if (x == 3 && y == 5) return 57;
+  if (x == 4 && y == 5) return 56;
+  if (x == 5 && y == 5) return 55;
+  if (x == 6 && y == 5) return 54;
   // row 6
-  if (x == 1 && y == 6) return 78;
-  if (x == 2 && y == 6) return 79;
-  if (x == 3 && y == 6) return 80;
-  if (x == 4 && y == 6) return 81;
-  if (x == 5 && y == 6) return 82;
-  if (x == 6 && y == 6) return 83;
+  if (x == 1 && y == 6) return 53;
+  if (x == 2 && y == 6) return 52;
+  if (x == 3 && y == 6) return 51;
+  if (x == 4 && y == 6) return 50;
+  if (x == 5 && y == 6) return 49;
+  if (x == 6 && y == 6) return 48;
 }
 
 // tested

@@ -215,11 +215,11 @@ function testSingleMidiPaletteEvent() {
   var name = 'testSingleMidiPaletteEvent';
   ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x0y0';
   ECOLOGIES_GLOBAL_CELLS.x0y0.note = 60;
-  var msg = singleMidiPaletteEvent(2, 2);
-  var result1 = (ECOLOGIES_GLOBAL_CELLS.x0y0.note == 55);
+  var msg = singleMidiPaletteEvent(2, 6);
+  var result1 = (ECOLOGIES_GLOBAL_CELLS.x0y0.note == 52);
   var result2 = (msg[0] == 'animateMidiNotePress');
   var result3 = (msg[1] == 2);
-  var result4 = (msg[2] == 2);
+  var result4 = (msg[2] == 6);
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -227,10 +227,10 @@ function testSingleMidiPaletteEvent() {
 
 function testGetNote() {
   var name = 'testGetNote';
-  var result1 = (getNote(2, 2) == 55);
-  var result2 = (getNote(5, 3) == 64);
-  var result3 = (getNote(5, 4) == 70);
-  var result4 = (getNote(6, 6) == 83);
+  var result1 = (getNote(2, 2) == 76);
+  var result2 = (getNote(5, 3) == 67);
+  var result3 = (getNote(5, 4) == 61);
+  var result4 = (getNote(6, 6) == 48);
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -1349,7 +1349,7 @@ function runTestSuite() {
     var results = testSuite();
     var counts = {};
     results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
-    if (results.contains('fail')) throw 'error';
+    if (results.contains('fail')) throw false;
     console.log('+==================================+');
     console.log('Final Results:');
     console.log(counts);
