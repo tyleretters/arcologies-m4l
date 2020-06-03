@@ -21,7 +21,7 @@
  *
  * Notes:
  *  - Function "//tested" and "//untested" comments refers to test coverage in tests.js.
- *  - "midiPaletteEvent" "menuEvent" and "fieldEvent" are all types of "gridEvent".
+ *  - "midiPaletteEvent" "cellMenuEvent" and "fieldEvent" are all types of "gridEvent".
  */
 
 /*
@@ -61,8 +61,8 @@ function advance() {
   // & things are at rest
   setSignals(survivingSignals);
 
-  if (!getSelectedCellId() && !getIsMenuActive() && !getIsMidiPaletteActive()) {
-    // only redraw when a cell isn't selected, the menu isn't active, or the palette isn't active
+  if (!getSelectedCellId() && !getIsCellMenuActive() && !getIsMidiPaletteActive()) {
+    // only redraw when a cell isn't selected, the cell menu  isn't active, or the palette isn't active
     clearField();
     drawSignals();
     drawCells();
@@ -395,9 +395,9 @@ function birthSignals() {
 
     if (thisHive.routeDirections.contains('w')) {
       // one cell west means subtract one from the hive
-      // check x against 0
+      // check x against 1
       var x2 = thisHive.x - 1;
-      if (x2 >= 0 ) {
+      if (x2 >= 1 ) {
         newSignals.push(makeSignal( x2, thisHive.y, 'w', getGeneration(), true));
       }
     }
@@ -467,7 +467,7 @@ function findColumnNeighbor(currentCell, existingCells, direction) {
 // tested
 function findRowNeighbor(currentCell, existingCells, direction) {
   
-  // western boundary is row 0
+  // western boundary is row 1
   // eastern boundary is grid width - 1
 
   var xs = [];
@@ -498,9 +498,9 @@ function findRowNeighbor(currentCell, existingCells, direction) {
       return (Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev);
     });
   } else {
-    // we're going all the way to the edge of the field
+    // we're going all the way to the edge of the field which is 1
     if (direction == 'west') {
-       neighbor = 0;
+       neighbor = 1;
     }
     if (direction == 'east') {
       neighbor = getWidth() - 1; // account for zero index on grid
@@ -564,16 +564,17 @@ function cycleThroughFieldRoutes(x, y) {
  */
 
 // untested
+// wip - add quickMenu
 function gridEvent(press, x, y) {
   if (x > getWidth() - 1) return;
   if (y > getHeight() - 1) return;
 
   if (getIsMidiPaletteActive()) {
     midiPaletteEvent(press, x, y);
-  } else if (getIsMenuActive()) {
-    menuEvent(press, x, y);
+  } else if (getIsCellMenuActive()) {
+    cellMenuEvent(press, x, y);
   } else {
-    fieldEvent(press, x, y);
+    if (x > 0) fieldEvent(press, x, y); // temp "if" until quickMenu
   }
 }
 
@@ -588,8 +589,8 @@ function midiPaletteEvent(press, x, y) {
       } else {
         closeMidiPalette();
         clearField();
-        openMenu();
-        drawMenu(getSelectedCellId());
+        openCellMenu();
+        drawCellMenu(getSelectedCellId());
       }
       break;
     case 'double':
@@ -617,15 +618,16 @@ function singleMidiPaletteEvent(x, y) {
 }
 
 // untested
-function menuEvent(press, x, y) {
+function cellMenuEvent(press, x, y) {
   switch(press) {
     case 'single':
-      // the menu is always [x1y1, x6y6] on any sized grid
-      // and pressing anywhere outside this square closes it
-      if (x > 0 && x < 7 && y > 0 && y < 7) {
-        singleMenuEvent(x, y);
+      // the cell menu is always [x1y1, x6y6] on any sized grid
+      // and releasing the quick menu button closes it
+      if (x > 1 && x < 7 && y > 0 && y < 7) {
+        singleCellMenuEvent(x, y);
       } else {
-        closeMenu();
+        // wip - this function chain will happen when the quick menu button is released
+        closeCellMenu();
         deselectCell();
         clearField();
         drawCells();
@@ -633,16 +635,16 @@ function menuEvent(press, x, y) {
       }
       break;
     case 'double':
-      // no double press events exist in the menu
+      // no double press events exist in the cell menu 
       break;
     case 'long':
-      // no long press events exist in the menu
+      // no long press events exist in the cell menu 
       break;
   }
 }
 
 // untested
-function singleMenuEvent(x, y) {
+function singleCellMenuEvent(x, y) {
   // note this x, y does not correspond to the ECOLOGIES_GLOBAL_FIELD.xNyN values!
   // so we cannot use them to lookup the cells we have to getSelectedCellId()[id]
   var id = getSelectedCellId();
@@ -653,7 +655,7 @@ function singleMenuEvent(x, y) {
   if (x === 2 && y === 2) {
     cell.route = cycleRoutes(cell.route);
     setCell(id, cell);
-    out(drawMenuRoute(id));
+    out(drawCellMenuRoute(id));
   }
 
   // the ne corner is divided into 3 1x3 row
@@ -669,7 +671,7 @@ function singleMenuEvent(x, y) {
       cell.structure = 'hive';
     }
     setCell(id, cell);
-    out(drawMenuStructure(id));
+    out(drawCellMenuStructure(id));
   }
 
   // row 4 toggles the midi palette
@@ -682,14 +684,14 @@ function singleMenuEvent(x, y) {
   if (y === 5) {
     // we know x can only be 1-6 due to previous validation
     setCell(id, { 'interval' : x });
-    out(drawMenuInterval(x));
+    out(drawCellMenuInterval(x));
   }
 
   // row 6 is delete:
    if (y === 6) {
       deleteCell(id);
       out('deleteCell');
-      // closeMenu() is then called from Max once the animation is complete
+      // closeCellMenu() is then called from Max once the animation is complete
   } 
 
 }
@@ -765,8 +767,8 @@ function doubleFieldEvent(x, y) {
     // we are doulbe pressing any existing cell
     selectCell(id, false);
     clearField();
-    openMenu();
-    drawMenu(id);
+    openCellMenu();
+    drawCellMenu(id);
   }
 
 }
@@ -880,27 +882,27 @@ function drawRoute(id) {
 }
 
 // untested
-function drawMenu(id) {
-  out(drawMenuRoute(id));
-  out(drawMenuStructure(id));
-  out(drawMenuInterval(getCell(id).interval));
+function drawCellMenu(id) {
+  out(drawCellMenuRoute(id));
+  out(drawCellMenuStructure(id));
+  out(drawCellMenuInterval(getCell(id).interval));
 }
 
 // tested
-function drawMenuRoute(id) {
+function drawCellMenuRoute(id) {
   var cell = getCell(id);
   return ['drawRoute', cell.route, 2, 2];
 }
 
 // tested
-function drawMenuStructure(id) {
+function drawCellMenuStructure(id) {
   var cell = getCell(id);
   return ['drawStructure', cell.structure];
 }
 
 // tested
-function drawMenuInterval(x) {
-  return ['drawMenuInterval', x];
+function drawCellMenuInterval(x) {
+  return ['drawCellMenuInterval', x];
 }
 
 /*
@@ -921,9 +923,9 @@ function out(val) {
 }
 
 // tested
-function openMenu() {
-  setMenu(true);
-  var msg = 'openMenu';
+function openCellMenu() {
+  setCellMenu(true);
+  var msg = 'openCellMenu';
   if (isOutletsOn()) {
     out(msg);
   } else {
@@ -932,9 +934,9 @@ function openMenu() {
 }
 
 // tested
-function closeMenu() {
-  setMenu(false);
-  var msg = 'closeMenu';
+function closeCellMenu() {
+  setCellMenu(false);
+  var msg = 'closeCellMenu';
   if (isOutletsOn()) {
     out(msg);
   } else {
@@ -989,7 +991,7 @@ function init() {
   ECOLOGIES_GLOBAL_STATE.generation = 0;
   ECOLOGIES_GLOBAL_STATE.width = 0;
   ECOLOGIES_GLOBAL_STATE.height = 0;
-  ECOLOGIES_GLOBAL_STATE.isMenuActive = false;
+  ECOLOGIES_GLOBAL_STATE.isCellMenuActive = false;
   ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
   ECOLOGIES_GLOBAL_STATE.routes = [
     'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
@@ -1013,7 +1015,7 @@ function initCells() {
   var x = getWidth();
   var y = getHeight();
   for (var iy = y - 1; iy >= 0; iy--) {
-    for (var ix = x - 1; ix >= 0; ix--) {
+    for (var ix = x - 1; ix >= 1; ix--) {
       var cellId = 'x' + ix + 'y' + iy;
       var cell = initCell(ix, iy);
       setCell(cellId, cell);
@@ -1064,8 +1066,8 @@ function setCell(id, obj) {
 }
 
 // tested
-function setMenu(val) {
-  ECOLOGIES_GLOBAL_STATE.isMenuActive = val;
+function setCellMenu(val) {
+  ECOLOGIES_GLOBAL_STATE.isCellMenuActive = val;
 }
 
 // tested
@@ -1304,7 +1306,7 @@ function getNote(x, y) {
 
 // tested
 function isInBounds(x, y) {
-  var okWest = (x >= 0);
+  var okWest = (x >= 1);
   var okEast = (x < getWidth());
   var okNorth = (y >= 0);
   var okSouth = (y < getHeight());
@@ -1352,8 +1354,8 @@ function getSelectedCellId() {
 }
 
 // tested
-function getIsMenuActive() {
-  return ECOLOGIES_GLOBAL_STATE.isMenuActive;
+function getIsCellMenuActive() {
+  return ECOLOGIES_GLOBAL_STATE.isCellMenuActive;
 }
 
 // tested

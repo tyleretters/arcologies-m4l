@@ -110,7 +110,7 @@ function testDeleteSignal() {
 
 function testGetCellStructure() {
   var name = 'testGetCellStructure';
-  var cell = getCellByCoords(0, 0);
+  var cell = getCellByCoords(1, 0);
   var result = (cell.structure === 'none') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -146,12 +146,12 @@ function testInitCells() {
   return result;
 }
 
-function testSetMenu() {
-  var name = 'testSetMenu';
-  setMenu(true);
-  var result1 = (ECOLOGIES_GLOBAL_STATE.isMenuActive == true);
-  setMenu(false);
-  var result2 = (ECOLOGIES_GLOBAL_STATE.isMenuActive == false);
+function testSetCellMenu() {
+  var name = 'testSetCellMenu';
+  setCellMenu(true);
+  var result1 = (ECOLOGIES_GLOBAL_STATE.isCellMenuActive == true);
+  setCellMenu(false);
+  var result2 = (ECOLOGIES_GLOBAL_STATE.isCellMenuActive == false);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -192,10 +192,10 @@ function testSetGeneration() {
   return result;
 }
 
-function testOpenMenu() {
-  var name = 'testOpenMenu';
-  var result1 = (openMenu() == 'openMenu');
-  var result2 = (ECOLOGIES_GLOBAL_STATE.isMenuActive === true);
+function testOpenCellMenu() {
+  var name = 'testOpenCellMenu';
+  var result1 = (openCellMenu() == 'openCellMenu');
+  var result2 = (ECOLOGIES_GLOBAL_STATE.isCellMenuActive === true);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -213,10 +213,10 @@ function testOpenMidiPalette() {
 
 function testSingleMidiPaletteEvent() {
   var name = 'testSingleMidiPaletteEvent';
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x0y0';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.note = 60;
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x1y0';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.note = 60;
   var msg = singleMidiPaletteEvent(2, 6);
-  var result1 = (ECOLOGIES_GLOBAL_CELLS.x0y0.note == 52);
+  var result1 = (ECOLOGIES_GLOBAL_CELLS.x1y0.note == 52);
   var result2 = (msg[0] == 'animateMidiNotePress');
   var result3 = (msg[1] == 2);
   var result4 = (msg[2] == 6);
@@ -253,7 +253,7 @@ function testGetRouteDirections() {
 
 function testDeselectCell() {
   var name = 'testDeselectCell';
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x0y0';
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x1y0';
   deselectCell();
   var result = (ECOLOGIES_GLOBAL_STATE.selectedCellId === false) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -268,10 +268,10 @@ function testSelectCell() {
   return result;
 }
 
-function testCloseMenu() {
-  var name = 'testCloseMenu';
-  var result1 = (closeMenu() == 'closeMenu');
-  var result2 = (ECOLOGIES_GLOBAL_STATE.isMenuActive === false);
+function testCloseCellMenu() {
+  var name = 'testCloseCellMenu';
+  var result1 = (closeCellMenu() == 'closeCellMenu');
+  var result2 = (ECOLOGIES_GLOBAL_STATE.isCellMenuActive === false);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -328,8 +328,8 @@ function testSingleFieldEventOnEmptyCell() {
 
 function testGetExistingCells() {
   var name = 'testGetExistingCells';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.isExists = true;
   ECOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x15y7.isExists = true;
   var cells = getExistingCells();
   var result = (Object.size(cells) === 2) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -349,10 +349,10 @@ function testDrawRoute() {
   return result;
 }
 
-function testDrawMenuRoute() {
-  var name = 'testDrawMenuRoute';
+function testDrawCellMenuRoute() {
+  var name = 'testDrawCellMenuRoute';
   ECOLOGIES_GLOBAL_CELLS.x4y3.route = 'random';
-  var d = drawMenuRoute('x4y3');
+  var d = drawCellMenuRoute('x4y3');
   var result1 = (d[0] === 'drawRoute');
   var result2 = (d[1] === 'random');
   var result3 = (d[2] === 2);
@@ -362,10 +362,10 @@ function testDrawMenuRoute() {
   return result;
 }
 
-function testDrawMenuStructure() {
-  var name = 'testDrawMenuStructure';
+function testDrawCellMenuStructure() {
+  var name = 'testDrawCellMenuStructure';
   ECOLOGIES_GLOBAL_CELLS.x4y3.structure = 'nomad';
-  var d = drawMenuStructure('x4y3');
+  var d = drawCellMenuStructure('x4y3');
   var result1 = (d[0] === 'drawStructure');
   var result2 = (d[1] === 'nomad');
   var result = (result1 && result2) ? 'pass' : 'fail';
@@ -373,10 +373,10 @@ function testDrawMenuStructure() {
   return result;
 }
 
-function testDrawMenuInterval() {
-  var name = 'testDrawMenuInterval';
-  var d = drawMenuInterval(5);
-  var result1 = (d[0] === 'drawMenuInterval');
+function testDrawCellMenuInterval() {
+  var name = 'testDrawCellMenuInterval';
+  var d = drawCellMenuInterval(5);
+  var result1 = (d[0] === 'drawCellMenuInterval');
   var result2 = (d[1] === 5);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -385,27 +385,27 @@ function testDrawMenuInterval() {
 
 function testdrawCells() {
   var name = 'testDrawCells';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y2.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y3.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.route = 'all';
-  ECOLOGIES_GLOBAL_CELLS.x0y2.route = 'stop';
-  ECOLOGIES_GLOBAL_CELLS.x0y3.route = 'nse';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.x = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y2.x = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y3.x = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.y = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y2.y = 2;
-  ECOLOGIES_GLOBAL_CELLS.x0y3.y = 3;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.structure = 'hive';
-  ECOLOGIES_GLOBAL_CELLS.x0y2.structure = 'nomad';
-  ECOLOGIES_GLOBAL_CELLS.x0y3.structure = 'hive';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y2.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y3.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.route = 'all';
+  ECOLOGIES_GLOBAL_CELLS.x1y2.route = 'stop';
+  ECOLOGIES_GLOBAL_CELLS.x1y3.route = 'nse';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
+  ECOLOGIES_GLOBAL_CELLS.x1y2.x = 1;
+  ECOLOGIES_GLOBAL_CELLS.x1y3.x = 1;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.y = 0;
+  ECOLOGIES_GLOBAL_CELLS.x1y2.y = 2;
+  ECOLOGIES_GLOBAL_CELLS.x1y3.y = 3;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.structure = 'hive';
+  ECOLOGIES_GLOBAL_CELLS.x1y2.structure = 'nomad';
+  ECOLOGIES_GLOBAL_CELLS.x1y3.structure = 'hive';
   var h = drawCells();
   var result1 = (h.length === 4);
   var result2 = (h[0] === 'drawCells');
-  var result5 = (h[1] === 'x0y3');
-  var result4 = (h[2] === 'x0y2');
-  var result3 = (h[3] === 'x0y0');  
+  var result5 = (h[1] === 'x1y3');
+  var result4 = (h[2] === 'x1y2');
+  var result3 = (h[3] === 'x1y0');  
   var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -413,7 +413,7 @@ function testdrawCells() {
 
 function testGetIds() {
   var name = 'testGetIds';
-  var obj = {'x0y0':{}, 'x1y2':{}, 'x4y8':{}};
+  var obj = {'x1y0':{}, 'x1y2':{}, 'x4y8':{}};
   var ids = getIds(obj);
   var result = (ids.length === 3) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -442,23 +442,23 @@ function testDumpStructures() {
 
 function testMoveCell() {
   var name = 'testMoveCell';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
   ECOLOGIES_GLOBAL_CELLS.x6y6.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.route = 'random';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.route = 'random';
   ECOLOGIES_GLOBAL_CELLS.x6y6.route = 'all';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.x = 0;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
   ECOLOGIES_GLOBAL_CELLS.x6y6.x = 6;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.y = 0;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.y = 0;
   ECOLOGIES_GLOBAL_CELLS.x6y6.y = 6;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.structure = 'nomad';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.structure = 'nomad';
   ECOLOGIES_GLOBAL_CELLS.x6y6.structure = 'hive';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.note = 51;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.note = 51;
   ECOLOGIES_GLOBAL_CELLS.x6y6.note = 56;
-  moveCell('x0y0', 'x6y6');
-  var result1 = (ECOLOGIES_GLOBAL_CELLS.x0y0.isExists === false);
+  moveCell('x1y0', 'x6y6');
+  var result1 = (ECOLOGIES_GLOBAL_CELLS.x1y0.isExists === false);
   var result2 = (ECOLOGIES_GLOBAL_CELLS.x6y6.route === 'random' );
   var result3 = (ECOLOGIES_GLOBAL_CELLS.x6y6.structure === 'nomad');
-  var result4 = (ECOLOGIES_GLOBAL_CELLS.x0y0.id === 'x0y0');
+  var result4 = (ECOLOGIES_GLOBAL_CELLS.x1y0.id === 'x1y0');
   var result5 = (ECOLOGIES_GLOBAL_CELLS.x6y6.id === 'x6y6');
   var result6 = (ECOLOGIES_GLOBAL_CELLS.x6y6.note === 51);
   var result = (result1 && result2 && result3 && result4 && result5 && result6) ? 'pass' : 'fail';
@@ -475,11 +475,11 @@ function testCycleRoutes() {
 
 function testDeleteCell() {
   var name = 'testDeleteCell';
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x0y1';
-  ECOLOGIES_GLOBAL_CELLS.x0y1.isExists = true;
-  deleteCell('x0y1');
+  ECOLOGIES_GLOBAL_STATE.selectedCellId = 'x1y1';
+  ECOLOGIES_GLOBAL_CELLS.x1y1.isExists = true;
+  deleteCell('x1y1');
   var result1 = (ECOLOGIES_GLOBAL_STATE.selectedCellId === false);
-  var result2 = (ECOLOGIES_GLOBAL_CELLS.x0y1.isExists === false);
+  var result2 = (ECOLOGIES_GLOBAL_CELLS.x1y1.isExists === false);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -587,7 +587,7 @@ function testFindRowNeighborWest() {
   var existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
-    'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+    'x1y7': { 'id' : 'x1y7', 'x': 1, 'y': 7}, 
     'x1y7': { 'id' : 'x1y7', 'x': 1, 'y': 7},
     'x2y7': { 'id' : 'x2y7', 'x': 2, 'y': 7}
   };
@@ -607,7 +607,7 @@ function testFindRowNeighborEast() {
   var existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
-    'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+    'x1y7': { 'id' : 'x1y7', 'x': 1, 'y': 7}, 
     'x15y7': { 'id' : 'x15y7', 'x': 15, 'y': 7},
     'x14y7': { 'id' : 'x14y7', 'x': 14, 'y': 7}
   };
@@ -627,7 +627,7 @@ function testFindNoRowNeighborEast() {
   var existingCells = { 
     'x2y1': { 'id' : 'x2y1', 'x': 2, 'y': 1}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0}, 
-    'x0y7': { 'id' : 'x0y7', 'x': 0, 'y': 7}, 
+    'x1y7': { 'id' : 'x1y7', 'x': 1, 'y': 7}, 
   };
   var neighbor = findRowNeighbor(currentCell, existingCells, 'east');
   var result1 = (neighbor.y === 7);
@@ -649,7 +649,7 @@ function testFindNoRowNeighborWest() {
   };
   var neighbor = findRowNeighbor(currentCell, existingCells, 'west');
   var result1 = (neighbor.y === 7);
-  var result2 = (neighbor.x === 0);
+  var result2 = (neighbor.x === 1);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -658,10 +658,10 @@ function testFindNoRowNeighborWest() {
 function testPrepareCellChannels() {
   var name = 'testPrepareCellChannels';
   ECOLOGIES_GLOBAL_CELLS = { 
-    'x0y0': { 'id' : 'x0y0', 'x': 0, 'y': 0}, 
-    'x0y1': { 'id' : 'x0y1', 'x': 0, 'y': 1, 'route': 'esw'}, 
-    'x0y3': { 'id' : 'x0y3', 'x': 0, 'y': 3}, 
-    'x0y6': { 'id' : 'x0y6', 'x': 0, 'y': 6}, 
+    'x1y0': { 'id' : 'x1y0', 'x': 1, 'y': 0}, 
+    'x1y1': { 'id' : 'x1y1', 'x': 1, 'y': 1, 'route': 'esw'}, 
+    'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3}, 
+    'x1y6': { 'id' : 'x1y6', 'x': 1, 'y': 6}, 
     'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0, 'route': 'all'}, 
     'x4y1': { 'id' : 'x4y1', 'x': 4, 'y': 1}, 
     'x4y3': { 'id' : 'x4y3', 'x': 4, 'y': 3}, 
@@ -698,7 +698,7 @@ function testDrawChannels() {
     'x11y3': { 'id' : 'x11y3', 'x': 11, 'y': 3, 'route': 'nn'},  
     'x6y1': { 'id' : 'x6y1', 'x': 6, 'y': 1, 'route': 'all'}, 
     'x6y6': { 'id' : 'x6y6', 'x': 6, 'y': 6, 'route': 'shell'},
-    'x0y3': { 'id' : 'x0y3', 'x': 0, 'y': 3, 'route': 'all'}, 
+    'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3, 'route': 'all'}, 
     'x6y0': { 'id' : 'x6y0', 'x': 6, 'y': 0, 'route': 'nn'}, 
     'x17y3': { 'id' : 'x17y3', 'x': 17, 'y': 3, 'route': 'ee'}, 
     'x6y7': { 'id' : 'x6y7', 'x': 6, 'y': 7, 'route': 'ss'}, 
@@ -727,11 +727,11 @@ function testGetSelectedCellId() {
   return result;
 }
 
-function testGetIsMenuActive() {
-  var name = 'testGetIsMenuActive';
-  var result1 = getIsMenuActive();
-  ECOLOGIES_GLOBAL_STATE.isMenuActive = true;
-  var result2 = getIsMenuActive();
+function testGetIsCellMenuActive() {
+  var name = 'testGetIsCellMenuActive';
+  var result1 = getIsCellMenuActive();
+  ECOLOGIES_GLOBAL_STATE.isCellMenuActive = true;
+  var result2 = getIsCellMenuActive();
   var result = (!result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -757,23 +757,23 @@ function testRollRandomRoute() {
 
 function testGetCellsByStructure() {
   var name = 'testGetCellsByStructure';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y2.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y3.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.route = 'all';
-  ECOLOGIES_GLOBAL_CELLS.x0y2.route = 'stop';
-  ECOLOGIES_GLOBAL_CELLS.x0y3.route = 'nse';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.x = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y2.x = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y3.x = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.y = 0;
-  ECOLOGIES_GLOBAL_CELLS.x0y2.y = 2;
-  ECOLOGIES_GLOBAL_CELLS.x0y3.y = 3;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.structure = 'hive';
-  ECOLOGIES_GLOBAL_CELLS.x0y2.structure = 'nomad';
-  ECOLOGIES_GLOBAL_CELLS.x0y3.structure = 'hive';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y2.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y3.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.route = 'all';
+  ECOLOGIES_GLOBAL_CELLS.x1y2.route = 'stop';
+  ECOLOGIES_GLOBAL_CELLS.x1y3.route = 'nse';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
+  ECOLOGIES_GLOBAL_CELLS.x1y2.x = 1;
+  ECOLOGIES_GLOBAL_CELLS.x1y3.x = 1;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.y = 0;
+  ECOLOGIES_GLOBAL_CELLS.x1y2.y = 2;
+  ECOLOGIES_GLOBAL_CELLS.x1y3.y = 3;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.structure = 'hive';
+  ECOLOGIES_GLOBAL_CELLS.x1y2.structure = 'nomad';
+  ECOLOGIES_GLOBAL_CELLS.x1y3.structure = 'hive';
   var hives = getCellsByStructure('hive');
-  var result1 = (hives[0].id === 'x0y3');
+  var result1 = (hives[0].id === 'x1y3');
   var result2 = (hives[0].structure === 'hive');
   var result3 = (hives.length == 2);
   var result = (result1 && result2 && result3) ? 'pass' : 'fail';
@@ -784,19 +784,19 @@ function testGetCellsByStructure() {
 function testBirthSignals() {
   var name = 'testBirthSignals';
   setGeneration(0);
-  ECOLOGIES_GLOBAL_CELLS.x0y0.isExists = true;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
   ECOLOGIES_GLOBAL_CELLS.x2y7.isExists = true;
   ECOLOGIES_GLOBAL_CELLS.x11y5.isExists = true;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.route = 'all';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.route = 'all';
   ECOLOGIES_GLOBAL_CELLS.x2y7.route = 'all';
   ECOLOGIES_GLOBAL_CELLS.x11y5.route = 'all';
-  ECOLOGIES_GLOBAL_CELLS.x0y0.x = 0;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
   ECOLOGIES_GLOBAL_CELLS.x2y7.x = 2;
   ECOLOGIES_GLOBAL_CELLS.x11y5.x = 11;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.y = 0;
+  ECOLOGIES_GLOBAL_CELLS.x1y0.y = 0;
   ECOLOGIES_GLOBAL_CELLS.x2y7.y = 7;
   ECOLOGIES_GLOBAL_CELLS.x11y5.y = 5;
-  ECOLOGIES_GLOBAL_CELLS.x0y0.structure = 'hive';
+  ECOLOGIES_GLOBAL_CELLS.x1y0.structure = 'hive';
   ECOLOGIES_GLOBAL_CELLS.x2y7.structure = 'hive';
   ECOLOGIES_GLOBAL_CELLS.x11y5.structure = 'hive';
   var signals = birthSignals();
@@ -831,14 +831,14 @@ function testBirthSignals() {
     (signals.x10y5.x === 10) &&
     (signals.x10y5.y === 5) &&
     (signals.x10y5.direction === 'w') &&
-    (signals.x1y0.id === 'x1y0') &&
-    (signals.x1y0.x === 1) &&
-    (signals.x1y0.y === 0) &&
-    (signals.x1y0.direction === 'e') &&
-    (signals.x0y1.id === 'x0y1') &&
-    (signals.x0y1.x === 0) &&
-    (signals.x0y1.y === 1) &&
-    (signals.x0y1.direction === 's')
+    (signals.x2y0.id === 'x2y0') &&
+    (signals.x2y0.x === 2) &&
+    (signals.x2y0.y === 0) &&
+    (signals.x2y0.direction === 'e') &&
+    (signals.x1y1.id === 'x1y1') &&
+    (signals.x1y1.x === 1) &&
+    (signals.x1y1.y === 1) &&
+    (signals.x1y1.direction === 's')
   ) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -869,7 +869,7 @@ function testCancelCollidingSignals() {
   var b1 = makeSignal(0, 0, 'n');
   var b2 = makeSignal(3, 3, 'e');
   var b3 = makeSignal(6, 3, 'w');
-  var birthedSignals = {'x0y0' : b1, 'x3y3' : b2, 'x6y3' : b3};
+  var birthedSignals = {'x1y0' : b1, 'x3y3' : b2, 'x6y3' : b3};
   var survivingSignals = cancelCollidingSignals(birthedSignals, existingSignals);
   var result1 = (survivingSignals.x6y4.direction === 'w');
   var result2 = (survivingSignals.x6y3.direction === 'w');
@@ -944,7 +944,7 @@ function testIsHiveBirthing() {
 
 function testIsInBounds() {
   var name = 'testIsInBounds';
-  var result1 = isInBounds(0, 0);
+  var result1 = isInBounds(1, 0);
   var result2 = !isInBounds(6, 39);
   var result3 = !isInBounds(-1, 9);
   var result4 = isInBounds(4, 4);
@@ -956,13 +956,13 @@ function testIsInBounds() {
 function testCancelOutOfBoundsSignals() {
   var name = 'testCancelOutOfBoundsSignals';
   var testSignals = [
-    {'id': 'x0y0', 'x': 0, 'y': 0},
+    {'id': 'x1y0', 'x': 1, 'y': 0},
     {'id': 'x26y39', 'x': 26, 'y': 39},
     {'id': 'x1y9', 'x': 1, 'y': 9},
     {'id': 'x4y5', 'x': 4, 'y': 5}
   ];
   testSignals = cancelOutOfBoundsSignals(testSignals);
-  var result = (testSignals.x0y0.id == 'x0y0' && testSignals.x4y5.id == 'x4y5') ? 'pass' : 'fail';
+  var result = (testSignals.x1y0.id == 'x1y0' && testSignals.x4y5.id == 'x4y5') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -988,17 +988,16 @@ function testPropagateSignals() {
   setGeneration(21);
   var testSignals = [
     {'id': 'x4y2', 'x': 4, 'y': 2, 'direction': 's', 'generation': 21},
-    {'id': 'x0y0', 'x': 0, 'y': 0, 'direction': 's', 'generation': 20},
+    {'id': 'x1y0', 'x': 1, 'y': 0, 'direction': 's', 'generation': 20},
     {'id': 'x6y3', 'x': 6, 'y': 3, 'direction': 'e', 'generation': 20},
     {'id': 'x1y3', 'x': 1, 'y': 3, 'direction': 'w', 'generation': 20},
     {'id': 'x4y5', 'x': 4, 'y': 5, 'direction': 'n', 'generation': 20}
   ];
-
   setSignals(propagateSignals(testSignals));
   var checkSignals = getSignals();
-  var result1 = (checkSignals.hasOwnProperty('x0y1'));
+  var result1 = (checkSignals.hasOwnProperty('x1y1'));
   var result2 = (checkSignals.hasOwnProperty('x7y3'));
-  var result3 = (checkSignals.hasOwnProperty('x0y3'));
+  var result3 = (!checkSignals.hasOwnProperty('x1y3'));
   var result4 = (checkSignals.hasOwnProperty('x4y4'));
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -1007,8 +1006,8 @@ function testPropagateSignals() {
 
 function testSetSignal() {
   var name = 'testSetSignal';
-  setSignal('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'direction': 'random', 'generation' : 15});
-  var result = (ECOLOGIES_GLOBAL_SIGNALS.x0y1.id == 'x0y1' && ECOLOGIES_GLOBAL_SIGNALS.x0y1.generation == 15) ? 'pass' : 'fail';
+  setSignal('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'direction': 'random', 'generation' : 15});
+  var result = (ECOLOGIES_GLOBAL_SIGNALS.x1y1.id == 'x1y1' && ECOLOGIES_GLOBAL_SIGNALS.x1y1.generation == 15) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1016,10 +1015,10 @@ function testSetSignal() {
 function testDrawSignals() {
   var name = 'testDrawSignals';
   setGeneration(10);
-  setSignal('x0y0', {'id': 'x0y0', 'x': 0, 'y': 0, 'direction': 's', 'generation' : 10});
-  setSignal('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'direction': 's', 'generation' : 11});
+  setSignal('x1y0', {'id': 'x1y0', 'x': 1, 'y': 0, 'direction': 's', 'generation' : 10});
+  setSignal('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'direction': 's', 'generation' : 11});
   var drawArray = drawSignals();
-  var result1 = (drawArray[0][0] == 'drawSignals' && drawArray[0][1] == 'x0y0');
+  var result1 = (drawArray[0][0] == 'drawSignals' && drawArray[0][1] == 'x1y0');
   var result2 = (drawArray.length == 1);
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -1040,8 +1039,8 @@ function testSetSignals() {
 
 function testSetCell() {
   var name = 'testSetCell';
-  setCell('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'route': 'random'});
-  var result = (ECOLOGIES_GLOBAL_CELLS.x0y1.id == 'x0y1' && ECOLOGIES_GLOBAL_CELLS.x0y1.route == 'random') ? 'pass' : 'fail';
+  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'route': 'random'});
+  var result = (ECOLOGIES_GLOBAL_CELLS.x1y1.id == 'x1y1' && ECOLOGIES_GLOBAL_CELLS.x1y1.route == 'random') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1052,8 +1051,8 @@ function testCollide() {
   setGeneration(10);
 
   // test collide with a hive and all ports open: destroy the signal
-  var signal1 = makeSignal(0, 1, 'w');
-  setCell('x0y1', {'id': 'x0y1', 'x': 0, 'y': 1, 'route': 'all', 'structure': 'hive', 'isExists': true});
+  var signal1 = makeSignal(1, 1, 'w');
+  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'route': 'all', 'structure': 'hive', 'isExists': true});
 
   // test collide with a port from a closed route: destroy the signal
   setCell('x5y5', {'id': 'x5y5', 'x': 5, 'y': 5, 'route': 'nn', 'structure': 'port', 'isExists': true});
@@ -1068,10 +1067,10 @@ function testCollide() {
   var signal4 = makeSignal(10, 5, 'n'); // entering from the south
   setCell('x10y5', {'id': 'x10y5', 'x': 10, 'y': 5, 'route': 'all', 'structure': 'port', 'isExists': true});
 
-  var signals = { 'x0y1' : signal1, 'x5y5' : signal2, 'x6y6' : signal3, 'x10y5' : signal4 };
+  var signals = { 'x1y1' : signal1, 'x5y5' : signal2, 'x6y6' : signal3, 'x10y5' : signal4 };
   var finalSurvivingSignals = collide(signals);
 
-  var result1 = !getIds(finalSurvivingSignals).contains('x0y1');
+  var result1 = !getIds(finalSurvivingSignals).contains('x1y1');
   var result2 = !getIds(finalSurvivingSignals).contains('x5y5');
   var result3 = !getIds(finalSurvivingSignals).contains('x6y6');
 
@@ -1208,19 +1207,19 @@ function testSuite() {
   results.push(testArrayContains());
   results.push(testObjectSize());
   results.push(testInitCells());
-  results.push(testSetMenu());
+  results.push(testSetCellMenu());
   results.push(testSetMidiPalette());
   results.push(testSetWidth());
   results.push(testSetHeight());
   results.push(testSetGeneration());
-  results.push(testOpenMenu());
+  results.push(testOpenCellMenu());
   results.push(testOpenMidiPalette());
   results.push(testSingleMidiPaletteEvent());
   results.push(testGetNote());
   results.push(testGetRouteDirections());
   results.push(testDeselectCell());
   results.push(testSelectCell());
-  results.push(testCloseMenu());
+  results.push(testCloseCellMenu());
   results.push(testCloseMidiPalette());
   results.push(testOutletsOnOff());
   results.push(testClearField());
@@ -1238,9 +1237,9 @@ function testSuite() {
   results.push(testDrawRoute());
 
   resetTestSuite();
-  results.push(testDrawMenuRoute());
-  results.push(testDrawMenuStructure());
-  results.push(testDrawMenuInterval());
+  results.push(testDrawCellMenuRoute());
+  results.push(testDrawCellMenuStructure());
+  results.push(testDrawCellMenuInterval());
 
   resetTestSuite();
   results.push(testdrawCells());
@@ -1282,7 +1281,7 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testGetSelectedCellId());
-  results.push(testGetIsMenuActive());
+  results.push(testGetIsCellMenuActive());
   results.push(testGetIsMidiPaletteActive());
 
   resetTestSuite();
