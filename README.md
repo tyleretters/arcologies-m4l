@@ -1,19 +1,20 @@
-![Node.js CI](https://github.com/tyleretters/ecologies/workflows/Node.js%20CI/badge.svg?branch=master)
+![Node.js CI](https://github.com/tyleretters/arcologies/workflows/Node.js%20CI/badge.svg?branch=master)
 
-# ecologies
+# arcologies
 
-If you are an artist, musician, or ecologist here to use this instrument, [everything you need to know is in the docs](https://tyleretters.github.io/ecologies).
+If you are an artist, musician, or arcologist here to use this instrument, [everything you need to know is in the docs](https://tyleretters.github.io/arcologies).
 
-This README is for developers looking to contribute to building **ecologies**.
+This README is for developers looking to contribute to building **arcologies**.
 
 ## Technical
 
-Ecologies is a [Max for Live](https://cycling74.com/products/maxforlive/) device for [monome grid](https://monome.org/docs/grid/) built with lots of JavaScript. Max & [serialosc](https://github.com/monome/serialosc) do the heavy lifting with grid, midi, timings, and Ableton Live. The ecologies themselves are spun with threads of JSON by the dreaming JavaScript...
+**arcologies** is a [Max for Live](https://cycling74.com/products/maxforlive/) device for [monome grid](https://monome.org/docs/grid/) built with lots of JavaScript. Max & [serialosc](https://github.com/monome/serialosc) do the heavy lifting with grid, midi, timings, and Ableton Live. The arcologies themselves are spun with threads of JSON by the dreaming JavaScript...
 
 ## Tests
 
 1. `npm install`
 2. `npm test`
+3. `npm run watch`
 
 The tests requrie [npm](https://www.npmjs.com/). Tests are all in `./tests.js`. Running `npm test` concatenates `src.js` with `tests.js` and executes `runTestSuite()`.
 
