@@ -1,5 +1,5 @@
 /*
- * ecologies
+ * arcologies src
  * ============================================================================
  *
  * By:        Tyler Etters
@@ -8,8 +8,9 @@
  * License:   Attribution 4.0 International (CC BY 4.0)
  *
  * File Organization:
- *  - Core
  *  - Events
+ *  - Midi
+ *  - Signals
  *  - Draws
  *  - Max I/O
  *  - Initialize Functions
@@ -21,15 +22,14 @@
  *
  * Notes:
  *  - Function "//tested" and "//untested" comments refers to test coverage in tests.js.
- *  - "midiPaletteEvent" "cellMenuEvent" and "fieldEvent" are all types of "gridEvent".
  */
 
 /*
- * Core
+ * Events
  * ==============================================================================
  */
 
-// beta wip
+// untestable...
 function advance() {
 
   var birthedSignals;
@@ -39,37 +39,263 @@ function advance() {
   var finalSignals;
   var existingCells;
 
-  // glorious birth...
+  // the hives sing...
   hivesSing();
 
+  // their glorious birth...
   birthedSignals = birthSignals();
 
   // & everything moves...
   existingSignals = getSignals();
 
-  if (existingSignals === undefined) return; // ...unless there's nothing to move...
+  // ...unless there's nothing to move...
+  if (existingSignals === undefined) return; 
+  
+  // & some things die but some things also sing...
   propagatedSignals = propagateSignals(existingSignals);
 
-  // & some things die...
+  // & some more things die...
   survivingSignals = cancelOutOfBoundsSignals(propagatedSignals);
   survivingSignals = cancelCollidingSignals(birthedSignals, survivingSignals);
-
-  // & some more things die but some things also sing...
-  // moved to propagate
-  // finalSignals = collide(survivingSignals);
 
   // & things are at rest
   setSignals(survivingSignals);
 
-  if (!getSelectedCellId() && !getIsCellMenuActive() && !getIsMidiPaletteActive()) {
+  // & if the weather is just so, we get to see it all from above
+  if (!getSelectedCellId() && !isQuickMenuActive() && !isMidiPaletteActive()) {
     // only redraw when a cell isn't selected, the cell menu  isn't active, or the palette isn't active
-    clearField();
-    drawSignals();
-    drawCells();
+    returnToField();
   }
 
 }
 
+// untested
+function returnToField() {
+  clearField();
+  drawCells();
+  drawSignals();
+}
+
+// tested
+function midiPaletteEvent(x, y) {
+  
+  // defensive
+  if (x < 0 && x > 8 && y < 0 && y > 8) return;
+        
+  // all midi palette events do the same thing - set the note
+  var note = getMidiNote(x, y);
+  var id = getSelectedCellId();
+  setCell(id, { 'note' : note});
+  var arr = ['animateMidiNotePress', x, y];
+  if (isOutletsOn()) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// wip
+function intervalPaletteEvent(x, y) {
+  
+  // defensive
+  if (x < 0 && x > 6 && y != 3) return;
+        
+  // all midi palette events do the same thing - set the note
+  var interval = getInterval(x, y);
+  var id = getSelectedCellId();
+  setCell(id, { 'interval' : interval});
+  var arr = ['animateIntervalPress', x, y];
+  if (isOutletsOn()) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
+
+// tested
+function singleFieldEvent(x, y) {
+
+  var id = makeId(x, y);
+  var existingCells = getExistingCells();
+  var ids = getIds(existingCells);
+
+  if (isQuickMenuKeyPressed(7) && ids.contains(id)) {
+    
+    // single cell delete
+    deleteCell(id);
+    returnToField();
+
+  } else if (isQuickMenuKeyPressed(2) && isMidiPaletteActive()) {
+    
+    // if we have a cell selected, set its midi note,
+    // otherwise set the global midi note
+    if (getSelectedCellId()) {
+      midiPaletteEvent(x,y);
+    } else {
+      setGlobalMidiNote(getMidiNote(x, y));
+    }
+
+  } else if (isQuickMenuKeyPressed(3) && isIntervalPaletteActive()) {
+    
+    // if we have a cell selected, set its interval,
+    // otherwise set the global interval
+    if (getSelectedCellId()) {
+      intervalPaletteEvent(x,y);
+    } else {
+      setGlobalInterval(getInterval(x, y));
+    }
+
+
+  } else if (getSelectedCellId() === id && !ids.contains(id)) {
+    
+    // we're pressing an empty cell, so deslect the cell
+    deselectCell();
+    returnToField();
+
+  } else if (getSelectedCellId() === false && !ids.contains(id)) {
+    // no cell is selected and this cell doesn't exist so create it (via cycle...)
+    selectCell(id, true);
+    clearField();
+    cycleThroughFieldRoutes(x, y);    
+    drawCells();
+    drawSignals();
+  } else if (getSelectedCellId() == id) {
+    // we're pressing the already selected cell, so cycle through the routes
+    clearField();
+    cycleThroughFieldRoutes(x, y);
+    drawCells();
+    drawSignals();
+  } else if (getSelectedCellId() !== id && ids.contains(id)) {
+    // we've pressed a different existing cell and want to select it
+    selectCell(id, true);
+    clearField();
+    drawLeylines(id);
+    out(drawRoute(id));
+    drawCells();
+    drawSignals();
+  } else {
+    // this shouldn't happen but fallback to resting state
+    deselectCell();
+    clearField();
+    drawCells();
+    drawSignals();
+  }
+}
+
+// wip
+function inspect(val) {
+  clearField();
+  noBlinkSelectedCell();
+  if (val == 'signals'); // draw signals
+  if (val == 'hives') drawCells('hives');
+  if (val == 'gates') drawCells('gates');
+  if (val == 'shrines') drawCells('shrines');
+  if (val == 'leylines'); // draw leylines
+}
+
+// wip
+function handleQuickMenu(y, z) {
+
+  // todo - first in lock
+
+  // inspector
+  if (isQuickMenuKeyPressed(0) && z == 1) {
+      if (isQuickMenuKeyPressed(1)) inspect('signals');
+      if (isQuickMenuKeyPressed(2)) inspect('hives');
+      if (isQuickMenuKeyPressed(3)) inspect('gates');
+      if (isQuickMenuKeyPressed(4)) inspect('shrines');
+      if (isQuickMenuKeyPressed(5)) inspect('leylines');
+
+  // disable inspector
+  } else if (y == 0 && z == 0) {
+    returnToField();
+
+  // set structure
+  } else if (isQuickMenuKeyPressed(1) && z == 1) {
+    if (!getSelectedCellId()) {
+      if (y == 2) setGlobalStructure('hive');
+      if (y == 3) setGlobalStructure('gate');
+      if (y == 4) setGlobalStructure('shrine');
+    } else {
+      var id = getSelectedCellId();
+      if (y == 2) setCell(id, { 'structure' : 'hive' });
+      if (y == 3) setCell(id, { 'structure' : 'gate' });
+      if (y == 4) setCell(id, { 'structure' : 'shrine' });
+    }
+
+  // open midi palette
+  } else if (y == 2 && z == 1) {
+    clearField();
+    noBlinkSelectedCell();
+    openMidiPalette();
+
+  // close midi palette
+  } else if (y == 2 && z == 0) {
+    closeMidiPalette();
+    returnToField();    
+ 
+  // open interval palette
+  } else if (y == 3 && z == 1) {
+    clearField();
+    noBlinkSelectedCell();
+    openIntervalPalette();
+
+  // close interval palette
+  } else if (y == 2 && z == 0) {
+    closeIntervalPalette();
+    returnToField();       
+
+  // manual advance
+  } else if (y == 6 && z == 1) {
+    deselectCell();
+    returnToField();
+    advance();
+  }
+
+}
+
+/*
+ * Midi
+ * ==============================================================================
+ */
+
+// untested
+function hivesSing() {
+
+  var hiveChorus = ['playMidi'];
+  var hives = getCellsByStructure('hive');
+
+  Object.keys(hives).forEach(function(key) {
+    var thisHive = hives[key];
+    var note = isHiveBirthing(thisHive.interval) ? thisHive.note : false;
+    if (note) {
+      hiveChorus.push(note);
+    }
+  });
+
+  if (hiveChorus.length > 1) {
+    out(hiveChorus);
+  }
+
+}
+
+// untested
+function cellSing(id) {
+
+  var cellNote = ['playMidi', getCell(id).note];
+  
+  if (isOutletsOn()) {
+    out(cellNote);
+  } else {
+    return cellNote;
+  }
+
+}
+
+/*
+ * Signals
+ * ==============================================================================
+ */
 
 // tested
 function collide(signals) {
@@ -77,9 +303,9 @@ function collide(signals) {
   var collisionResults = signals;
   var cells = enrichWithRouteDirections(getExistingCells());
   var hives = getCellsByStructure('hive');
-  var ports = getCellsByStructure('port');
-  var nomads = getCellsByStructure('nomad');
-  var portsAndNomads = Object.assign(ports, nomads);
+  var gates = getCellsByStructure('gate');
+  var shrines = getCellsByStructure('shrine');
+  var gatesAndNomads = Object.assign(gates, shrines);
 
   Object.keys(signals).forEach(function(signalKey) {
     var thisSignal = signals[signalKey];
@@ -94,8 +320,8 @@ function collide(signals) {
   var newSignals = {};
   Object.keys(signals).forEach(function(signalKey) {
     var thisSignal = signals[signalKey];
-    Object.keys(portsAndNomads).forEach(function(portsAndNomadsKey) {
-     var thisCell = portsAndNomads[portsAndNomadsKey];
+    Object.keys(gatesAndNomads).forEach(function(gatesAndNomadsKey) {
+     var thisCell = gatesAndNomads[gatesAndNomadsKey];
      var idMatch = (thisCell.id == thisSignal.id);
      var isRouteMatch = routeMatch(thisCell.routeDirections, thisSignal.direction);
 
@@ -154,7 +380,7 @@ function routeSignals(cell, signal) {
   return newSignals;
 }
 
-// wip
+// untested
 function cellRouteSignal(cell, originSignal, direction) {
   var cellRouteSignalResults = {};
   var routeDirectionsLength = cell.routeDirections.length;
@@ -221,7 +447,7 @@ function cellRouteSignal(cell, originSignal, direction) {
 
 }
 
-// wip
+// tested
 // north direction matches south route
 // south direction matches north route
 // east direction matches west route
@@ -304,44 +530,11 @@ function propagateSignals(signals) {
   return Object.assign(propagatedSignals, collisionResults);
 }
 
-// beta wip
-function hivesSing() {
-
-  var hiveChorus = ['playMidi'];
-  var hives = getCellsByStructure('hive');
-
-  Object.keys(hives).forEach(function(key) {
-    var thisHive = hives[key];
-    var note = isHiveBirthing(thisHive.interval) ? thisHive.note : false;
-    if (note) {
-      hiveChorus.push(note);
-    }
-  });
-
-  if (hiveChorus.length > 1) {
-    out(hiveChorus);
-  }
-
-}
-
-// wip
-function cellSing(id) {
-
-  var cellNote = ['playMidi', getCell(id).note];
-  
-  if (isOutletsOn()) {
-    out(cellNote);
-  } else {
-    return cellNote;
-  }
-
-}
-
 // tested
 function cancelOutOfBoundsSignals(survivingSignals) {
   var inBoundsSignals = {};
   Object.keys(survivingSignals).forEach(function(key) {
-    if (isInBounds(survivingSignals[key].x, survivingSignals[key].y)) {
+    if (isInFieldBounds(survivingSignals[key].x, survivingSignals[key].y)) {
       var id = survivingSignals[key].id;
       inBoundsSignals[id] = survivingSignals[key];
     }
@@ -350,8 +543,6 @@ function cancelOutOfBoundsSignals(survivingSignals) {
 } 
 
 // tested
-// very brittle test - if you change the sorting
-// of the array the test will break
 function birthSignals() {
 
   var birthedSignals = {};
@@ -512,7 +703,7 @@ function findRowNeighbor(currentCell, existingCells, direction) {
 }
 
 // tested
-function prepareCellChannels(cellId) {
+function prepareCellLeylines(cellId) {
 
   var currentCell = getCell(cellId);
   var currentCellRouteDirections = getRouteDirections(currentCell.route); // eg, ['n', 's']
@@ -532,11 +723,11 @@ function prepareCellChannels(cellId) {
     filteredTermini.push(findRowNeighbor(currentCell, existingCells, 'west'));
   }
 
-  var cellChannels = [];
+  var cellLeylines = [];
   for (var i = 0; i < filteredTermini.length; i++) {
-    cellChannels.push(['drawChannel', currentCell.x, currentCell.y, filteredTermini[i].x, filteredTermini[i].y]);
+    cellLeylines.push(['drawLeyline', currentCell.x, currentCell.y, filteredTermini[i].x, filteredTermini[i].y]);
   }
-  return cellChannels;
+  return cellLeylines;
 }
 
 
@@ -547,246 +738,20 @@ function cycleThroughFieldRoutes(x, y) {
   var id = makeId(x, y);
 
   if (!cell.isExists) {
-    // new cells start as a "hive" with "all" routes on
-    setCell(id, { 'structure' : 'hive', 'route' : 'all', 'isExists' : true } );
+    setCell(id,
+      { 
+        'structure' : getGlobalStructure(), 
+        'interval' : getGlobalInterval(), 
+        'route' : 'all', 
+        'isExists' : true 
+      } 
+    );
   } else {
     setCell(id, { 'route' : cycleRoutes(cell.route) });
   }
 
-  drawChannels(id); // eh?
+  drawLeylines(id); // eh?
   out(drawRoute(id));
-
-}
-
-/*
- * Events
- * ==============================================================================
- */
-
-// untested
-// wip - add quickMenu
-function gridEvent(press, x, y) {
-  if (x > getWidth() - 1) return;
-  if (y > getHeight() - 1) return;
-
-  if (getIsMidiPaletteActive()) {
-    midiPaletteEvent(press, x, y);
-  } else if (getIsCellMenuActive()) {
-    cellMenuEvent(press, x, y);
-  } else {
-    if (x > 0) fieldEvent(press, x, y); // temp "if" until quickMenu
-  }
-}
-
-// untested
-function midiPaletteEvent(press, x, y) {
-  switch(press) {
-    case 'single':
-      // the midi palette is always [x1y1, x6y6] on any sized grid
-      // and pressing anywhere outside this square closes it
-      if (x > 0 && x < 7 && y > 0 && y < 7) {
-        singleMidiPaletteEvent(x, y);
-      } else {
-        closeMidiPalette();
-        clearField();
-        openCellMenu();
-        drawCellMenu(getSelectedCellId());
-      }
-      break;
-    case 'double':
-      // no double press events exist in the midi palette
-      break;
-    case 'long':
-      // no long press events exist in the midi palette
-      break;
-  }
-} 
-
-// tested
-function singleMidiPaletteEvent(x, y) {
-  // all midi palette events do the same thing - set the note
-  // 6x6 = 36 = 3 octaves = C3, C4, C5
-  var note = getNote(x, y);
-  var id = getSelectedCellId();
-  setCell(id, { 'note' : note});
-  var arr = ['animateMidiNotePress', x, y];
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
-
-// untested
-function cellMenuEvent(press, x, y) {
-  switch(press) {
-    case 'single':
-      // the cell menu is always [x1y1, x6y6] on any sized grid
-      // and releasing the quick menu button closes it
-      if (x > 1 && x < 7 && y > 0 && y < 7) {
-        singleCellMenuEvent(x, y);
-      } else {
-        // wip - this function chain will happen when the quick menu button is released
-        closeCellMenu();
-        deselectCell();
-        clearField();
-        drawCells();
-        drawSignals();
-      }
-      break;
-    case 'double':
-      // no double press events exist in the cell menu 
-      break;
-    case 'long':
-      // no long press events exist in the cell menu 
-      break;
-  }
-}
-
-// untested
-function singleCellMenuEvent(x, y) {
-  // note this x, y does not correspond to the ECOLOGIES_GLOBAL_FIELD.xNyN values!
-  // so we cannot use them to lookup the cells we have to getSelectedCellId()[id]
-  var id = getSelectedCellId();
-  var cell = getCell(id);
-
-  // the nw corner is the route symbole &
-  // 2,2 lets you change the route:
-  if (x === 2 && y === 2) {
-    cell.route = cycleRoutes(cell.route);
-    setCell(id, cell);
-    out(drawCellMenuRoute(id));
-  }
-
-  // the ne corner is divided into 3 1x3 row
-  // with which you can set the structure:
-  if (x === 4 || x === 5 || x === 6) {
-    if (y === 1) {
-      cell.structure = 'nomad';
-    }
-    if (y === 2) {
-      cell.structure = 'port';
-    }
-    if (y === 3) {
-      cell.structure = 'hive';
-    }
-    setCell(id, cell);
-    out(drawCellMenuStructure(id));
-  }
-
-  // row 4 toggles the midi palette
-  if (y === 4) {
-    out('animateMidiPalettePress');
-    openMidiPalette();
-  }
-
-  // row 5 sets the interval
-  if (y === 5) {
-    // we know x can only be 1-6 due to previous validation
-    setCell(id, { 'interval' : x });
-    out(drawCellMenuInterval(x));
-  }
-
-  // row 6 is delete:
-   if (y === 6) {
-      deleteCell(id);
-      out('deleteCell');
-      // closeCellMenu() is then called from Max once the animation is complete
-  } 
-
-}
-
-// untested
-function fieldEvent(press, x, y) {
-  switch(press) {
-    case 'single':
-      singleFieldEvent(x, y);
-      break;
-    case 'double':
-      doubleFieldEvent(x, y);
-      break;
-    case 'long':
-      longFieldEvent(x, y);
-      break;
-  }
-}
-
-// untested
-function singleFieldEvent(x, y) {
-
-  var id = makeId(x, y);
-  var existingCells = getExistingCells();
-  var ids = getIds(existingCells);
-
-  if (getSelectedCellId() === id && !ids.contains(id)) {
-    // we're pressing an empty cell, so deslect the cell
-    deselectCell();
-    clearField();
-    drawCells();
-    drawSignals();
-  } else if (getSelectedCellId() === false && !ids.contains(id)) {
-    // no cell is selected and this cell doesn't exist so create it (via cycle...)
-    selectCell(id, true);
-    clearField();
-    cycleThroughFieldRoutes(x, y);    
-    drawCells();
-    drawSignals();
-  } else if (getSelectedCellId() == id) {
-    // we're pressing the already selected cell, so cycle through the routes
-    clearField();
-    cycleThroughFieldRoutes(x, y);
-    drawCells();
-    drawSignals();
-  } else if (getSelectedCellId() !== id && ids.contains(id)) {
-    // we've pressed a different existing cell and want to select it
-    selectCell(id, true);
-    clearField();
-    drawChannels(id);
-    out(drawRoute(id));
-    drawCells();
-    drawSignals();
-  } else {
-    // this shouldn't happen but fallback to resting state
-    deselectCell();
-    clearField();
-    drawCells();
-    drawSignals();
-  }
-}
-
-// untested
-function doubleFieldEvent(x, y) {
-
-  var id = makeId(x, y);
-  var existingCells = getExistingCells();
-  var ids = getIds(existingCells);
-
-  clearField();
-
-  if (ids.contains(id)) {
-    // we are doulbe pressing any existing cell
-    selectCell(id, false);
-    clearField();
-    openCellMenu();
-    drawCellMenu(id);
-  }
-
-}
-
-// untested
-function longFieldEvent(x, y) {
-
-  var id = makeId(x, y);
-  var existingCells = getExistingCells();
-  var ids = getIds(existingCells);
-
-  if (ids.contains(id)) {
-    // removed long press field events for occupied cells v0.3-beta
-  } else if (getSelectedCellId()) {
-    // removed long press field events for un-occupied cells in v0.3-beta
-  } else {
-    // reserved for global menu
-  }
 
 }
 
@@ -829,31 +794,41 @@ function drawSignals() {
 }
 
 // tested
-function drawChannels(id) {
+function drawLeylines(id) {
 
   var cell = getCell(id);
   
   if (cell.route == 'off') return;
   if (cell.route == 'shell') return;
 
-  var channels = [];
-  channels = channels.concat(prepareCellChannels(cell.id));
+  var leylines = [];
+  leylines = leylines.concat(prepareCellLeylines(cell.id));
   
   if (isOutletsOn()) {
-    channels.forEach(function(channel){
-      out(channel);
+    leylines.forEach(function(leyline){
+      out(leyline);
     });
   } else {
-      return channels;
+      return leylines;
   }
 
 } 
 
 // tested
-function drawCells() {
-  
+function drawCells(type) {
   var arr = ['drawCells'];
-  var cells = getExistingCells();
+  var cells = {};
+
+  if (type == 'hives') {
+    cells = getCellsByStructure('hive');
+  } else if (type == 'gates') {
+    cells = getCellsByStructure('gate');
+  } else if (type == 'shrines') {
+    cells = getCellsByStructure('shrine');
+  } else {
+    cells = getExistingCells();
+  }
+
   if (cells === undefined) return;
 
   if (Object.size(cells) > 0) {
@@ -870,8 +845,8 @@ function drawCells() {
 }
 
 // tested
-function drawChannel(arr) {
-  arr.unshift('drawChannel');
+function drawLeyline(arr) {
+  arr.unshift('drawLeyline');
   return arr;
 }
 
@@ -881,28 +856,29 @@ function drawRoute(id) {
   return ['drawRoute', cell.route, cell.x, cell.y];
 }
 
-// untested
-function drawCellMenu(id) {
-  out(drawCellMenuRoute(id));
-  out(drawCellMenuStructure(id));
-  out(drawCellMenuInterval(getCell(id).interval));
+// tested
+function noBlinkSelectedCell() {
+  var msg = 'noBlinkSelectedCell';
+  if (isOutletsOn()) {
+    out(msg);
+  } else {
+    return msg;
+  }
 }
 
-// tested
-function drawCellMenuRoute(id) {
-  var cell = getCell(id);
-  return ['drawRoute', cell.route, 2, 2];
-}
-
-// tested
-function drawCellMenuStructure(id) {
-  var cell = getCell(id);
-  return ['drawStructure', cell.structure];
-}
-
-// tested
-function drawCellMenuInterval(x) {
-  return ['drawCellMenuInterval', x];
+// wip
+function drawInterval() {
+  var msg = ['drawInterval'];
+  if (getSelectedCellId()) {
+    msg.push(getCell(getSelectedCellId()).interval);
+  } else {
+    msg.push(getGlobalInterval());
+  }
+  if (isOutletsOn()) {
+    out(msg);
+  } else {
+    return msg;
+  }
 }
 
 /*
@@ -923,25 +899,13 @@ function out(val) {
 }
 
 // tested
-function openCellMenu() {
-  setCellMenu(true);
-  var msg = 'openCellMenu';
-  if (isOutletsOn()) {
-    out(msg);
-  } else {
-    return msg;
-  }
+function openQuickMenu() {
+  setQuickMenu(true);
 }
 
 // tested
-function closeCellMenu() {
-  setCellMenu(false);
-  var msg = 'closeCellMenu';
-  if (isOutletsOn()) {
-    out(msg);
-  } else {
-    return msg;
-  }
+function closeQuickMenu() {
+  setQuickMenu(false);
 }
 
 // tested
@@ -955,6 +919,16 @@ function openMidiPalette() {
   }
 }
 
+// wip
+function openIntervalPalette() {
+  setIntervalPalette(true);
+}
+
+// wip
+function closeIntervalPalette() {
+  setIntervalPalette(false);
+}
+
 // tested
 function closeMidiPalette() {
   setMidiPalette(false);
@@ -962,13 +936,13 @@ function closeMidiPalette() {
 
 // tested
 function deselectCell() {
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
+  ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
   out('deselectCell');
 }
 
 // tested
 function selectCell(val, display) {
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = val;
+  ARCOLOGIES_GLOBAL_STATE.selectedCellId = val;
   if (display) {
     out(['selectCell', val]);
   }
@@ -979,39 +953,52 @@ function selectCell(val, display) {
  * ==============================================================================
  */
 
-var ECOLOGIES_GLOBAL_STATE = {};
-var ECOLOGIES_GLOBAL_CELLS = {};
-var ECOLOGIES_GLOBAL_SIGNALS = {};
+var ARCOLOGIES_GLOBAL_STATE = {};
+var ARCOLOGIES_GLOBAL_MENU = {};
+var ARCOLOGIES_GLOBAL_CELLS = {};
+var ARCOLOGIES_GLOBAL_SIGNALS = {};
 
 // tested by proxy
 function init() {
-  ECOLOGIES_GLOBAL_STATE = null;
-  ECOLOGIES_GLOBAL_STATE = {};
-  ECOLOGIES_GLOBAL_STATE.outletsOn = false;
-  ECOLOGIES_GLOBAL_STATE.generation = 0;
-  ECOLOGIES_GLOBAL_STATE.width = 0;
-  ECOLOGIES_GLOBAL_STATE.height = 0;
-  ECOLOGIES_GLOBAL_STATE.isCellMenuActive = false;
-  ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
-  ECOLOGIES_GLOBAL_STATE.routes = [
+  ARCOLOGIES_GLOBAL_STATE = null;
+  ARCOLOGIES_GLOBAL_STATE = {};
+  ARCOLOGIES_GLOBAL_STATE.outletsOn = false;
+  ARCOLOGIES_GLOBAL_STATE.generation = 0;
+  ARCOLOGIES_GLOBAL_STATE.width = 0;
+  ARCOLOGIES_GLOBAL_STATE.height = 0;
+  ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
+  ARCOLOGIES_GLOBAL_STATE.globalMidiNote = 60;
+  ARCOLOGIES_GLOBAL_STATE.isIntervalPaletteActive = false;  
+  ARCOLOGIES_GLOBAL_STATE.globalInterval = 4;
+  ARCOLOGIES_GLOBAL_STATE.routes = [
     'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
     'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'random', 'shell', 'off'
   ];
-  ECOLOGIES_GLOBAL_STATE.structures = ['hive', 'port', 'nomad'];
-  ECOLOGIES_GLOBAL_STATE.selectedCellId = false;
-  ECOLOGIES_GLOBAL_STATE.signalSpeed = 1;
+  ARCOLOGIES_GLOBAL_STATE.globalStructure = 'hive';
+  ARCOLOGIES_GLOBAL_STATE.structures = ['hive', 'gate', 'shrine'];
+  ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
+  ARCOLOGIES_GLOBAL_STATE.signalSpeed = 1;
+  ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
+  ARCOLOGIES_GLOBAL_STATE.is0Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is1Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is2Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is3Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is4Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is5Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is6Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.is7Pressed = false;
 }
 
 // tested by proxy
 function initSignals() {
-  ECOLOGIES_GLOBAL_SIGNALS = null;
-  ECOLOGIES_GLOBAL_SIGNALS = {};
+  ARCOLOGIES_GLOBAL_SIGNALS = null;
+  ARCOLOGIES_GLOBAL_SIGNALS = {};
 }
 
 // tested
 function initCells() {
-  ECOLOGIES_GLOBAL_CELLS = null;
-  ECOLOGIES_GLOBAL_CELLS = {};
+  ARCOLOGIES_GLOBAL_CELLS = null;
+  ARCOLOGIES_GLOBAL_CELLS = {};
   var x = getWidth();
   var y = getHeight();
   for (var iy = y - 1; iy >= 0; iy--) {
@@ -1052,63 +1039,89 @@ function initCellById(id) {
 
 // tested
 function setOutlets(val) {
-  ECOLOGIES_GLOBAL_STATE.outletsOn = (val) ? true : false;
+  ARCOLOGIES_GLOBAL_STATE.outletsOn = (val) ? true : false;
 }
 
 // tested
 function setCell(id, obj) {
-  if (!ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)){
-    ECOLOGIES_GLOBAL_CELLS[id] = {};
+  if (!ARCOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)){
+    ARCOLOGIES_GLOBAL_CELLS[id] = {};
   }
  Object.keys(obj).forEach(function(key) {
-    ECOLOGIES_GLOBAL_CELLS[id][key] = obj[key];
+    ARCOLOGIES_GLOBAL_CELLS[id][key] = obj[key];
   });
 }
 
 // tested
-function setCellMenu(val) {
-  ECOLOGIES_GLOBAL_STATE.isCellMenuActive = val;
+function setQuickMenu(val) {
+  ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = val;
+}
+
+// tested
+function setQuickMenuKeyState(y, z) {
+  var key = 'is' + y + 'Pressed';
+  ARCOLOGIES_GLOBAL_STATE[key] = z;
 }
 
 // tested
 function setMidiPalette(val) {
-  ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive = val;
+  ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = val;
+}
+
+// wip
+function setIntervalPalette(val) {
+  ARCOLOGIES_GLOBAL_STATE.isIntervalPaletteActive = val;
+}
+
+// tested
+function setGlobalMidiNote(val) {
+  ARCOLOGIES_GLOBAL_STATE.globalMidiNote = val;
+}
+
+// wip
+function setGlobalInterval(val) {
+  ARCOLOGIES_GLOBAL_STATE.globalInterval = val;
+}
+
+// tested
+function setGlobalStructure(val) {
+  ARCOLOGIES_GLOBAL_STATE.globalStructure = val;
 }
 
 // tested
 function setLifespan(val) {
-  ECOLOGIES_GLOBAL_STATE.lifespan = val;
+  ARCOLOGIES_GLOBAL_STATE.lifespan = val;
 }
 
 // tested
 function setWidth(val) {
-  ECOLOGIES_GLOBAL_STATE.width = val;
+  ARCOLOGIES_GLOBAL_STATE.width = val;
 }
 
 // tested
 function setGeneration(val) {
-  ECOLOGIES_GLOBAL_STATE.generation = val;
+  ARCOLOGIES_GLOBAL_STATE.generation = val;
 }
 
 // tested
 function setHeight(val) {
-  ECOLOGIES_GLOBAL_STATE.height = val;
+  ARCOLOGIES_GLOBAL_STATE.height = val;
 }
 
 // tested
 function setSignal(id, obj) {
-  if (!ECOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)){
-    ECOLOGIES_GLOBAL_SIGNALS[id] = {};
+  if (!ARCOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)){
+    ARCOLOGIES_GLOBAL_SIGNALS[id] = {};
   }
  Object.keys(obj).forEach(function(key) {
-    ECOLOGIES_GLOBAL_SIGNALS[id][key] = obj[key];
+    ARCOLOGIES_GLOBAL_SIGNALS[id][key] = obj[key];
   });
 }
 
 // tested
 function setSignals(newSignals) {
-  ECOLOGIES_GLOBAL_SIGNALS = null;
-  ECOLOGIES_GLOBAL_SIGNALS = newSignals;
+  ARCOLOGIES_GLOBAL_SIGNALS = null;
+  ARCOLOGIES_GLOBAL_SIGNALS = newSignals;
 }
 
 
@@ -1136,7 +1149,7 @@ function deleteCell(id) {
 
 // tested
 function deleteSignal(id) {
-  delete ECOLOGIES_GLOBAL_SIGNALS.id;
+  delete ARCOLOGIES_GLOBAL_SIGNALS.id;
 }
 
 
@@ -1165,7 +1178,7 @@ function getCellsByStructure(structure) {
 
 // tested
 function getExistingCells() {
-  var c = ECOLOGIES_GLOBAL_CELLS;
+  var c = ARCOLOGIES_GLOBAL_CELLS;
   var obj = {};
   for (var key in c) {
     if (c.hasOwnProperty(key)) {
@@ -1192,7 +1205,7 @@ function getIds(obj) {
 // tested
 function getSignal(x, y) {
   var id = makeId(x, y);
-  return (ECOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_SIGNALS[id] : false;
+  return (ARCOLOGIES_GLOBAL_SIGNALS.hasOwnProperty(id)) ? ARCOLOGIES_GLOBAL_SIGNALS[id] : false;
 }
 
 // tested
@@ -1259,53 +1272,96 @@ function enrichWithRouteDirections(cells) {
 }
 
 // tested
-function getNote(x, y) {
-    // row 1
-  if (x == 1 && y == 1) return 83;
-  if (x == 2 && y == 1) return 82;
-  if (x == 3 && y == 1) return 81;
-  if (x == 4 && y == 1) return 80;
-  if (x == 5 && y == 1) return 79;
-  if (x == 6 && y == 1) return 78;
-  // row 2
-  if (x == 1 && y == 2) return 77;
-  if (x == 2 && y == 2) return 76;
-  if (x == 3 && y == 2) return 75;
-  if (x == 4 && y == 2) return 74;
-  if (x == 5 && y == 2) return 73;
-  if (x == 6 && y == 2) return 72;
-  // row 3
-  if (x == 1 && y == 3) return 71;
-  if (x == 2 && y == 3) return 70;
-  if (x == 3 && y == 3) return 69;
-  if (x == 4 && y == 3) return 68;
-  if (x == 5 && y == 3) return 67;
-  if (x == 6 && y == 3) return 66;
-  // row 4
-  if (x == 1 && y == 4) return 65;
-  if (x == 2 && y == 4) return 64;
-  if (x == 3 && y == 4) return 63;
-  if (x == 4 && y == 4) return 62;
-  if (x == 5 && y == 4) return 61;
-  if (x == 6 && y == 4) return 60;
-  // row 5
-  if (x == 1 && y == 5) return 59;
-  if (x == 2 && y == 5) return 58;
-  if (x == 3 && y == 5) return 57;
-  if (x == 4 && y == 5) return 56;
-  if (x == 5 && y == 5) return 55;
-  if (x == 6 && y == 5) return 54;
-  // row 6
-  if (x == 1 && y == 6) return 53;
-  if (x == 2 && y == 6) return 52;
-  if (x == 3 && y == 6) return 51;
-  if (x == 4 && y == 6) return 50;
-  if (x == 5 && y == 6) return 49;
-  if (x == 6 && y == 6) return 48;
+function getMidiNote(x, y) {
+  var noteKey = noteArrayKey(x, y);
+  // 7x8 = 56 = 4.6 octaves = C1 - F#5
+  var chromaticMidiScale = [90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 
+  80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 
+  64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 
+  48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35];
+  return chromaticMidiScale[noteKey];
 }
 
 // tested
-function isInBounds(x, y) {
+function noteArrayKey(x, y) {
+  // row 0
+  if (x == 1 && y == 0) return 0;
+  if (x == 2 && y == 0) return 1;
+  if (x == 3 && y == 0) return 2;
+  if (x == 4 && y == 0) return 3;
+  if (x == 5 && y == 0) return 4;
+  if (x == 6 && y == 0) return 5;
+  if (x == 7 && y == 0) return 6;
+  // row 1
+  if (x == 1 && y == 1) return 7;
+  if (x == 2 && y == 1) return 8;
+  if (x == 3 && y == 1) return 9;
+  if (x == 4 && y == 1) return 10;
+  if (x == 5 && y == 1) return 11;
+  if (x == 6 && y == 1) return 12;
+  if (x == 7 && y == 1) return 13;
+  // row 2
+  if (x == 1 && y == 2) return 14;
+  if (x == 2 && y == 2) return 15;
+  if (x == 3 && y == 2) return 16;
+  if (x == 4 && y == 2) return 17;
+  if (x == 5 && y == 2) return 18;
+  if (x == 6 && y == 2) return 19;
+  if (x == 7 && y == 2) return 20;
+  // row 3
+  if (x == 1 && y == 3) return 21;
+  if (x == 2 && y == 3) return 22;
+  if (x == 3 && y == 3) return 23;
+  if (x == 4 && y == 3) return 24;
+  if (x == 5 && y == 3) return 25;
+  if (x == 6 && y == 3) return 26;
+  if (x == 7 && y == 3) return 27;
+  // row 4
+  if (x == 1 && y == 4) return 28;
+  if (x == 2 && y == 4) return 29;
+  if (x == 3 && y == 4) return 30;
+  if (x == 4 && y == 4) return 31;
+  if (x == 5 && y == 4) return 32;
+  if (x == 6 && y == 4) return 33;
+  if (x == 7 && y == 4) return 34;
+  // row 5
+  if (x == 1 && y == 5) return 35;
+  if (x == 2 && y == 5) return 36;
+  if (x == 3 && y == 5) return 37;
+  if (x == 4 && y == 5) return 38;
+  if (x == 5 && y == 5) return 39;
+  if (x == 6 && y == 5) return 40;
+  if (x == 7 && y == 5) return 41;  
+  // row 6
+  if (x == 1 && y == 6) return 42;
+  if (x == 2 && y == 6) return 43;
+  if (x == 3 && y == 6) return 44;
+  if (x == 4 && y == 6) return 45;
+  if (x == 5 && y == 6) return 46;
+  if (x == 6 && y == 6) return 47;
+  if (x == 7 && y == 6) return 48;
+  // row 7
+  if (x == 1 && y == 7) return 49;
+  if (x == 2 && y == 7) return 50;
+  if (x == 3 && y == 7) return 51;
+  if (x == 4 && y == 7) return 52;
+  if (x == 5 && y == 7) return 53;
+  if (x == 6 && y == 7) return 54;
+  if (x == 7 && y == 7) return 55;
+}
+
+// wip
+function translateIntervalToDivision(x, y) {
+  if (x == 1) return 32;
+  if (x == 2) return 16;
+  if (x == 3) return 8;
+  if (x == 4) return 4;
+  if (x == 5) return 2;
+  if (x == 6) return 1;
+}
+
+// tested
+function isInFieldBounds(x, y) {
   var okWest = (x >= 1);
   var okEast = (x < getWidth());
   var okNorth = (y >= 0);
@@ -1313,54 +1369,88 @@ function isInBounds(x, y) {
   return (okWest && okEast && okNorth && okSouth);
 }
 
+// tested
+function isInQuickMenuBounds(x, y) {
+  var okWestEast = (x == 0);
+  var okNorth = (y >= 0);
+  var okSouth = (y < getHeight());
+  return (okWestEast && okNorth && okSouth);
+}
+
+// tested
+function isQuickMenuKeyPressed(val) {
+  var query = 'is' + val + 'Pressed';
+  return (ARCOLOGIES_GLOBAL_STATE.hasOwnProperty(query)) ? ARCOLOGIES_GLOBAL_STATE[query] : false;
+}
+
 /*
  * Lower Level Getters
  * ==============================================================================
  */
 
-// wip
+// tested
 function getCell(id) {
-  return (ECOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)) ? ECOLOGIES_GLOBAL_CELLS[id] : false;
+  return (ARCOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)) ? ARCOLOGIES_GLOBAL_CELLS[id] : false;
 }
 
 // tested
 function getWidth() {
-  return ECOLOGIES_GLOBAL_STATE.width;
+  return ARCOLOGIES_GLOBAL_STATE.width;
 }
 
 // tested
 function getHeight() {
-  return ECOLOGIES_GLOBAL_STATE.height;
+  return ARCOLOGIES_GLOBAL_STATE.height;
 }
 
 // tested
 function getSignalSpeed() {
-  return ECOLOGIES_GLOBAL_STATE.signalSpeed;
+  return ARCOLOGIES_GLOBAL_STATE.signalSpeed;
 }
 
 // tested
 function getGeneration() {
-  return ECOLOGIES_GLOBAL_STATE.generation;
+  return ARCOLOGIES_GLOBAL_STATE.generation;
 }
 
 // tested
 function getSignals() {
-  return ECOLOGIES_GLOBAL_SIGNALS;
+  return ARCOLOGIES_GLOBAL_SIGNALS;
 }
 
 // tested
 function getSelectedCellId() {
-  return ECOLOGIES_GLOBAL_STATE.selectedCellId;
+  return ARCOLOGIES_GLOBAL_STATE.selectedCellId;
 }
 
 // tested
-function getIsCellMenuActive() {
-  return ECOLOGIES_GLOBAL_STATE.isCellMenuActive;
+function isQuickMenuActive() {
+  return ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive;
 }
 
 // tested
-function getIsMidiPaletteActive() {
-  return ECOLOGIES_GLOBAL_STATE.isMidiPaletteActive;
+function isMidiPaletteActive() {
+  return ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive;
+}
+
+// wip
+function isIntervalPaletteActive() {
+  return ARCOLOGIES_GLOBAL_STATE.isIntervalPaletteActive;
+}
+
+// tested
+function getGlobalMidiNote() {
+  return ARCOLOGIES_GLOBAL_STATE.globalMidiNote;
+}
+
+// wip
+function getGlobalInterval() {
+  return ARCOLOGIES_GLOBAL_STATE.globalInterval;
+}
+
+// tested
+function getGlobalStructure() {
+  return ARCOLOGIES_GLOBAL_STATE.globalStructure;
 }
 
 // tested
@@ -1370,7 +1460,7 @@ function isHiveBirthing(hiveInterval) {
 
 // tested
 function isOutletsOn() {
-  return ECOLOGIES_GLOBAL_STATE.outletsOn;
+  return ARCOLOGIES_GLOBAL_STATE.outletsOn;
 }
 
 /*
@@ -1462,17 +1552,17 @@ function makeSignal(x, y, direction, generation, isJustBorn) {
 }
 
  function dumpState() {
-  out(JSON.stringify(ECOLOGIES_GLOBAL_STATE));
+  out(JSON.stringify(ARCOLOGIES_GLOBAL_STATE));
 }
 
 // untested
 function dumpCells() {
-  out(JSON.stringify(ECOLOGIES_GLOBAL_CELLS));
+  out(JSON.stringify(ARCOLOGIES_GLOBAL_CELLS));
 }
 
 // tested
 function dumpStructures() {
-  var arr = ECOLOGIES_GLOBAL_STATE.structures;
+  var arr = ARCOLOGIES_GLOBAL_STATE.structures;
   arr.unshift('structuresList');
   if (isOutletsOn()) {
     out(arr);
@@ -1483,7 +1573,7 @@ function dumpStructures() {
 
 // tested
 function dumpRoutes() {
-  var arr = ECOLOGIES_GLOBAL_STATE.routes;
+  var arr = ARCOLOGIES_GLOBAL_STATE.routes;
   arr.unshift('routesList');
   if (isOutletsOn()) {
     out(arr);

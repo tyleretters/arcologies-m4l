@@ -1,6 +1,10 @@
 {
+  "watch": {
+    "test": "{src,tests}.js"
+  },
   "scripts": {
-    "test": "cat src.js tests.js > tmp.js && node tmp.js && rm tmp.js"
+    "test": "cat src.js tests.js > tmp.js && node tmp.js && rm tmp.js",
+    "watch": "npm-watch"
   },
   "repository": {
     "type": "git",
@@ -8,7 +12,8 @@
   },
   "dependencies": {
     "@actions/core": "^1.2.4",
-    "@actions/github": "^2.2.0"
+    "@actions/github": "^2.2.0",
+    "npm-watch": "^0.6.0"
   },
-    "license" : "CC-BY-4.0" 
+  "license": "CC-BY-4.0"
 }
