@@ -28,7 +28,7 @@ function testInitCell() {
   var result5 = (cell.route == 'off');
   var result6 = (cell.structure == 'none');
   var result7 = (cell.note == 60);
-  var result8 = (cell.interval == 4);
+  var result8 = (cell.metabolism == 4);
   var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -319,14 +319,14 @@ function testOut() {
   return result;
 }
 
-function testSingleFieldEventOnEmptyCell() {
-  var name = 'testSingleFieldEventOnEmptyCell';
-  singleFieldEvent(2, 2);
+function testfieldEventOnEmptyCell() {
+  var name = 'testfieldEventOnEmptyCell';
+  fieldEvent(2, 2);
   var cell = getCellByCoords(2, 2);
   var result1 = (cell.isExists);
   var result2 = (cell.structure == 'hive');
   var result3 = (cell.route == 'all');
-  singleFieldEvent(2, 2);
+  fieldEvent(2, 2);
   cell = getCellByCoords(2, 2);
   var result4 = (cell.route == 'ne');
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
@@ -346,7 +346,7 @@ function testGetExistingCells() {
 
 function testDrawRoute() {
   var name = 'testDrawRoute';
-  singleFieldEvent(5, 6, 'none');
+  fieldEvent(5, 6);
   var d = drawRoute('x5y6');
   var result1 = (d[0] === 'drawRoute');
   var result2 = (d[1] === 'all');
@@ -1178,7 +1178,7 @@ function testNoBlinkSelectedCell() {
 
 function testIsQuickMenuKeyPressed() {
   var name = 'testIsQuickMenuKeyPressed';
-  setQuickMenuKeyState(5, true);
+  setQuickMenuKeyState(5, 1);
   var result = (isQuickMenuKeyPressed(5)) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -1186,9 +1186,9 @@ function testIsQuickMenuKeyPressed() {
 
 function testSetQuickMenuKeyState() {
   var name = 'testSetQuickMenuKeyState';
-  setQuickMenuKeyState(5, true);
+  setQuickMenuKeyState(5, 1);
   var result1 = (isQuickMenuKeyPressed(5)) ? true : false;
-  setQuickMenuKeyState(5, false);
+  setQuickMenuKeyState(5, 0);
   var result2 = (!isQuickMenuKeyPressed(5)) ? true : false;
   var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -1211,6 +1211,130 @@ function testSetGetGlobalStructure() {
   return result;
 }
 
+function testClearQuickMenu() {
+  var name = 'testClearQuickMenu';
+  var result = (clearQuickMenu() == 'clearQuickMenu') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSetClearGetQuickMenuFirstIn() {
+  var name = 'testSetClearGetQuickMenuFirstIn';
+  setQuickMenuFirstIn(4);
+  var result1 = getQuickMenuFirstIn();
+  clearQuickMenuFirstIn();
+  var result2 = getQuickMenuFirstIn();
+  var result = (result1 && !result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDrawMetabolism() {
+  var name = 'testDrawMetabolism';
+  msg1 = drawMetabolism();
+  selectCell('x1y1');
+  msg2 = drawMetabolism('x1y1');
+  var result = (msg1[1] == 4 && msg2[0] == 'drawMetabolism' && msg2[1] == 4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testOpenCloseMetabolismPalette() {
+  var name = 'testOpenCloseMetabolismPalette';
+  openMetabolismPalette();
+  var result1 = isMetabolismPaletteActive();
+  closeMetabolismPalette();
+  var result2 = isMetabolismPaletteActive();
+  var result = (result1 && !result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSetMetabolismPalette() {
+  var name = 'testSetMetabolismPalette';
+  setMetabolismPalette(true);
+  var result1 = isMetabolismPaletteActive();
+  setGlobalMetabolism(true);
+  var result2 = getGlobalMetabolism(true);
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testMetabolismPaletteEvent() {
+  var name = 'testMetabolismPaletteEvent';
+  selectCell('x1x3');
+  metabolismPaletteEvent(5);
+  var cell = getCell('x1x3');
+  var result1 = (cell.metabolism == 1) ? true : false;
+  deselectCell();
+  metabolismPaletteEvent(4);
+  var result2 = (getGlobalMetabolism() == 2);
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetMetabolism() {
+  var name = 'testGetMetabolism';
+  var result = (getMetabolism(0) == 6 && getMetabolism(4) == 2 && getMetabolism(7) == 1) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testGetStructureName() {
+  var name = 'testGetStructureName';
+  var result = (getStructureName(4) == 'hive' && getStructureName(3) == 'gate' && getStructureName(2) == 'shrine') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testStructurePaletteEvent() {
+  var name = 'testStructurePaletteEvent';
+  selectCell('x1x3');
+  structurePaletteEvent(3);
+  var cell = getCell('x1x3');
+  var result1 = (cell.structure == 'gate') ? true : false;
+  deselectCell();
+  structurePaletteEvent(2);
+  var result2 = (getGlobalStructure() == 'shrine');
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testOpenCloseStructurePalette() {
+  var name = 'testOpenCloseStructurePalette';
+  openStructurePalette();
+  var result1 = isStructurePaletteActive();
+  closeStructurePalette();
+  var result2 = isStructurePaletteActive();
+  var result = (result1 && !result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSetStructurePalette() {
+  var name = 'testSetStructurePalette';
+  setStructurePalette(true);
+  var result1 = isStructurePaletteActive();
+  setGlobalStructure(true);
+  var result2 = getGlobalStructure(true);
+  var result = (result1 && result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testDrawStructure() {
+  var name = 'testDrawStructure';
+  msg1 = drawStructure();
+  selectCell('x1y1');
+  structurePaletteEvent(3);
+  msg2 = drawStructure('x1y1');
+  var result = (msg1[1] == 'hive' && msg2[0] == 'drawStructure' && msg2[1] == 'gate') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
 
 /*
  * Orchestration
@@ -1267,7 +1391,7 @@ function testSuite() {
   results.push(testOut());
 
   resetTestSuite();
-  results.push(testSingleFieldEventOnEmptyCell());
+  results.push(testfieldEventOnEmptyCell());
 
   resetTestSuite();
   results.push(testGetExistingCells());
@@ -1378,6 +1502,23 @@ function testSuite() {
   results.push(testSetGetGlobalMidiNote());
   results.push(testSetGetGlobalStructure());
 
+  resetTestSuite();
+  results.push(testClearQuickMenu());
+  results.push(testSetClearGetQuickMenuFirstIn());
+  results.push(testDrawMetabolism());
+  results.push(testOpenCloseMetabolismPalette());
+  results.push(testSetMetabolismPalette());
+  results.push(testMetabolismPaletteEvent());
+  results.push(testGetMetabolism());
+
+  resetTestSuite();
+  results.push(testGetStructureName());
+  results.push(testStructurePaletteEvent());
+  results.push(testOpenCloseStructurePalette());
+  results.push(testSetStructurePalette());
+  resetTestSuite();  
+  results.push(testDrawStructure());
+
   return results;
 }
 
@@ -1414,7 +1555,7 @@ function runSingleTest() {
     resetTestSuite();
     console.log('+==================================+');
     var results = [];
-    results.push(testSingleFieldEventOnEmptyCell());
+    results.push(testfieldEventOnEmptyCell());
     var counts = {};
     results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
     if (results.contains('fail')) throw false;

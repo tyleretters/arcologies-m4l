@@ -69,63 +69,14 @@ function advance() {
 
 }
 
-// untested
-function returnToField() {
-  clearField();
-  drawCells();
-  drawSignals();
-}
-
 // tested
-function midiPaletteEvent(x, y) {
-  
-  // defensive
-  if (x < 0 && x > 8 && y < 0 && y > 8) return;
-        
-  // all midi palette events do the same thing - set the note
-  var note = getMidiNote(x, y);
-  var id = getSelectedCellId();
-  setCell(id, { 'note' : note});
-  var arr = ['animateMidiNotePress', x, y];
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
-
-// wip
-function intervalPaletteEvent(x, y) {
-  
-  // defensive
-  if (x < 0 && x > 6 && y != 3) return;
-        
-  // all midi palette events do the same thing - set the note
-  var interval = getInterval(x, y);
-  var id = getSelectedCellId();
-  setCell(id, { 'interval' : interval});
-  var arr = ['animateIntervalPress', x, y];
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
-
-// tested
-function singleFieldEvent(x, y) {
+function fieldEvent(x, y) {
 
   var id = makeId(x, y);
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
 
-  if (isQuickMenuKeyPressed(7) && ids.contains(id)) {
-    
-    // single cell delete
-    deleteCell(id);
-    returnToField();
-
-  } else if (isQuickMenuKeyPressed(2) && isMidiPaletteActive()) {
+  if (isQuickMenuKeyPressed(4) && isMidiPaletteActive()) {
     
     // if we have a cell selected, set its midi note,
     // otherwise set the global midi note
@@ -135,16 +86,11 @@ function singleFieldEvent(x, y) {
       setGlobalMidiNote(getMidiNote(x, y));
     }
 
-  } else if (isQuickMenuKeyPressed(3) && isIntervalPaletteActive()) {
+  } else if (isQuickMenuKeyPressed(7) && ids.contains(id)) {
     
-    // if we have a cell selected, set its interval,
-    // otherwise set the global interval
-    if (getSelectedCellId()) {
-      intervalPaletteEvent(x,y);
-    } else {
-      setGlobalInterval(getInterval(x, y));
-    }
-
+    // single cell delete
+    deleteCell(id);
+    returnToField();
 
   } else if (getSelectedCellId() === id && !ids.contains(id)) {
     
@@ -182,6 +128,113 @@ function singleFieldEvent(x, y) {
   }
 }
 
+// untested
+function returnToField() {
+  clearField();
+  drawCells();
+  drawSignals();
+}
+
+function returnToQuickMenu() {
+  clearQuickMenu();
+}
+
+// wip
+function quickMenuEvent(y, z) {
+
+  // both quickMenu and subMenu events come in here
+  // we keep track of the key state no matter what
+  setQuickMenuKeyState(y, z);
+
+ // midi palette
+  if (y == 4) {
+    if (z == 1) {
+      clearField();
+      noBlinkSelectedCell();
+      openMidiPalette();
+    } else {
+      closeMidiPalette();
+      deselectCell();
+      returnToField();
+      returnToQuickMenu();
+    }
+  }
+    
+  // structure palette
+  if (y == 5) {
+    if (z == 1) {
+      openStructurePalette();
+      drawStructure();
+    } else {
+      closeStructurePalette();
+      returnToQuickMenu();
+    }
+  }
+
+  // metabolism palette
+  if (y == 6) {
+    if (z == 1) {
+      openMetabolismPalette();
+      drawMetabolism();
+    } else {
+      closeMetabolismPalette();
+      returnToQuickMenu();
+    }
+  }
+
+
+
+  // // inspector
+  // } else if (isQuickMenuKeyPressed(0) && z == 1) {
+  //     if (isQuickMenuKeyPressed(1)) inspect('signals');
+  //     if (isQuickMenuKeyPressed(2)) inspect('hives');
+  //     if (isQuickMenuKeyPressed(3)) inspect('gates');
+  //     if (isQuickMenuKeyPressed(4)) inspect('shrines');
+  //     if (isQuickMenuKeyPressed(5)) inspect('leylines');
+
+  // // disable inspector
+  // } else if (y == 0 && z == 0) {
+  //   returnToField();
+
+  // // manual advance
+  // } else if (y == 1 && z == 1) {
+  //   deselectCell();
+  //   returnToField();
+  //   advance();
+
+  // // empty
+  // } else if (y == 2 && z == 1) {
+     
+  // // empty
+  // } else if (y == 3 && z == 1) {
+ 
+
+  // // set structure
+  // } else if (isQuickMenuKeyPressed(5) && z == 1) {
+  //   if (!getSelectedCellId()) {
+  //     if (y == 2) setGlobalStructure('hive');
+  //     if (y == 3) setGlobalStructure('gate');
+  //     if (y == 4) setGlobalStructure('shrine');
+  //   } else {
+  //     var id = getSelectedCellId();
+  //     if (y == 2) setCell(id, { 'structure' : 'hive' });
+  //     if (y == 3) setCell(id, { 'structure' : 'gate' });
+  //     if (y == 4) setCell(id, { 'structure' : 'shrine' });
+  //   } 
+
+}
+
+
+// wip
+function subMenuEvent(y, z) {
+  if (isMetabolismPaletteActive() && z == 1) {
+      metabolismPaletteEvent(y);
+  }
+    if (isStructurePaletteActive() && z == 1) {
+      structurePaletteEvent(y);
+  }
+}
+
 // wip
 function inspect(val) {
   clearField();
@@ -193,65 +246,58 @@ function inspect(val) {
   if (val == 'leylines'); // draw leylines
 }
 
-// wip
-function handleQuickMenu(y, z) {
+// tested
+function midiPaletteEvent(x, y) {
+  
+  // defensive
+  if (x < 0 && x > 8 && y < 0 && y > 8) return;
 
-  // todo - first in lock
+  // all midi palette events do the same thing - set the note
+  var note = getMidiNote(x, y);
+  var id = getSelectedCellId();
+  setCell(id, { 'note' : note});
+  var arr = ['animateMidiNotePress', x, y];
+  if (isOutletsOn()) {
+    out(arr);
+  } else {
+    return arr;
+  }
+}
 
-  // inspector
-  if (isQuickMenuKeyPressed(0) && z == 1) {
-      if (isQuickMenuKeyPressed(1)) inspect('signals');
-      if (isQuickMenuKeyPressed(2)) inspect('hives');
-      if (isQuickMenuKeyPressed(3)) inspect('gates');
-      if (isQuickMenuKeyPressed(4)) inspect('shrines');
-      if (isQuickMenuKeyPressed(5)) inspect('leylines');
+// tested
+function metabolismPaletteEvent(y) {
 
-  // disable inspector
-  } else if (y == 0 && z == 0) {
-    returnToField();
+  // defensive
+  if (y < -1 && y > 5) return;
 
-  // set structure
-  } else if (isQuickMenuKeyPressed(1) && z == 1) {
-    if (!getSelectedCellId()) {
-      if (y == 2) setGlobalStructure('hive');
-      if (y == 3) setGlobalStructure('gate');
-      if (y == 4) setGlobalStructure('shrine');
-    } else {
-      var id = getSelectedCellId();
-      if (y == 2) setCell(id, { 'structure' : 'hive' });
-      if (y == 3) setCell(id, { 'structure' : 'gate' });
-      if (y == 4) setCell(id, { 'structure' : 'shrine' });
-    }
-
-  // open midi palette
-  } else if (y == 2 && z == 1) {
-    clearField();
-    noBlinkSelectedCell();
-    openMidiPalette();
-
-  // close midi palette
-  } else if (y == 2 && z == 0) {
-    closeMidiPalette();
-    returnToField();    
- 
-  // open interval palette
-  } else if (y == 3 && z == 1) {
-    clearField();
-    noBlinkSelectedCell();
-    openIntervalPalette();
-
-  // close interval palette
-  } else if (y == 2 && z == 0) {
-    closeIntervalPalette();
-    returnToField();       
-
-  // manual advance
-  } else if (y == 6 && z == 1) {
-    deselectCell();
-    returnToField();
-    advance();
+  var metabolism = getMetabolism(y);
+  var id = getSelectedCellId();
+  if (getSelectedCellId()) {
+    setCell(id, { 'metabolism' : metabolism});
+  } else {
+    setGlobalMetabolism(metabolism);
   }
 
+  clearQuickMenu();
+  drawMetabolism();
+}
+
+// tested
+function structurePaletteEvent(y) {
+
+  // defensive
+  if (y < 2 && y > 4) return;
+
+  var structureName = getStructureName(y);
+  var id = getSelectedCellId();
+  if (getSelectedCellId()) {
+    setCell(id, { 'structure' : structureName});
+  } else {
+    setGlobalStructure(structureName);
+  }
+
+  clearQuickMenu();
+  drawStructure();
 }
 
 /*
@@ -267,7 +313,7 @@ function hivesSing() {
 
   Object.keys(hives).forEach(function(key) {
     var thisHive = hives[key];
-    var note = isHiveBirthing(thisHive.interval) ? thisHive.note : false;
+    var note = isHiveBirthing(thisHive.metabolism) ? thisHive.note : false;
     if (note) {
       hiveChorus.push(note);
     }
@@ -555,7 +601,7 @@ function birthSignals() {
   for(var i = 0; i < hivesLength; i++) {
     var thisHive = hives[i];
 
-    if (!isHiveBirthing(thisHive.interval)) continue;
+    if (!isHiveBirthing(thisHive.metabolism)) continue;
 
     if (thisHive.routeDirections.contains('n')) {
       // one cell north means subtract one from the hive
@@ -741,7 +787,7 @@ function cycleThroughFieldRoutes(x, y) {
     setCell(id,
       { 
         'structure' : getGlobalStructure(), 
-        'interval' : getGlobalInterval(), 
+        'metabolism' : getGlobalMetabolism(), 
         'route' : 'all', 
         'isExists' : true 
       } 
@@ -763,6 +809,16 @@ function cycleThroughFieldRoutes(x, y) {
 // tested
 function clearField() {
   var msg = 'clearField';
+  if (isOutletsOn()) {
+    out(msg);
+  } else {
+    return msg;
+  }
+}
+
+// tested
+function clearQuickMenu() {
+  var msg = 'clearQuickMenu';
   if (isOutletsOn()) {
     out(msg);
   } else {
@@ -866,14 +922,31 @@ function noBlinkSelectedCell() {
   }
 }
 
-// wip
-function drawInterval() {
-  var msg = ['drawInterval'];
+// tested
+function drawStructure() {
+  var msg = ['drawStructure'];
   if (getSelectedCellId()) {
-    msg.push(getCell(getSelectedCellId()).interval);
+    msg.push(getCell(getSelectedCellId()).structure);
   } else {
-    msg.push(getGlobalInterval());
+    msg.push(getGlobalStructure());
   }
+
+  if (isOutletsOn()) {
+    out(msg);
+  } else {
+    return msg;
+  }
+}
+
+// teseted
+function drawMetabolism() {
+  var msg = ['drawMetabolism'];
+  if (getSelectedCellId()) {
+    msg.push(getCell(getSelectedCellId()).metabolism);
+  } else {
+    msg.push(getGlobalMetabolism());
+  }
+
   if (isOutletsOn()) {
     out(msg);
   } else {
@@ -919,14 +992,24 @@ function openMidiPalette() {
   }
 }
 
-// wip
-function openIntervalPalette() {
-  setIntervalPalette(true);
+// tested
+function openStructurePalette() {
+  setStructurePalette(true);
 }
 
-// wip
-function closeIntervalPalette() {
-  setIntervalPalette(false);
+// tested
+function closeStructurePalette() {
+  setStructurePalette(false);
+}
+
+// tested
+function openMetabolismPalette() {
+  setMetabolismPalette(true);
+}
+
+// tested
+function closeMetabolismPalette() {
+  setMetabolismPalette(false);
 }
 
 // tested
@@ -968,17 +1051,19 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.height = 0;
   ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.globalMidiNote = 60;
-  ARCOLOGIES_GLOBAL_STATE.isIntervalPaletteActive = false;  
-  ARCOLOGIES_GLOBAL_STATE.globalInterval = 4;
+  ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = false;
+  ARCOLOGIES_GLOBAL_STATE.globalStructure = 'hive';
+  ARCOLOGIES_GLOBAL_STATE.structures = ['hive', 'gate', 'shrine'];
+  ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive = false;  
+  ARCOLOGIES_GLOBAL_STATE.globalMetabolism = 4;
   ARCOLOGIES_GLOBAL_STATE.routes = [
     'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
     'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'random', 'shell', 'off'
   ];
-  ARCOLOGIES_GLOBAL_STATE.globalStructure = 'hive';
-  ARCOLOGIES_GLOBAL_STATE.structures = ['hive', 'gate', 'shrine'];
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
   ARCOLOGIES_GLOBAL_STATE.signalSpeed = 1;
   ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
+  ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn = false;
   ARCOLOGIES_GLOBAL_STATE.is0Pressed = false;
   ARCOLOGIES_GLOBAL_STATE.is1Pressed = false;
   ARCOLOGIES_GLOBAL_STATE.is2Pressed = false;
@@ -1020,7 +1105,7 @@ function initCell(x, y) {
     route: 'off',
     structure: 'none',
     note: 60,
-    interval: 4,
+    metabolism: 4,
     generation: 0
   };
 }
@@ -1058,9 +1143,19 @@ function setQuickMenu(val) {
 }
 
 // tested
+function setQuickMenuFirstIn(y) {
+  ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn = y;
+}
+
+// tested
+function clearQuickMenuFirstIn() {
+  ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn = false;
+}
+
+// tested
 function setQuickMenuKeyState(y, z) {
   var key = 'is' + y + 'Pressed';
-  ARCOLOGIES_GLOBAL_STATE[key] = z;
+  ARCOLOGIES_GLOBAL_STATE[key] = (z === 1) ? true : false;
 }
 
 // tested
@@ -1068,9 +1163,14 @@ function setMidiPalette(val) {
   ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = val;
 }
 
-// wip
-function setIntervalPalette(val) {
-  ARCOLOGIES_GLOBAL_STATE.isIntervalPaletteActive = val;
+// teseted
+function setStructurePalette(val) {
+  ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = val;
+}
+
+// teseted
+function setMetabolismPalette(val) {
+  ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive = val;
 }
 
 // tested
@@ -1078,9 +1178,9 @@ function setGlobalMidiNote(val) {
   ARCOLOGIES_GLOBAL_STATE.globalMidiNote = val;
 }
 
-// wip
-function setGlobalInterval(val) {
-  ARCOLOGIES_GLOBAL_STATE.globalInterval = val;
+// tested
+function setGlobalMetabolism(val) {
+  ARCOLOGIES_GLOBAL_STATE.globalMetabolism = val;
 }
 
 // tested
@@ -1257,7 +1357,7 @@ function getRouteDirections(route) {
   if  (route == 'ww')     return ['w'];
   if  (route == 'random') return ['n', 'e', 's', 'w'];
   if  (route == 'shell')  return [];
-  if  (route == 'off')     return [];
+  if  (route == 'off')    return [];
   return  [];
 }
 
@@ -1350,14 +1450,23 @@ function noteArrayKey(x, y) {
   if (x == 7 && y == 7) return 55;
 }
 
-// wip
-function translateIntervalToDivision(x, y) {
-  if (x == 1) return 32;
-  if (x == 2) return 16;
-  if (x == 3) return 8;
-  if (x == 4) return 4;
-  if (x == 5) return 2;
-  if (x == 6) return 1;
+// tested
+function getMetabolism(y) {
+  if (y == 0) return 6;
+  if (y == 1) return 5;
+  if (y == 2) return 4;
+  if (y == 3) return 3;
+  if (y == 4) return 2;
+  if (y == 5) return 1;
+  return 1;
+}
+
+// tested
+function getStructureName(val) {
+  if (val == 4) return 'hive';
+  if (val == 3) return 'gate';
+  if (val == 2) return 'shrine';
+  return 'hive';
 }
 
 // tested
@@ -1429,13 +1538,23 @@ function isQuickMenuActive() {
 }
 
 // tested
+function getQuickMenuFirstIn() {
+  return ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn;
+}
+
+// tested
 function isMidiPaletteActive() {
   return ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive;
 }
 
-// wip
-function isIntervalPaletteActive() {
-  return ARCOLOGIES_GLOBAL_STATE.isIntervalPaletteActive;
+// tested
+function isStructurePaletteActive() {
+  return ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive;
+}
+
+// tested
+function isMetabolismPaletteActive() {
+  return ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive;
 }
 
 // tested
@@ -1443,9 +1562,9 @@ function getGlobalMidiNote() {
   return ARCOLOGIES_GLOBAL_STATE.globalMidiNote;
 }
 
-// wip
-function getGlobalInterval() {
-  return ARCOLOGIES_GLOBAL_STATE.globalInterval;
+// tested
+function getGlobalMetabolism() {
+  return ARCOLOGIES_GLOBAL_STATE.globalMetabolism;
 }
 
 // tested
@@ -1454,8 +1573,8 @@ function getGlobalStructure() {
 }
 
 // tested
-function isHiveBirthing(hiveInterval) {
-  return (getGeneration() % hiveInterval === 0) ? true : false;
+function isHiveBirthing(hiveMetabolism) {
+  return (getGeneration() % hiveMetabolism === 0) ? true : false;
 }
 
 // tested

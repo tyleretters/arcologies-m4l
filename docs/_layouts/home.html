@@ -6,7 +6,7 @@ layout: default
     <h1 class="arcologies">arcologies</h1>
     <div class="tagline mb-3">{{ site.description }}</div>
     <a class="download btn btn-primary btn-lg" href="#"><i class="fas fa-download"></i> Download Beta v0.2</a>
-    <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Many stability improvements in v0.2. Nomads still not functional.</p>
+    <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Huge UI, behavior, and core lexicon overhaul in v0.3. Please re-read the docs!</p>
 </div>
 
 <div class="row">
@@ -17,16 +17,16 @@ layout: default
       <div class="col-lg-6 col-sm-12">
         <p><strong>arcologies</strong> is an interactive environment for designing 2d sound arcologies with <a href="https://monome.org/docs/grid">monome grid</a> and <a href="https://ableton.com/live">Ableton Live</a>. It works like this:</p>
           <ul>
-            <li>Arrange cells on a 2d field.</li>
-            <li>Change a cell's structure to define behavior.</li>
-            <li>Change a cell's route to create channels.</li>
-            <li>Signals emerge from hive cells.</li>
-            <li>Signals play a cell's note when they collide.</li>
+            <li>Arrange <strong>cells</strong> on a <strong>field</strong>.</li>
+            <li>Change a cell's <strong>structure</strong> to define behavior.</li>
+            <li>Open a cell's <strong>ports</strong> to create <strong>leylines</strong>.</li>
+            <li><strong>Signals</strong> strongerge from <strong>hive</strong> cells.</li>
+            <li><strong>Signals</strong> play a cell's <strong>note</strong> when the two collide.</li>
             <li>Finally, depending on how the colliding cell is configured, the signal could be re-routed, split, or destroyed.</li>
           </ul>
           <p>It is an M4L midi instrument that pairs especially well with drum racks and <a href="https://www.ableton.com/en/manual/instrument-drum-and-effect-racks/#18-5-2-key-zones">zoned instrument racks</a>.</p>
           <p>Inspired by tools like <a href="https://monome.org/docs/meadowphysics/">meadowphysics</a>, <a href="https://100r.co/site/orca.html">Orca</a>, and <a href="https://warmplace.ru/soft/sunvox/">Sunvox</a>. But also other curios like <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>, the <a href="https://en.wikipedia.org/wiki/Tower_defense">tower defense</a> genre, and the <a href="http://generativemusic.com/">Eno / Chilvers</a> suite of generative applications.</p>
-          <p>Also carbon-based life, water, the anthropocene, supply chains, <a href="https://en.wikipedia.org/wiki/The_Mushroom_at_the_End_of_the_World">The Mushroom at the End of the World</a>, acrologies, <a href="https://dark-mountain.net/">The Dark Mountain Project</a>, <a href="https://soundcloud.com/eco-futurism-corp">Eco Futurism Corp</a>, <a href="https://danielseankelly.wordpress.com/2019/04/24/in-the-days-of-the-seasteaders-or-how-the-extropian-detritivores-broke-capitalism/">"seasteading"</a>, the gedankenexperiment-prompt: "sound artist's work in a William Gibson novel?", <a href="https://journal.highlandsolutions.com/cellular-automata-in-javascript-c0336af3e1f3?source=user_profile---------10-----------------------">Conway's Game of Life</a>, and Garfield Park Conservatory.</p>
+          <p>Also carbon-based life, water, the anthropocene, supply chains, <a href="https://en.wikipedia.org/wiki/The_Mushroom_at_the_End_of_the_World">The Mushroom at the End of the World</a>, acrologies, <a href="https://dark-mountain.net/">The Dark Mountain Project</a>, <a href="https://soundcloud.com/eco-futurism-corp">Eco Futurism Corp</a>, <a href="https://danielseankelly.wordpress.com/2019/04/24/in-the-days-of-the-seasteaders-or-how-the-extropian-detritivores-broke-capitalism/">"seasteading"</a>, the gedankenexperiment-prompt: "sound artist's work in a William Gibson novel?", <a href="https://journal.highlandsolutions.com/cellular-automata-in-javascript-c0336af3e1f3?source=user_profile---------10-----------------------">Conway's Game of Life</a>, Garfield Park Conservatory, the Epcot Center, and <a href="https://en.wikipedia.org/wiki/Buckminster_Fuller">Buckminster Fuller</a>. And, of course, actual <a href="https://en.wikipedia.org/wiki/Arcology">arcologies</a> and <a href="https://en.wikipedia.org/wiki/Metabolism_(architecture)">metabolism</a>.</p>
           <p><strong>arcologies</strong> is free, <a href="https://github.com/tyleretters/arcologies">open source</a>, licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">CC By 4.0</a> License.</p>
       </div>
       <div class="col-lg-6 col-sm-12">
@@ -70,47 +70,51 @@ layout: default
       <tbody>
       <tr>
         <td>Field</td>
-        <td>Your grid is now a field where cells live, channels wind, and signals propagate.</td>
+        <td>This is your canvas. Your grid is now a field where cells live, leylines wind, and signals propagate. The field encapsulates everything except the quick menu.</td>
       </tr>
       <tr>
-        <td>Menu</td>
-        <td>For configuring individual cell attributes. Also deleting.</td>
+        <td>Quick Menu</td>
+        <td>The first column of your grid. For doing menu-y things.</td>
       </tr>
       <tr>
         <td>Cell</td>
-        <td>Keys on the grid.</td>
+        <td>The foundational building block of <strong>arcologies</strong>. Stationary structures on the grid. Cells have many attributes.</td>
       </tr>
       <tr>
         <td>Structure</td>
-        <td>Each cell has one structure. There are three types: hive, port, nomad.</td>
+        <td>Each cell has one-and-only-one structure. There are three types: hive, gate, shrine. But cells can change structure.</td>
       </tr>
       <tr>
         <td>Hive</td>
-        <td>Births signals.</td>
+        <td>Births signals at the rate of the metabolism.</td>
+      </tr>
+      <tr>
+        <td>Gate</td>
+        <td>Stops or allows signals to pass (<code>% = 0</code>) of the metabolism.</td>
+      </tr>
+      <tr>
+        <td>Shrine</td>
+        <td>Delay signals for the length of the metabolism.</td>
+      </tr>
+      <tr>
+        <td>Metabolism</td>
+        <td>Each cell has a metabolism. The metabolism determines the rate of the cells behavior.</td>
+      </tr>
+      <tr>
+        <td>Note</td>
+        <td>Gate and shrines play their note during a signal collision. Hives play theirs on during signal birth.</td>
+      </tr>      
+      <tr>
+        <td>Signal</td>
+        <td>Travels between cells, typically on leylines. Emit midi when they collide with cells.</td>
+      </tr>
+      <tr>
+        <td>Leylines</td>
+        <td>Glowing line segments that connect cells or terminate at the field boundary. Leylines help you visualize your arcology. They have no further function.</td>
       </tr>
       <tr>
         <td>Port</td>
-        <td>Passes signals along to others.</td>
-      </tr>
-      <tr>
-        <td>Nomad</td>
-        <td>Are unimplemented in the beta. They will move along predictable paths.</td>
-      </tr>
-      <tr>
-        <td>Route</td>
-        <td>Each cell has one of 17 available routes.</td>
-      </tr>
-      <tr>
-        <td>Signal</td>
-        <td>Travels on channels. Cry out when they collide with cells.</td>
-      </tr>
-      <tr>
-        <td>Channel</td>
-        <td>Line segments that connect cells or terminate at the field boundary.</td>
-      </tr>
-      <tr>
-        <td>Interval</td>
-        <td>The rate at which hives birth signals. An integer in the range of 1-6.</td>
+        <td>Each cell has four ports: north, east, south, west. Each ports is either open or closed.</td>
       </tr>
       </tbody>
     </table>
@@ -121,57 +125,33 @@ layout: default
   <div class="col mb-5">
     <h3 id="cells">Cells</h3>
     <hr>
-    <p>Cells are the building blocks of <strong>arcologies</strong>. In addition to their <code>x</code> / <code>y</code> coordinates, cells have four attributes:</p>
+    <p>Cells are the building blocks of <strong>arcologies</strong>. In addition to their <code>x</code> / <code>y</code> coordinates, cells have four key components:</p>
     <ol>
-      <li>Route</li>
+      <li>Ports</li>
       <li>Structure</li>
       <li>Note</li>
-      <li>Interval</li>
+      <li>Metabolism</li>
     </ol>
   </div>
 </div>
 
 <div class="row">
   <div class="col mb-5">
-    <h3 id="route">Route</h4>
+    <h3 id="route">Ports</h4>
     <hr>
-    <p>Routes direct the flow of signals. Each active cell must have one of 17 available routes enabled. Routes can be configued via both the field and the menu. Routes always cycle in the same order before looping back to the beginning.</p>
+    <p>Ports direct the flow of signals. Each cell has four ports: north, east, south, west. Open ports allow signals in. Closed ports stop signals.</p>
     <p class="alert alert-primary"><i class="fas fa-exclamation-triangle"></i> Note you can only view/edit the route of one cell at a time.</p>
-    <div class="row">
-      <div class="col-lg-6 col-sm-12">
-        <h4>Route Order</h4>
-        <hr>
-        <ol>
-          <li>All</li>
-          <li>North East</li>
-          <li>South East</li>
-          <li>South West</li>
-          <li>North West</li>
-          <li>North South</li>
-          <li>East West</li>
-          <li>North East South</li>
-          <li>East South West</li>
-          <li>South West North</li>
-          <li>West North East</li>
-          <li>North</li>
-          <li>East</li>
-          <li>South</li>
-          <li>West</li>
-          <li>Random</li>
-          <li>Shell</li>
-        </ol>
-      </div>
-      <div class="col-lg-6 col-sm-12">
-        <h4>Route Behavior</h4>
-        <hr>
-        <p>"All" and cardinal direction routes emit (in the case of hives) or route (in the case of ports and nomads) in the directions you would expect. Hives emit signals from all their open routes at a rate as defined by their interval. Ports and nomads route incoming signals to <em>every other</em> open route. So if a signal enters a "North East South" port from the east, it will split the signal into two and send them out of the north and south routes on the next beat.</p>
-        <p>"Random" structures emit or route signals at random.</p>
-        <p>"Shell" structures neither emit nor route signals. They're useful for stopping the flow of signals.</p>
-      </div>
-    </div>
-    <h4>Route Diagram</h4>
+    <h4>Ports & Metabolism</h4>
+    <p>Hives emit signals from <em>all open</em> ports at a rate as defined by their metabolism.</p>
+    <p>Gates block signals at a rate as defined by their metabolism. A gate with a metabolism of "6" would block the first five signals it interacts with, then allow the sixth to pass. A gate with a metabolism of "2" would block every other signal.</p>
+    <p>Shrines delay signals at a rate as defined by their metabolism. A shrine with a metabolism of "6" would hold onto a signal for six beats, then release it.</p>
+    <h4>Ports & Signal Flow</h4>
+    <p>Gates and shrines route incoming signals to <em>every other</em> open port. So if a signal enters a gate with all with from the east, it would emerge from the north and south., it will split the signal into two and send them out of the north and south routes on the next beat.</p>
+    <p>"Random" structures emit or route signals at random.</p>
+    <p>"Shell" structures neither emit nor route signals. They're useful for stopping the flow of signals.</p>
+    <h4>Port Diagram</h4>
     <hr>
-    <img class="d-block mx-auto mb-4" src="{{ site.baseurl }}/assets/images/routes.png" alt="Routes" />
+    <img class="d-block mx-auto mb-4" src="{{ site.baseurl }}/assets/images/ports.png" alt="ports" />
   </div>
 </div>
 
