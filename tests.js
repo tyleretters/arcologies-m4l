@@ -3,7 +3,8 @@
  * ============================================================================
  *
  * By:        Tyler Etters
- * Date:      May, 2020
+ * Date:      June, 2020
+ * Docs:      https://tyleretters.github.io/arcologies 
  * Site:      https://nor.the-rn.info
  * License:   Attribution 4.0 International (CC BY 4.0)
  *
@@ -26,7 +27,7 @@ function testInitCell() {
   var result3 = (cell.x == 6);
   var result4 = (cell.y == 14);
   var result5 = (cell.route == 'off');
-  var result6 = (cell.structure == 'none');
+  var result6 = (cell.structure == 'hive');
   var result7 = (cell.note == 60);
   var result8 = (cell.metabolism == 4);
   var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7 && result8) ? 'pass' : 'fail';
@@ -43,7 +44,7 @@ function testInitCellById() {
   var result3 = (cell.x == 3);
   var result4 = (cell.y == 8);
   var result5 = (cell.route == 'off');
-  var result6 = (cell.structure == 'none');
+  var result6 = (cell.structure == 'hive');
   var result7 = (cell.note == 60);
   var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -121,7 +122,7 @@ function testDeleteSignal() {
 function testGetCellStructure() {
   var name = 'testGetCellStructure';
   var cell = getCellByCoords(1, 0);
-  var result = (cell.structure === 'none') ? 'pass' : 'fail';
+  var result = (cell.structure === 'hive') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -149,7 +150,7 @@ function testInitCells() {
   var x = (cell.x == 10);
   var y = (cell.y == 4);
   var route = (cell.route == 'off');
-  var structure = (cell.structure == 'none');
+  var structure = (cell.structure == 'hive');
   var note = (cell.note == 60);
   var result = (x && y && route && structure && note) ? 'pass' : 'fail';
   testOutput(name, result);
@@ -203,9 +204,7 @@ function testOpenQuickMenu() {
 function testOpenMidiPalette() {
   var name = 'testOpenMidiPalette';
   var msg = openMidiPalette();
-  var result1 = (ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive);
-  var result2 = (msg == 'drawMidiPalette');
-  var result = (result1 && result2) ? 'pass' : 'fail';
+  var result = (ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -215,11 +214,7 @@ function testMidiPaletteEvent() {
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = 'x4y4';
   ARCOLOGIES_GLOBAL_CELLS.x4y4.note = 60;
   var msg = midiPaletteEvent(1, 0);
-  var result1 = (ARCOLOGIES_GLOBAL_CELLS.x4y4.note == 90);
-  var result2 = (msg[0] == 'animateMidiNotePress');
-  var result3 = (msg[1] == 1);
-  var result4 = (msg[2] == 0);
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  var result = (ARCOLOGIES_GLOBAL_CELLS.x4y4.note == 90) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -359,28 +354,11 @@ function testDrawRoute() {
 
 function testdrawCells() {
   var name = 'testDrawCells';
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
-  ARCOLOGIES_GLOBAL_CELLS.x1y2.isExists = true;
-  ARCOLOGIES_GLOBAL_CELLS.x1y3.isExists = true;
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.route = 'all';
-  ARCOLOGIES_GLOBAL_CELLS.x1y2.route = 'stop';
-  ARCOLOGIES_GLOBAL_CELLS.x1y3.route = 'nse';
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
-  ARCOLOGIES_GLOBAL_CELLS.x1y2.x = 1;
-  ARCOLOGIES_GLOBAL_CELLS.x1y3.x = 1;
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.y = 0;
-  ARCOLOGIES_GLOBAL_CELLS.x1y2.y = 2;
-  ARCOLOGIES_GLOBAL_CELLS.x1y3.y = 3;
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.structure = 'hive';
-  ARCOLOGIES_GLOBAL_CELLS.x1y2.structure = 'shrine';
-  ARCOLOGIES_GLOBAL_CELLS.x1y3.structure = 'hive';
-  var h = drawCells();
-  var result1 = (h.length === 4);
-  var result2 = (h[0] === 'drawCells');
-  var result5 = (h[1] === 'x1y3');
-  var result4 = (h[2] === 'x1y2');
-  var result3 = (h[3] === 'x1y0');  
-  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  var result1 = (drawCells()[0] == 'drawCells');
+  var result2 = (drawCells().length == 2);
+  var result3 = (drawCells('hive')[1] == 'hive');
+  var result4 = (drawCells('hive').length === 2);
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -394,25 +372,6 @@ function testGetIds() {
   return result;
 }
 
-function testDumpRoutes() {
-  var name = 'testDumpRoutes';
-  var arr = dumpRoutes();
-  var result1 = (arr[0] === 'routesList');
-  var result2 = (arr.includes('nes'));
-  var result = (result1 && result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testDumpStructures() {
-  var name = 'testDumpStructures';
-  var arr = dumpStructures();
-  var result1 = (arr[0] === 'structuresList');
-  var result2 = (arr.includes('hive'));
-  var result = (result1 && result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
 
 function testMoveCell() {
   var name = 'testMoveCell';
@@ -918,17 +877,6 @@ function testisInFieldBounds() {
   return result;
 }
 
-function testIsInQuickMenuBounds() {
-  var name = 'testIsInQuickMenuBounds';
-  var result1 = !isInQuickMenuBounds(1, 0);
-  var result2 = !isInQuickMenuBounds(6, 39);
-  var result3 = !isInQuickMenuBounds(-1, 9);
-  var result4 = isInQuickMenuBounds(0, 4);
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testCancelOutOfBoundsSignals() {
   var name = 'testCancelOutOfBoundsSignals';
   var testSignals = [
@@ -1176,25 +1124,6 @@ function testNoBlinkSelectedCell() {
   return result;
 }
 
-function testIsQuickMenuKeyPressed() {
-  var name = 'testIsQuickMenuKeyPressed';
-  setQuickMenuKeyState(5, 1);
-  var result = (isQuickMenuKeyPressed(5)) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testSetQuickMenuKeyState() {
-  var name = 'testSetQuickMenuKeyState';
-  setQuickMenuKeyState(5, 1);
-  var result1 = (isQuickMenuKeyPressed(5)) ? true : false;
-  setQuickMenuKeyState(5, 0);
-  var result2 = (!isQuickMenuKeyPressed(5)) ? true : false;
-  var result = (result1 && result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testSetGetGlobalMidiNote() {
   var name = 'testSetGetGlobalMidiNote';
   setGlobalMidiNote(50);
@@ -1211,30 +1140,12 @@ function testSetGetGlobalStructure() {
   return result;
 }
 
-function testClearQuickMenu() {
-  var name = 'testClearQuickMenu';
-  var result = (clearQuickMenu() == 'clearQuickMenu') ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testSetClearGetQuickMenuFirstIn() {
-  var name = 'testSetClearGetQuickMenuFirstIn';
-  setQuickMenuFirstIn(4);
-  var result1 = getQuickMenuFirstIn();
-  clearQuickMenuFirstIn();
-  var result2 = getQuickMenuFirstIn();
-  var result = (result1 && !result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testDrawMetabolism() {
-  var name = 'testDrawMetabolism';
+  var name = 'drawMetabolismFrom';
   msg1 = drawMetabolism();
   selectCell('x1y1');
   msg2 = drawMetabolism('x1y1');
-  var result = (msg1[1] == 4 && msg2[0] == 'drawMetabolism' && msg2[1] == 4) ? 'pass' : 'fail';
+  var result = (msg1[1] == 4 && msg2[0] == 'drawMetabolismFromJs' && msg2[1] == 4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1275,16 +1186,9 @@ function testMetabolismPaletteEvent() {
   return result;
 }
 
-function testGetMetabolism() {
-  var name = 'testGetMetabolism';
-  var result = (getMetabolism(0) == 6 && getMetabolism(4) == 2 && getMetabolism(7) == 1) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testGetStructureName() {
-  var name = 'testGetStructureName';
-  var result = (getStructureName(4) == 'hive' && getStructureName(3) == 'gate' && getStructureName(2) == 'shrine') ? 'pass' : 'fail';
+function testTranslateMetabolism() {
+  var name = 'testTranslateMetabolism';
+  var result = (translateMetabolism(0) == 6 && translateMetabolism(4) == 2 && translateMetabolism(7) == 1) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1294,7 +1198,7 @@ function testStructurePaletteEvent() {
   selectCell('x1x3');
   structurePaletteEvent(3);
   var cell = getCell('x1x3');
-  var result1 = (cell.structure == 'gate') ? true : false;
+  var result1 = (cell.structure === 'gate') ? true : false;
   deselectCell();
   structurePaletteEvent(2);
   var result2 = (getGlobalStructure() == 'shrine');
@@ -1328,10 +1232,11 @@ function testSetStructurePalette() {
 function testDrawStructure() {
   var name = 'testDrawStructure';
   msg1 = drawStructure();
+  console.log(msg1);
   selectCell('x1y1');
-  structurePaletteEvent(3);
   msg2 = drawStructure('x1y1');
-  var result = (msg1[1] == 'hive' && msg2[0] == 'drawStructure' && msg2[1] == 'gate') ? 'pass' : 'fail';
+  console.log(msg2);  
+  var result = (msg1[1] == 'hive' && msg2[0] == 'drawStructureFromJs' && msg2[1] == 'hive') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1404,10 +1309,6 @@ function testSuite() {
   
   resetTestSuite();
   results.push(testGetIds());
-
-  resetTestSuite();
-  results.push(testDumpRoutes());
-  results.push(testDumpStructures());
 
   resetTestSuite();
   results.push(testMoveCell());
@@ -1486,9 +1387,6 @@ function testSuite() {
   resetTestSuite();
   results.push(testSignalJSONIntegrity());
 
-
-/* ------- arcologies refactor ------- */
-
   resetTestSuite();
   results.push(testSetQuickMenu());
 
@@ -1496,27 +1394,22 @@ function testSuite() {
   results.push(testNoBlinkSelectedCell());
 
   resetTestSuite();
-  results.push(testIsInQuickMenuBounds());
-  results.push(testIsQuickMenuKeyPressed());
-  results.push(testSetQuickMenuKeyState());
   results.push(testSetGetGlobalMidiNote());
   results.push(testSetGetGlobalStructure());
 
   resetTestSuite();
-  results.push(testClearQuickMenu());
-  results.push(testSetClearGetQuickMenuFirstIn());
   results.push(testDrawMetabolism());
   results.push(testOpenCloseMetabolismPalette());
   results.push(testSetMetabolismPalette());
   results.push(testMetabolismPaletteEvent());
-  results.push(testGetMetabolism());
+  results.push(testTranslateMetabolism());
 
   resetTestSuite();
-  results.push(testGetStructureName());
   results.push(testStructurePaletteEvent());
   results.push(testOpenCloseStructurePalette());
   results.push(testSetStructurePalette());
-  resetTestSuite();  
+
+  resetTestSuite();
   results.push(testDrawStructure());
 
   return results;

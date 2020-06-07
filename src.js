@@ -3,7 +3,8 @@
  * ============================================================================
  *
  * By:        Tyler Etters
- * Date:      May, 2020
+ * Date:      June, 2020
+ * Docs:      https://tyleretters.github.io/arcologies
  * Site:      https://nor.the-rn.info
  * License:   Attribution 4.0 International (CC BY 4.0)
  *
@@ -18,10 +19,7 @@
  *  - Higher Level Getters
  *  - Lower Level Getters
  *  - Polyfills
- *  - Utility & Helpers
  *
- * Notes:
- *  - Function "//tested" and "//untested" comments refers to test coverage in tests.js.
  */
 
 /*
@@ -29,7 +27,6 @@
  * ==============================================================================
  */
 
-// untestable...
 function advance() {
 
   var birthedSignals;
@@ -76,25 +73,8 @@ function fieldEvent(x, y) {
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
 
-  if (isQuickMenuKeyPressed(4) && isMidiPaletteActive()) {
-    
-    // if we have a cell selected, set its midi note,
-    // otherwise set the global midi note
-    if (getSelectedCellId()) {
-      midiPaletteEvent(x,y);
-    } else {
-      setGlobalMidiNote(getMidiNote(x, y));
-    }
-
-  } else if (isQuickMenuKeyPressed(7) && ids.contains(id)) {
-    
-    // single cell delete
-    deleteCell(id);
-    returnToField();
-
-  } else if (getSelectedCellId() === id && !ids.contains(id)) {
-    
-    // we're pressing an empty cell, so deslect the cell
+  if (getSelectedCellId() && !ids.contains(id)) {
+    // we're pressing an empty cell, so deselect the cell
     deselectCell();
     returnToField();
 
@@ -103,136 +83,37 @@ function fieldEvent(x, y) {
     selectCell(id, true);
     clearField();
     cycleThroughFieldRoutes(x, y);    
-    drawCells();
-    drawSignals();
+    dumpSignalsAndCells()
+
   } else if (getSelectedCellId() == id) {
     // we're pressing the already selected cell, so cycle through the routes
     clearField();
     cycleThroughFieldRoutes(x, y);
-    drawCells();
-    drawSignals();
+    dumpSignalsAndCells()
+
   } else if (getSelectedCellId() !== id && ids.contains(id)) {
     // we've pressed a different existing cell and want to select it
     selectCell(id, true);
     clearField();
     drawLeylines(id);
     out(drawRoute(id));
-    drawCells();
-    drawSignals();
-  } else {
-    // this shouldn't happen but fallback to resting state
-    deselectCell();
-    clearField();
-    drawCells();
-    drawSignals();
-  }
+    dumpSignalsAndCells()
+  }  
+
 }
 
 // untested
 function returnToField() {
   clearField();
-  drawCells();
-  drawSignals();
+  dumpSignalsAndCells();
 }
 
-function returnToQuickMenu() {
-  clearQuickMenu();
-}
-
-// wip
-function quickMenuEvent(y, z) {
-
-  // both quickMenu and subMenu events come in here
-  // we keep track of the key state no matter what
-  setQuickMenuKeyState(y, z);
-
- // midi palette
-  if (y == 4) {
-    if (z == 1) {
-      clearField();
-      noBlinkSelectedCell();
-      openMidiPalette();
-    } else {
-      closeMidiPalette();
-      deselectCell();
-      returnToField();
-      returnToQuickMenu();
-    }
-  }
-    
-  // structure palette
-  if (y == 5) {
-    if (z == 1) {
-      openStructurePalette();
-      drawStructure();
-    } else {
-      closeStructurePalette();
-      returnToQuickMenu();
-    }
-  }
-
-  // metabolism palette
-  if (y == 6) {
-    if (z == 1) {
-      openMetabolismPalette();
-      drawMetabolism();
-    } else {
-      closeMetabolismPalette();
-      returnToQuickMenu();
-    }
-  }
-
-
-
-  // // inspector
-  // } else if (isQuickMenuKeyPressed(0) && z == 1) {
-  //     if (isQuickMenuKeyPressed(1)) inspect('signals');
-  //     if (isQuickMenuKeyPressed(2)) inspect('hives');
-  //     if (isQuickMenuKeyPressed(3)) inspect('gates');
-  //     if (isQuickMenuKeyPressed(4)) inspect('shrines');
-  //     if (isQuickMenuKeyPressed(5)) inspect('leylines');
-
-  // // disable inspector
-  // } else if (y == 0 && z == 0) {
-  //   returnToField();
-
-  // // manual advance
-  // } else if (y == 1 && z == 1) {
-  //   deselectCell();
-  //   returnToField();
-  //   advance();
-
-  // // empty
-  // } else if (y == 2 && z == 1) {
-     
-  // // empty
-  // } else if (y == 3 && z == 1) {
- 
-
-  // // set structure
-  // } else if (isQuickMenuKeyPressed(5) && z == 1) {
-  //   if (!getSelectedCellId()) {
-  //     if (y == 2) setGlobalStructure('hive');
-  //     if (y == 3) setGlobalStructure('gate');
-  //     if (y == 4) setGlobalStructure('shrine');
-  //   } else {
-  //     var id = getSelectedCellId();
-  //     if (y == 2) setCell(id, { 'structure' : 'hive' });
-  //     if (y == 3) setCell(id, { 'structure' : 'gate' });
-  //     if (y == 4) setCell(id, { 'structure' : 'shrine' });
-  //   } 
-
-}
-
-
-// wip
-function subMenuEvent(y, z) {
-  if (isMetabolismPaletteActive() && z == 1) {
-      metabolismPaletteEvent(y);
-  }
-    if (isStructurePaletteActive() && z == 1) {
-      structurePaletteEvent(y);
-  }
+// untested
+function dumpSignalsAndCells() {
+    dumpExistingCells();
+    drawCells();
+    dumpSignals();
+    drawSignals();
 }
 
 // wip
@@ -250,18 +131,18 @@ function inspect(val) {
 function midiPaletteEvent(x, y) {
   
   // defensive
-  if (x < 0 && x > 8 && y < 0 && y > 8) return;
+  if (x < 1 && x > 7 && y < 0 && y > 8) return;
 
-  // all midi palette events do the same thing - set the note
+  // if we have a cell selected, set its midi note,
+  // otherwise set the global midi note
   var note = getMidiNote(x, y);
   var id = getSelectedCellId();
-  setCell(id, { 'note' : note});
-  var arr = ['animateMidiNotePress', x, y];
-  if (isOutletsOn()) {
-    out(arr);
+  if (id) {
+    setCell(id, { 'note' : note});
   } else {
-    return arr;
+    setGlobalMidiNote(note);
   }
+
 }
 
 // tested
@@ -270,16 +151,14 @@ function metabolismPaletteEvent(y) {
   // defensive
   if (y < -1 && y > 5) return;
 
-  var metabolism = getMetabolism(y);
+  var metabolism = translateMetabolism(y);
   var id = getSelectedCellId();
-  if (getSelectedCellId()) {
+  if (id) {
     setCell(id, { 'metabolism' : metabolism});
   } else {
     setGlobalMetabolism(metabolism);
   }
-
-  clearQuickMenu();
-  drawMetabolism();
+ 
 }
 
 // tested
@@ -288,16 +167,17 @@ function structurePaletteEvent(y) {
   // defensive
   if (y < 2 && y > 4) return;
 
-  var structureName = getStructureName(y);
+  var structureName = '';
+  if (y == 2) structureName = 'shrine';
+  if (y == 3) structureName = 'gate';
+  if (y == 4) structureName = 'hive';
+
   var id = getSelectedCellId();
   if (getSelectedCellId()) {
-    setCell(id, { 'structure' : structureName});
+    setCell(id, { 'structure' : structureName});    
   } else {
     setGlobalStructure(structureName);
   }
-
-  clearQuickMenu();
-  drawStructure();
 }
 
 /*
@@ -778,6 +658,7 @@ function prepareCellLeylines(cellId) {
 
 
 // untested
+// wip need to replace, probably with a 'updatePorts'
 function cycleThroughFieldRoutes(x, y) {
   
   var cell = getCellByCoords(x, y);
@@ -809,16 +690,6 @@ function cycleThroughFieldRoutes(x, y) {
 // tested
 function clearField() {
   var msg = 'clearField';
-  if (isOutletsOn()) {
-    out(msg);
-  } else {
-    return msg;
-  }
-}
-
-// tested
-function clearQuickMenu() {
-  var msg = 'clearQuickMenu';
   if (isOutletsOn()) {
     out(msg);
   } else {
@@ -871,32 +742,20 @@ function drawLeylines(id) {
 } 
 
 // tested
-function drawCells(type) {
+function drawCells(structure) {
+  var structure = structure || false;
   var arr = ['drawCells'];
-  var cells = {};
-
-  if (type == 'hives') {
-    cells = getCellsByStructure('hive');
-  } else if (type == 'gates') {
-    cells = getCellsByStructure('gate');
-  } else if (type == 'shrines') {
-    cells = getCellsByStructure('shrine');
+  if (structure) {
+    arr.push(structure);
   } else {
-    cells = getExistingCells();
+    arr.push('all');    
   }
 
-  if (cells === undefined) return;
-
-  if (Object.size(cells) > 0) {
-    for (var key in cells) {
-        if (!cells.hasOwnProperty(key)) continue;
-        arr.push(cells[key].id);
-    }
-    if (isOutletsOn()) {
-      out(arr);
-    } else {
-      return arr;
-    }
+  if (isOutletsOn()) {
+    dumpExistingCells();
+    out(arr);
+  } else {
+    return arr;
   }
 }
 
@@ -907,6 +766,7 @@ function drawLeyline(arr) {
 }
 
 // tested
+// wip need to update for ports
 function drawRoute(id) {
   var cell = getCell(id);
   return ['drawRoute', cell.route, cell.x, cell.y];
@@ -924,7 +784,7 @@ function noBlinkSelectedCell() {
 
 // tested
 function drawStructure() {
-  var msg = ['drawStructure'];
+  var msg = ['drawStructureFromJs'];
   if (getSelectedCellId()) {
     msg.push(getCell(getSelectedCellId()).structure);
   } else {
@@ -940,12 +800,13 @@ function drawStructure() {
 
 // teseted
 function drawMetabolism() {
-  var msg = ['drawMetabolism'];
+  var msg = ['drawMetabolismFromJs'];
   if (getSelectedCellId()) {
     msg.push(getCell(getSelectedCellId()).metabolism);
   } else {
     msg.push(getGlobalMetabolism());
   }
+  // post(msg);
 
   if (isOutletsOn()) {
     out(msg);
@@ -961,6 +822,37 @@ function drawMetabolism() {
 
 var inlets = 1;
 var outlets = 1;
+
+// untested
+function dumpGlobalState() {
+  if (typeof Dict == "undefined") return;
+  var d = new Dict('globalState');
+  d.quiet = false;
+  d.clear();
+  var json = JSON.stringify(ARCOLOGIES_GLOBAL_STATE);
+  d.parse(json);
+  out('dumpGlobalState');  
+}
+
+// untested
+function dumpExistingCells() {
+  if (typeof Dict == "undefined") return;  
+  var d = new Dict('existingCells');
+  d.quiet = false;
+  d.clear();
+  d.parse(JSON.stringify(getExistingCells()));
+  out('dumpExistingCells');
+}
+
+// untested
+function dumpSignals() {
+  if (typeof Dict == "undefined") return;  
+  var d = new Dict('signals');
+  d.quiet = false;
+  d.clear();
+  d.parse(JSON.stringify(getSignals()));
+  out('dumpSignals');
+}
 
 // tested
 function out(val) {
@@ -984,12 +876,11 @@ function closeQuickMenu() {
 // tested
 function openMidiPalette() {
   setMidiPalette(true);
-  var msg = 'drawMidiPalette';
-  if (isOutletsOn()) {
-    out(msg);
-  } else {
-    return msg;
-  }
+}
+
+// tested
+function closeMidiPalette() {
+  setMidiPalette(false);
 }
 
 // tested
@@ -1013,22 +904,17 @@ function closeMetabolismPalette() {
 }
 
 // tested
-function closeMidiPalette() {
-  setMidiPalette(false);
+function selectCell(val, display) {
+  ARCOLOGIES_GLOBAL_STATE.selectedCellId = val;
+  if (display) {
+    out(['selectCell', val]);
+  }
 }
 
 // tested
 function deselectCell() {
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
   out('deselectCell');
-}
-
-// tested
-function selectCell(val, display) {
-  ARCOLOGIES_GLOBAL_STATE.selectedCellId = val;
-  if (display) {
-    out(['selectCell', val]);
-  }
 }
 
 /*
@@ -1042,6 +928,7 @@ var ARCOLOGIES_GLOBAL_CELLS = {};
 var ARCOLOGIES_GLOBAL_SIGNALS = {};
 
 // tested by proxy
+// wip need to update for ports
 function init() {
   ARCOLOGIES_GLOBAL_STATE = null;
   ARCOLOGIES_GLOBAL_STATE = {};
@@ -1063,7 +950,6 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
   ARCOLOGIES_GLOBAL_STATE.signalSpeed = 1;
   ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
-  ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn = false;
   ARCOLOGIES_GLOBAL_STATE.is0Pressed = false;
   ARCOLOGIES_GLOBAL_STATE.is1Pressed = false;
   ARCOLOGIES_GLOBAL_STATE.is2Pressed = false;
@@ -1096,6 +982,7 @@ function initCells() {
 }
 
 // tested
+// wip need to update for ports
 function initCell(x, y) {
   return {
     id: makeId(x, y),
@@ -1103,9 +990,9 @@ function initCell(x, y) {
     x: x,
     y: y,
     route: 'off',
-    structure: 'none',
-    note: 60,
-    metabolism: 4,
+    structure: getGlobalStructure(),
+    note: getGlobalMidiNote(),
+    metabolism: getGlobalMetabolism(),
     generation: 0
   };
 }
@@ -1132,7 +1019,7 @@ function setCell(id, obj) {
   if (!ARCOLOGIES_GLOBAL_CELLS.hasOwnProperty(id)){
     ARCOLOGIES_GLOBAL_CELLS[id] = {};
   }
- Object.keys(obj).forEach(function(key) {
+  Object.keys(obj).forEach(function(key) {
     ARCOLOGIES_GLOBAL_CELLS[id][key] = obj[key];
   });
 }
@@ -1140,22 +1027,6 @@ function setCell(id, obj) {
 // tested
 function setQuickMenu(val) {
   ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = val;
-}
-
-// tested
-function setQuickMenuFirstIn(y) {
-  ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn = y;
-}
-
-// tested
-function clearQuickMenuFirstIn() {
-  ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn = false;
-}
-
-// tested
-function setQuickMenuKeyState(y, z) {
-  var key = 'is' + y + 'Pressed';
-  ARCOLOGIES_GLOBAL_STATE[key] = (z === 1) ? true : false;
 }
 
 // tested
@@ -1189,18 +1060,13 @@ function setGlobalStructure(val) {
 }
 
 // tested
-function setLifespan(val) {
-  ARCOLOGIES_GLOBAL_STATE.lifespan = val;
+function setGeneration(val) {
+  ARCOLOGIES_GLOBAL_STATE.generation = val;
 }
 
 // tested
 function setWidth(val) {
   ARCOLOGIES_GLOBAL_STATE.width = val;
-}
-
-// tested
-function setGeneration(val) {
-  ARCOLOGIES_GLOBAL_STATE.generation = val;
 }
 
 // tested
@@ -1226,6 +1092,7 @@ function setSignals(newSignals) {
 
 
 // tested
+// wip - hold cell + single on field maybe?
 function moveCell(originId, destinationId) {
 
   // write the destination then erase the origin
@@ -1252,6 +1119,25 @@ function deleteSignal(id) {
   delete ARCOLOGIES_GLOBAL_SIGNALS.id;
 }
 
+// tested
+function makeId(x, y) {
+  return 'x' + x + 'y' + y;
+}
+
+// tested
+function makeSignal(x, y, direction, generation, isJustBorn) {
+  var id = makeId(x, y);
+  var newSignal = {};
+  newSignal = {
+    'id' : id,
+    'x' : x,
+    'y' : y,
+    'direction' : direction,
+    'generation' : generation || getGeneration(),
+    'isJustBorn' : false
+  };
+  return newSignal;
+}
 
 /*
  * Higher Level Getters
@@ -1309,12 +1195,14 @@ function getSignal(x, y) {
 }
 
 // tested
+// wip - how will random work in a routeless world? out of open ports only?
 function rollRandomRoute() {
   var routes = ['all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'shell'];
   return getRouteDirections(routes[ Math.floor(Math.random() * routes.length)]);
 }
 
 // tested
+// wip - to delete since this isn't a thing anymore
 function cycleRoutes(route) {
   // this pattern is hardcoded for the user's benefit
   // (i don't want errant array sorting changing it)
@@ -1339,6 +1227,7 @@ function cycleRoutes(route) {
 }
 
 // tested
+// wip - to delete since this isn't a thing anymore
 function getRouteDirections(route) {
   if  (route == 'all')    return ['n', 'e', 's', 'w'];
   if  (route == 'ne')     return ['n', 'e'];
@@ -1362,6 +1251,7 @@ function getRouteDirections(route) {
 }
 
 // tested
+// wip - to delete since this isn't a thing anymore
 function enrichWithRouteDirections(cells) {
   Object.keys(cells).forEach(function(key) {
     var cell = cells[key];
@@ -1451,7 +1341,7 @@ function noteArrayKey(x, y) {
 }
 
 // tested
-function getMetabolism(y) {
+function translateMetabolism(y) {
   if (y == 0) return 6;
   if (y == 1) return 5;
   if (y == 2) return 4;
@@ -1462,34 +1352,12 @@ function getMetabolism(y) {
 }
 
 // tested
-function getStructureName(val) {
-  if (val == 4) return 'hive';
-  if (val == 3) return 'gate';
-  if (val == 2) return 'shrine';
-  return 'hive';
-}
-
-// tested
 function isInFieldBounds(x, y) {
   var okWest = (x >= 1);
   var okEast = (x < getWidth());
   var okNorth = (y >= 0);
   var okSouth = (y < getHeight());
   return (okWest && okEast && okNorth && okSouth);
-}
-
-// tested
-function isInQuickMenuBounds(x, y) {
-  var okWestEast = (x == 0);
-  var okNorth = (y >= 0);
-  var okSouth = (y < getHeight());
-  return (okWestEast && okNorth && okSouth);
-}
-
-// tested
-function isQuickMenuKeyPressed(val) {
-  var query = 'is' + val + 'Pressed';
-  return (ARCOLOGIES_GLOBAL_STATE.hasOwnProperty(query)) ? ARCOLOGIES_GLOBAL_STATE[query] : false;
 }
 
 /*
@@ -1535,11 +1403,6 @@ function getSelectedCellId() {
 // tested
 function isQuickMenuActive() {
   return ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive;
-}
-
-// tested
-function getQuickMenuFirstIn() {
-  return ARCOLOGIES_GLOBAL_STATE.quickMenuFirstIn;
 }
 
 // tested
@@ -1643,85 +1506,4 @@ if (typeof Object.assign !== 'function') {
     writable: true,
     configurable: true
   });
-}
-
-/*
- * Utility & Helpers
- * ==============================================================================
- */
-
-// tested
-function makeId(x, y) {
-  return 'x' + x + 'y' + y;
-}
-
-// tested
-function makeSignal(x, y, direction, generation, isJustBorn) {
-  var id = makeId(x, y);
-  var newSignal = {};
-  newSignal = {
-    'id' : id,
-    'x' : x,
-    'y' : y,
-    'direction' : direction,
-    'generation' : generation || getGeneration(),
-    'isJustBorn' : false
-  };
-  return newSignal;
-}
-
- function dumpState() {
-  out(JSON.stringify(ARCOLOGIES_GLOBAL_STATE));
-}
-
-// untested
-function dumpCells() {
-  out(JSON.stringify(ARCOLOGIES_GLOBAL_CELLS));
-}
-
-// tested
-function dumpStructures() {
-  var arr = ARCOLOGIES_GLOBAL_STATE.structures;
-  arr.unshift('structuresList');
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
-
-// tested
-function dumpRoutes() {
-  var arr = ARCOLOGIES_GLOBAL_STATE.routes;
-  arr.unshift('routesList');
-  if (isOutletsOn()) {
-    out(arr);
-  } else {
-    return arr;
-  }
-}
-
-// untested
-function dumpExistingCells() {
-  var obj = getExistingCells();
-  if (isOutletsOn()) {
-    out(JSON.stringify(obj));
-  } else {
-    return obj;
-  }
-}
-
-// untested
-function dumpExistingSignals() {
-  var obj = getSignals();
-  if (isOutletsOn()) {
-    out(JSON.stringify(obj));
-  } else {
-    return obj;
-  }
-}
-
-// untested...
-function test() {
-  out('test function');
 }
