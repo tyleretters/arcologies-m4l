@@ -1232,10 +1232,8 @@ function testSetStructurePalette() {
 function testDrawStructure() {
   var name = 'testDrawStructure';
   msg1 = drawStructure();
-  console.log(msg1);
   selectCell('x1y1');
   msg2 = drawStructure('x1y1');
-  console.log(msg2);  
   var result = (msg1[1] == 'hive' && msg2[0] == 'drawStructureFromJs' && msg2[1] == 'hive') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;

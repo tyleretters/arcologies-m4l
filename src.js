@@ -936,12 +936,9 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.generation = 0;
   ARCOLOGIES_GLOBAL_STATE.width = 0;
   ARCOLOGIES_GLOBAL_STATE.height = 0;
-  ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.globalMidiNote = 60;
-  ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.globalStructure = 'hive';
   ARCOLOGIES_GLOBAL_STATE.structures = ['hive', 'gate', 'shrine'];
-  ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive = false;  
   ARCOLOGIES_GLOBAL_STATE.globalMetabolism = 4;
   ARCOLOGIES_GLOBAL_STATE.routes = [
     'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
@@ -950,14 +947,10 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
   ARCOLOGIES_GLOBAL_STATE.signalSpeed = 1;
   ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
-  ARCOLOGIES_GLOBAL_STATE.is0Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is1Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is2Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is3Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is4Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is5Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is6Pressed = false;
-  ARCOLOGIES_GLOBAL_STATE.is7Pressed = false;
+  ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = false;
+  ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive = false;  
+  ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
+
 }
 
 // tested by proxy
