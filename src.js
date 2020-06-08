@@ -69,39 +69,50 @@ function advance() {
 // tested
 function fieldEvent(x, y) {
 
-  var id = makeId(x, y);
+  var fieldId = makeId(x, y);
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
+  var cellId = getSelectedCellId();
 
-  if (getSelectedCellId() && !ids.contains(id)) {
+
+
+  if (cellId && isAdjacentPort(getCell(cellId), x, y)) {
+    // we have a cell selected, we're pressing a port
+    togglePort(cellId, x, y);
+    clearField();
+    drawLeylines(cellId);
+    drawPorts(cellId);
+    dumpSignalsAndCells();
+
+  } else if (cellId && !ids.contains(fieldId)) {
     // we have a cell selected, we're pressing an empty cell, so deselect the cell
     deselectCell();
     returnToField();
 
-  } else if (getSelectedCellId() === false && !ids.contains(id)) {
+  } else if (cellId === false && !ids.contains(fieldId)) {
     // no cell is selected and this cell doesn't exist so create it
-    initCell(id);
-    setCell(id, { 'isExists': true});
-    selectCell(id, true);
+    initCell(fieldId);
+    setCell(fieldId, { 'isExists': true});
+    selectCell(fieldId, true);
     clearField();
-    // drawPorts(x, y);
-    drawLeylines(id);
-    dumpSignalsAndCells()
+    drawPorts(fieldId);
+    drawLeylines(fieldId);
+    dumpSignalsAndCells();
 
-  } else if (getSelectedCellId() == id) {
+  } else if (cellId == fieldId) {
     // we're pressing the already selected cell
     clearField();
-    // drawPorts(x, y);
-    drawLeylines(id);
-    dumpSignalsAndCells()
+    drawPorts(x, y);
+    drawLeylines(fieldId);
+    dumpSignalsAndCells();
 
-  } else if (getSelectedCellId() !== id && ids.contains(id)) {
+  } else if (cellId !== fieldId && ids.contains(fieldId)) {
     // we've pressed a different existing cell and want to select it
-    selectCell(id, true);
+    selectCell(fieldId, true);
     clearField();
-    drawLeylines(id);
-    // drawPorts(id);
-    dumpSignalsAndCells()
+    drawLeylines(fieldId);
+    drawPorts(fieldId);
+    dumpSignalsAndCells();
   }  
 
 }
@@ -142,7 +153,7 @@ function midiPaletteEvent(x, y) {
   var note = getMidiNote(x, y);
   var id = getSelectedCellId();
   if (id) {
-    setCell(id, { 'note' : note});
+    setCell(id, { 'note' : note});  
   } else {
     setGlobalMidiNote(note);
   }
@@ -658,31 +669,6 @@ function prepareCellLeylines(cellId) {
   return cellLeylines;
 }
 
-
-// untested
-// wip need to replace, probably with a 'updatePorts'
-function drawPorts(x, y) {
-  
-  var cell = getCellByCoords(x, y);
-  var id = makeId(x, y);
-
-  // if (!cell.isExists) {
-  //   setCell(id,
-  //     { 
-  //       'structure' : getGlobalStructure(), 
-  //       'metabolism' : getGlobalMetabolism(), 
-  //       'port' : [], 
-  //       'isExists' : true 
-  //     } 
-  //   );
-  // } else {
-  //   setCell(id, { 'port' : getCell... laksjdlkf [] });
-  // }
-
-  // out(drawPorts(id));
-
-}
-
 /*
  * Draws
  * ==============================================================================
@@ -696,6 +682,45 @@ function clearField() {
   } else {
     return msg;
   }
+}
+
+
+// tested by proxy
+function drawPorts(id) {
+  var cell = getCell(id);
+  if (!cell) return;
+  var output = [];
+  output.push(drawPort(cell, 'n', cell.ports.contains('n')));
+  output.push(drawPort(cell, 'e', cell.ports.contains('e')));
+  output.push(drawPort(cell, 's', cell.ports.contains('s')));
+  output.push(drawPort(cell, 'w', cell.ports.contains('w')));
+  output.forEach( function(arr) {
+    out(arr);
+  });
+}
+
+// tested
+function drawPort(cell, port, bool) {
+  var portX = 0;
+  var portY = 0;
+  if (port == 'n') {
+    portX = cell.x;
+    portY = cell.y - 1;    
+  }
+  if (port == 'e') {
+    portX = cell.x + 1;
+    portY = cell.y;
+  }
+  if (port == 's') {
+    portX = cell.x;
+    portY = cell.y + 1;
+  }
+  if (port == 'w') {
+    portX = cell.x - 1;
+    portY = cell.y;
+  }
+  var onOff = (bool) ? 'open' : 'closed';
+  return ['drawPort', portX, portY, onOff];
 }
 
 // tested
@@ -763,30 +788,6 @@ function drawCells(structure) {
 function drawLeyline(arr) {
   arr.unshift('drawLeyline');
   return arr;
-}
-
-// wip but tested
-function drawPort(id, port) {
-  var cell = getCell(id);
-  var portX = 0;
-  var portY = 0;
-  if (port == 'n') {
-    portX = cell.x;
-    portY = cell.y - 1;
-  }
-  if (port == 'e') {
-    portX = cell.x + 1;
-    portY = cell.y;
-  }
-  if (port == 's') {
-    portX = cell.x;
-    portY = cell.y + 1;
-  }
-  if (port == 'w') {
-    portX = cell.x - 1;
-    portY = cell.y;
-  }
-  return ['drawPort', cell.x, cell.y, portX, portY];
 }
 
 // tested
@@ -989,7 +990,6 @@ function initCells() {
 }
 
 // tested
-// wip need to update for ports
 function initCell(x, y) {
   return {
     id: makeId(x, y),
@@ -1144,6 +1144,20 @@ function makeSignal(x, y, direction, generation, isJustBorn) {
     'isJustBorn' : false
   };
   return newSignal;
+}
+
+// tested
+function togglePort(cellId, x, y) {
+  var cell = getCell(cellId);
+  var port = isAdjacentPort(cell, x, y);
+
+  if (!port) return;
+  
+  if (cell.ports.contains(port)) {
+    cell.ports.remove(port);
+  } else {
+    cell.ports.push(port);
+  }
 }
 
 /*
@@ -1306,6 +1320,19 @@ function isInFieldBounds(x, y) {
   return (okWest && okEast && okNorth && okSouth);
 }
 
+// tested
+function isAdjacentPort(cell, x, y) {
+  // north
+  if (cell.x == x && (cell.y - 1 == y)) { return 'n'; }
+  // east
+  else if ((cell.x + 1) == x && cell.y == y) { return 'e'; }
+  // south
+  else if (cell.x == x &&  (cell.y + 1 == y)) { return 's'; }
+  // west
+  else if ((cell.x - 1) == x &&  cell.y == y) { return 'w'; }
+  else { return false }
+}
+
 /*
  * Lower Level Getters
  * ==============================================================================
@@ -1396,6 +1423,18 @@ function isOutletsOn() {
  * ==============================================================================
  */
 
+// wip
+Array.prototype.remove = function() {
+  var what, a = arguments, L = a.length, ax;
+  while (L && this.length) {
+      what = a[--L];
+      while ((ax = this.indexOf(what)) !== -1) {
+          this.splice(ax, 1);
+      }
+  }
+  return this;
+};
+
 // tested
 Array.prototype.contains = function(obj) {
   var i = this.length;
@@ -1405,6 +1444,19 @@ Array.prototype.contains = function(obj) {
     }
   }
   return false;
+};
+
+// wip - replace for loops with this
+Array.prototype.forEach = function forEach(callback, thisArg) {
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
+  var array = this;
+  var arrayLength = array.length;
+  thisArg = thisArg || this;
+  for (var i = 0, l = arrayLength; i !== l; ++i) {
+    callback.call(thisArg, array[i], i, array);
+  }
 };
 
 // tested
@@ -1424,32 +1476,29 @@ if (!Object.prototype.size) {
 }
 
 // tested by proxy
-if (typeof Object.assign !== 'function') {
-  // Must be writable: true, enumerable: false, configurable: true
-  Object.defineProperty(Object, "assign", {
-    value: function assign(target, varArgs) { // .length of function is 2
-      'use strict';
-      if (target === null || target === undefined) {
-        throw new TypeError('Cannot convert undefined or null to object');
-      }
+Object.defineProperty(Object, "assign", {
+  value: function assign(target, varArgs) { // .length of function is 2
+    'use strict';
+    if (target === null || target === undefined) {
+      throw new TypeError('Cannot convert undefined or null to object');
+    }
 
-      var to = Object(target);
+    var to = Object(target);
 
-      for (var index = 1; index < arguments.length; index++) {
-        var nextSource = arguments[index];
+    for (var index = 1; index < arguments.length; index++) {
+      var nextSource = arguments[index];
 
-        if (nextSource !== null && nextSource !== undefined) { 
-          for (var nextKey in nextSource) {
-            // Avoid bugs when hasOwnProperty is shadowed
-            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-              to[nextKey] = nextSource[nextKey];
-            }
+      if (nextSource !== null && nextSource !== undefined) { 
+        for (var nextKey in nextSource) {
+          // Avoid bugs when hasOwnProperty is shadowed
+          if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+            to[nextKey] = nextSource[nextKey];
           }
         }
       }
-      return to;
-    },
-    writable: true,
-    configurable: true
-  });
-}
+    }
+    return to;
+  },
+  writable: true,
+  configurable: true
+});

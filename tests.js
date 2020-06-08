@@ -326,13 +326,16 @@ function testGetExistingCells() {
 // test
 function testDrawPort() {
   var name = 'testDrawPort';
-  var d = drawPort('x5y6', 'n');
+  var id = 'x5y6';
+  initCell(id);
+  setCell(id, { 'ports': ['n'], 'isExists': true});
+  var cell = getCell(id);
+  var d = drawPort(cell, 'n', true);
   var result1 = (d[0] === 'drawPort');
   var result2 = (d[1] === 5);
-  var result3 = (d[2] === 6);
-  var result4 = (d[3] === 5);
-  var result5 = (d[4] === 5);
-  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
+  var result3 = (d[2] === 5);
+  var result4 = (d[3] === 'open');
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -702,7 +705,7 @@ function testBirthSignals() {
   ARCOLOGIES_GLOBAL_CELLS.x2y7.structure = 'hive';
   ARCOLOGIES_GLOBAL_CELLS.x11y5.structure = 'hive';
   var signals = birthSignals();
-  // this is a very imgateant test...
+  // this is a very important test...
   // THINK OF THE CHILDREN
   var result = (
     (signals.x2y6.id === 'x2y6') &&
@@ -1207,6 +1210,40 @@ function testDrawStructure() {
   return result;
 }
 
+function testIsAdjacentPort() {
+  var name = 'testIsAdjacentPort';
+  var id = 'x4y5';
+  initCell(id);
+  setCell(id, { 'isExists': true});
+  var cell = getCell(id);
+  var result = (
+    isAdjacentPort(cell, 4, 4) == 'n' &&
+    isAdjacentPort(cell, 5, 5) == 'e'  &&
+    isAdjacentPort(cell, 4, 6) == 's'  &&
+    isAdjacentPort(cell, 3, 5) == 'w'  &&
+    !isAdjacentPort(cell, 1, 1)
+    ) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testTogglePort() {
+  var name = 'testTogglePort';
+  var id = 'x4y5';
+  togglePort(id, 4, 4);
+  var result1 = ( getCell(id).ports.contains('n') );
+  togglePort(id, 4, 4);  
+  var result2 = ( !getCell(id).ports.contains('n') );
+  togglePort(id, 1, 4);  
+  var result3 = ( getCell(id).ports.length == 0 );
+  togglePort(id, 3, 5);  
+  var result4 = ( getCell(id).ports.contains('w') );
+  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+
 /*
  * Orchestration
  * ============================================================================
@@ -1372,6 +1409,8 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testDrawStructure());
+  results.push(testIsAdjacentPort());
+  results.push(testTogglePort());
 
   return results;
 }
