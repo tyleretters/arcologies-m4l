@@ -26,7 +26,7 @@ function testInitCell() {
   var result2 = (cell.isExists == false);
   var result3 = (cell.x == 6);
   var result4 = (cell.y == 14);
-  var result5 = (cell.route == 'off');
+  var result5 = (cell.ports.length == 0);
   var result6 = (cell.structure == 'hive');
   var result7 = (cell.note == 60);
   var result8 = (cell.metabolism == 4);
@@ -43,7 +43,7 @@ function testInitCellById() {
   var result2 = (cell.isExists == false);
   var result3 = (cell.x == 3);
   var result4 = (cell.y == 8);
-  var result5 = (cell.route == 'off');
+  var result5 = (cell.ports.length == []);
   var result6 = (cell.structure == 'hive');
   var result7 = (cell.note == 60);
   var result = (result1 && result2 && result3 && result4 && result5 && result6 && result7) ? 'pass' : 'fail';
@@ -149,10 +149,10 @@ function testInitCells() {
   var cell = getCell('x10y4');
   var x = (cell.x == 10);
   var y = (cell.y == 4);
-  var route = (cell.route == 'off');
+  var ports = (cell.ports.length == 0);
   var structure = (cell.structure == 'hive');
   var note = (cell.note == 60);
-  var result = (x && y && route && structure && note) ? 'pass' : 'fail';
+  var result = (x && y && ports && structure && note) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -239,21 +239,6 @@ function testNoteArrayKey() {
   return result;
 }
 
-function testGetRouteDirections() {
-  var name = 'testGetRouteDirections';
-  var test1 = getRouteDirections('nes');
-  var test2 = getRouteDirections('all');
-  var test3 = getRouteDirections('ee');
-  var test4 = getRouteDirections('garbage');
-  var result1 = ( test1[0] == 'n' && test1[1] ==  'e' && test1[2] == 's');
-  var result2 = ( test2[0] == 'n' && test2[1] ==  'e' && test2[2] == 's' && test2[3] == 'w');
-  var result3 = ( test3[0] == 'e');
-  var result4 = ( test4.length == 0);
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testDeselectCell() {
   var name = 'testDeselectCell';
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = 'x1y0';
@@ -314,17 +299,16 @@ function testOut() {
   return result;
 }
 
-function testfieldEventOnEmptyCell() {
-  var name = 'testfieldEventOnEmptyCell';
+function testFieldEventOnEmptyCell() {
+  var name = 'testFieldEventOnEmptyCell';
   fieldEvent(2, 2);
+
   var cell = getCellByCoords(2, 2);
   var result1 = (cell.isExists);
+
   var result2 = (cell.structure == 'hive');
-  var result3 = (cell.route == 'all');
-  fieldEvent(2, 2);
-  cell = getCellByCoords(2, 2);
-  var result4 = (cell.route == 'ne');
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  var result3 = (cell.ports.length == 0);
+  var result = (result1 && result2 && result3) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -339,15 +323,16 @@ function testGetExistingCells() {
   return result;
 }
 
-function testDrawRoute() {
-  var name = 'testDrawRoute';
-  fieldEvent(5, 6);
-  var d = drawRoute('x5y6');
-  var result1 = (d[0] === 'drawRoute');
-  var result2 = (d[1] === 'all');
-  var result3 = (d[2] === 5);
-  var result4 = (d[3] === 6);
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+// test
+function testDrawPort() {
+  var name = 'testDrawPort';
+  var d = drawPort('x5y6', 'n');
+  var result1 = (d[0] === 'drawPort');
+  var result2 = (d[1] === 5);
+  var result3 = (d[2] === 6);
+  var result4 = (d[3] === 5);
+  var result5 = (d[4] === 5);
+  var result = (result1 && result2 && result3 && result4 && result5) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -377,8 +362,8 @@ function testMoveCell() {
   var name = 'testMoveCell';
   ARCOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
   ARCOLOGIES_GLOBAL_CELLS.x6y6.isExists = true;
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.route = 'random';
-  ARCOLOGIES_GLOBAL_CELLS.x6y6.route = 'all';
+  ARCOLOGIES_GLOBAL_CELLS.x1y0.ports = ['n'];
+  ARCOLOGIES_GLOBAL_CELLS.x6y6.ports = ['e', 's'];
   ARCOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
   ARCOLOGIES_GLOBAL_CELLS.x6y6.x = 6;
   ARCOLOGIES_GLOBAL_CELLS.x1y0.y = 0;
@@ -389,19 +374,12 @@ function testMoveCell() {
   ARCOLOGIES_GLOBAL_CELLS.x6y6.note = 56;
   moveCell('x1y0', 'x6y6');
   var result1 = (ARCOLOGIES_GLOBAL_CELLS.x1y0.isExists === false);
-  var result2 = (ARCOLOGIES_GLOBAL_CELLS.x6y6.route === 'random' );
+  var result2 = (ARCOLOGIES_GLOBAL_CELLS.x6y6.ports[0] === 'n' );
   var result3 = (ARCOLOGIES_GLOBAL_CELLS.x6y6.structure === 'shrine');
   var result4 = (ARCOLOGIES_GLOBAL_CELLS.x1y0.id === 'x1y0');
   var result5 = (ARCOLOGIES_GLOBAL_CELLS.x6y6.id === 'x6y6');
   var result6 = (ARCOLOGIES_GLOBAL_CELLS.x6y6.note === 51);
   var result = (result1 && result2 && result3 && result4 && result5 && result6) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;  
-}
-
-function testCycleRoutes() {
-  var name = 'testCycleRoutes';
-  var result = (cycleRoutes('shell') === 'all') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;  
 }
@@ -591,10 +569,10 @@ function testPrepareCellLeylines() {
   var name = 'testPrepareCellLeylines';
   ARCOLOGIES_GLOBAL_CELLS = { 
     'x1y0': { 'id' : 'x1y0', 'x': 1, 'y': 0}, 
-    'x1y1': { 'id' : 'x1y1', 'x': 1, 'y': 1, 'route': 'esw'}, 
+    'x1y1': { 'id' : 'x1y1', 'x': 1, 'y': 1, 'ports': ['e', 's', 'w']}, 
     'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3}, 
     'x1y6': { 'id' : 'x1y6', 'x': 1, 'y': 6}, 
-    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0, 'route': 'all'}, 
+    'x4y0': { 'id' : 'x4y0', 'x': 4, 'y': 0, 'ports': ['n', 'e', 's', 'w']}, 
     'x4y1': { 'id' : 'x4y1', 'x': 4, 'y': 1}, 
     'x4y3': { 'id' : 'x4y3', 'x': 4, 'y': 3}, 
     'x4y6': { 'id' : 'x4y6', 'x': 4, 'y': 6}, 
@@ -604,7 +582,7 @@ function testPrepareCellLeylines() {
     'x7y6': { 'id' : 'x7y6', 'x': 7, 'y': 6}, 
     'x7y4': { 'id' : 'x7y4', 'x': 7, 'y': 4}, 
     'x11y2': { 'id' : 'x11y2', 'x': 11, 'y': 2}, 
-    'x11y4': { 'id' : 'x11y4', 'x': 11, 'y': 4, 'route' : 'all'}, 
+    'x11y4': { 'id' : 'x11y4', 'x': 11, 'y': 4, 'ports' : ['n', 'e', 's', 'w']}, 
     'x11y7': { 'id' : 'x11y7', 'x': 11, 'y': 7}
     };
   
@@ -625,14 +603,14 @@ function testPrepareCellLeylines() {
 function testDrawLeylines() {
   var name = 'testDrawLeylines';
   ARCOLOGIES_GLOBAL_CELLS = { 
-    'x6y3': { 'id' : 'x6y3', 'x': 6, 'y': 3, 'route': 'all'}, 
-    'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3, 'route': 'esw'}, 
-    'x11y3': { 'id' : 'x11y3', 'x': 11, 'y': 3, 'route': 'nn'},  
-    'x6y1': { 'id' : 'x6y1', 'x': 6, 'y': 1, 'route': 'all'}, 
-    'x6y6': { 'id' : 'x6y6', 'x': 6, 'y': 6, 'route': 'shell'},
-    'x6y0': { 'id' : 'x6y0', 'x': 6, 'y': 0, 'route': 'nn'}, 
-    'x17y3': { 'id' : 'x17y3', 'x': 17, 'y': 3, 'route': 'ee'}, 
-    'x6y7': { 'id' : 'x6y7', 'x': 6, 'y': 7, 'route': 'ss'}, 
+    'x6y3': { 'id' : 'x6y3', 'x': 6, 'y': 3, 'ports': ['n', 'e', 's', 'w']}, 
+    'x1y3': { 'id' : 'x1y3', 'x': 1, 'y': 3, 'ports': ['e', 's', 'w']}, 
+    'x11y3': { 'id' : 'x11y3', 'x': 11, 'y': 3, 'ports': ['n']},  
+    'x6y1': { 'id' : 'x6y1', 'x': 6, 'y': 1, 'ports': ['n', 'e', 's', 'w']}, 
+    'x6y6': { 'id' : 'x6y6', 'x': 6, 'y': 6, 'ports': []},
+    'x6y0': { 'id' : 'x6y0', 'x': 6, 'y': 0, 'ports': ['n']}, 
+    'x17y3': { 'id' : 'x17y3', 'x': 17, 'y': 3, 'ports': ['e']}, 
+    'x6y7': { 'id' : 'x6y7', 'x': 6, 'y': 7, 'ports': ['s']}, 
     };
   var leylines = drawLeylines('x6y3');
   var result1 = (leylines[0][0] == 'drawLeyline');
@@ -669,10 +647,10 @@ function testIsMidiPaletteActive() {
   return result;
 }
 
-function testRollRandomRoute() {
-  var name = 'testRollRandomRoute';
-  var random = rollRandomRoute();
-  var result = (Array.isArray(random)) ? 'pass' : 'fail';
+function testRollRandomPort() {
+  var name = 'testRollRandomPort';
+  var random = rollRandomPort();
+  var result = (random.length == 1) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -682,9 +660,9 @@ function testGetCellsByStructure() {
   ARCOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
   ARCOLOGIES_GLOBAL_CELLS.x1y2.isExists = true;
   ARCOLOGIES_GLOBAL_CELLS.x1y3.isExists = true;
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.route = 'all';
-  ARCOLOGIES_GLOBAL_CELLS.x1y2.route = 'stop';
-  ARCOLOGIES_GLOBAL_CELLS.x1y3.route = 'nse';
+  ARCOLOGIES_GLOBAL_CELLS.x1y0.ports = ['n', 'e', 's', 'w'];
+  ARCOLOGIES_GLOBAL_CELLS.x1y2.ports = [];
+  ARCOLOGIES_GLOBAL_CELLS.x1y3.ports = ['n', 's', 'e'];
   ARCOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
   ARCOLOGIES_GLOBAL_CELLS.x1y2.x = 1;
   ARCOLOGIES_GLOBAL_CELLS.x1y3.x = 1;
@@ -711,9 +689,9 @@ function testBirthSignals() {
   ARCOLOGIES_GLOBAL_CELLS.x1y0.isExists = true;
   ARCOLOGIES_GLOBAL_CELLS.x2y7.isExists = true;
   ARCOLOGIES_GLOBAL_CELLS.x11y5.isExists = true;
-  ARCOLOGIES_GLOBAL_CELLS.x1y0.route = 'all';
-  ARCOLOGIES_GLOBAL_CELLS.x2y7.route = 'all';
-  ARCOLOGIES_GLOBAL_CELLS.x11y5.route = 'all';
+  ARCOLOGIES_GLOBAL_CELLS.x1y0.ports = ['n', 'e', 's', 'w'];
+  ARCOLOGIES_GLOBAL_CELLS.x2y7.ports = ['n', 'e', 's', 'w'];
+  ARCOLOGIES_GLOBAL_CELLS.x11y5.ports = ['n', 'e', 's', 'w'];
   ARCOLOGIES_GLOBAL_CELLS.x1y0.x = 1;
   ARCOLOGIES_GLOBAL_CELLS.x2y7.x = 2;
   ARCOLOGIES_GLOBAL_CELLS.x11y5.x = 11;
@@ -764,19 +742,6 @@ function testBirthSignals() {
     (signals.x1y1.y === 1) &&
     (signals.x1y1.direction === 's')
   ) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testEnrichWithRouteDirections() {
-  var name = 'testEnrichWithRouteDirections';
-  var hives = [{ 'route' : 'nes' }, { 'route' : 'ww' }];
-  var enriched =  enrichWithRouteDirections(hives);
-  var result1 = (enriched[0].routeDirections[0] === 'n');
-  var result2 = (enriched[0].routeDirections[1] === 'e');
-  var result3 = (enriched[0].routeDirections[2] === 's');
-  var result4 = (enriched[1].routeDirections[0] === 'w');
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -969,6 +934,7 @@ function testSetCell() {
   return result;
 }
 
+// wip
 function testCollide() {
   var name = 'testCollide';
   
@@ -976,22 +942,23 @@ function testCollide() {
 
   // test collide with a hive and all gates open: destroy the signal
   var signal1 = makeSignal(1, 1, 'w');
-  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'route': 'all', 'structure': 'hive', 'isExists': true});
+  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'ports': ['n', 'e', 's', 'w'], 'structure': 'hive', 'isExists': true});
 
-  // test collide with a gate from a closed route: destroy the signal
-  setCell('x5y5', {'id': 'x5y5', 'x': 5, 'y': 5, 'route': 'nn', 'structure': 'gate', 'isExists': true});
+  // test collide with a gate from a closed port: destroy the signal
+  setCell('x5y5', {'id': 'x5y5', 'x': 5, 'y': 5, 'ports': ['n'], 'structure': 'gate', 'isExists': true});
   var signal2 = makeSignal(5, 5, 'e');
   
-  // test collide with a gate from an open route: reroute the signal
+  // test collide with a gate from an open port: reroute the signal
   var signal3 = makeSignal(6, 6, 's');
-  setCell('x6y6', {'id': 'x6y6', 'x': 6, 'y': 6, 'route': 'nn', 'structure': 'gate', 'isExists': true});
+  setCell('x6y6', {'id': 'x6y6', 'x': 6, 'y': 6, 'ports': ['n'], 'structure': 'gate', 'isExists': true});
 
-  // test collide with a gate with multiple routes
+  // test collide with a gate with multiple ports
   // should result in: x10y4 n, x9y5 w, x11y5 e
   var signal4 = makeSignal(10, 5, 'n'); // entering from the south
-  setCell('x10y5', {'id': 'x10y5', 'x': 10, 'y': 5, 'route': 'all', 'structure': 'gate', 'isExists': true});
+  setCell('x10y5', {'id': 'x10y5', 'x': 10, 'y': 5, 'ports': ['n', 'e', 's', 'w'], 'structure': 'gate', 'isExists': true});
 
   var signals = { 'x1y1' : signal1, 'x5y5' : signal2, 'x6y6' : signal3, 'x10y5' : signal4 };
+
   var finalSurvivingSignals = collide(signals);
 
   var result1 = !getIds(finalSurvivingSignals).contains('x1y1');
@@ -1022,14 +989,15 @@ function testCollide() {
   return result;
 }
 
-function testEastToSouthRoute() {
-  var name = 'testEastToSouthRoute';
+// wip
+function testEastToSouthPort() {
+  var name = 'testEastToSouthPort';
   
   setGeneration(10);
 
   // test collide with a sw gate
   var signal = makeSignal(3, 0, 'e', 8, false);
-  setCell('x4y0', {'id': 'x4y0', 'x': 4, 'y': 0, 'route': 'sw', 'structure': 'gate', 'isExists': true});
+  setCell('x4y0', {'id': 'x4y0', 'x': 4, 'y': 0, 'ports': ['s', 'w'], 'structure': 'gate', 'isExists': true});
 
   var signals = { 'x4y0' : signal };
   setSignals(signals);
@@ -1048,14 +1016,14 @@ function testEastToSouthRoute() {
   return result;
 }
 
-function testNorthToNorthRoute() {
-  var name = 'testNorthToNorthRoute';
+function testNorthToNorthPort() {
+  var name = 'testNorthToNorthPort';
   
   setGeneration(10);
 
   // test collide with a ws gate
   var signal = makeSignal(1, 0, 's');
-  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'route': 'nn', 'structure': 'gate', 'isExists': true});
+  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'ports': ['n'], 'structure': 'gate', 'isExists': true});
 
   var signals = { 'x1y1' : signal };
   setSignals(signals);
@@ -1073,12 +1041,12 @@ function testNorthToNorthRoute() {
   return result;
 }
 
-function testRouteMatch() {
-  var name = 'testTestRouteMatch';
-  var result1 = !routeMatch(['n'], 'n');
-  var result2 = routeMatch(['n', 's'], 'n');
-  var result3 = routeMatch(['s'], 'n');
-  var result4 = !routeMatch(['n', 's', 'e', 'w'], 'x');
+function testPortMatch() {
+  var name = 'testTestPortMatch';
+  var result1 = !portMatch(['n'], 'n');
+  var result2 = portMatch(['n', 's'], 'n');
+  var result3 = portMatch(['s'], 'n');
+  var result4 = !portMatch(['n', 's', 'e', 'w'], 'x');
   var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
@@ -1269,7 +1237,7 @@ function testSuite() {
   results.push(testGetSignal());
   results.push(testGetSignalSpeed());
   results.push(testDeleteSignal());
-  results.push(testRollRandomRoute());
+  results.push(testRollRandomPort());
   results.push(testGetCellStructure());
   results.push(testArrayContains());
   results.push(testObjectSize());
@@ -1282,7 +1250,6 @@ function testSuite() {
   results.push(testOpenMidiPalette());
   results.push(testMidiPaletteEvent());
   results.push(testNoteArrayKey());
-  results.push(testGetRouteDirections());
   results.push(testDeselectCell());
   results.push(testSelectCell());
   results.push(testCloseQuickMenu());
@@ -1294,13 +1261,13 @@ function testSuite() {
   results.push(testOut());
 
   resetTestSuite();
-  results.push(testfieldEventOnEmptyCell());
+  results.push(testFieldEventOnEmptyCell());
 
   resetTestSuite();
   results.push(testGetExistingCells());
 
   resetTestSuite();
-  results.push(testDrawRoute());
+  results.push(testDrawPort());
 
   resetTestSuite();
   results.push(testdrawCells());
@@ -1310,9 +1277,6 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testMoveCell());
-
-  resetTestSuite();
-  results.push(testCycleRoutes());
 
   resetTestSuite();
   results.push(testDeleteCell());
@@ -1345,7 +1309,6 @@ function testSuite() {
 
   resetTestSuite();
   results.push(testBirthSignals());
-  results.push(testEnrichWithRouteDirections());
 
   resetTestSuite();
   results.push(testCancelCollidingSignals());
@@ -1374,13 +1337,13 @@ function testSuite() {
   results.push(testCollide());
 
   resetTestSuite();
-  results.push(testEastToSouthRoute());
+  results.push(testEastToSouthPort());
 
   resetTestSuite();
-  results.push(testNorthToNorthRoute());
+  results.push(testNorthToNorthPort());
 
   resetTestSuite();
-  results.push(testRouteMatch());
+  results.push(testPortMatch());
 
   resetTestSuite();
   results.push(testSignalJSONIntegrity());
@@ -1442,11 +1405,10 @@ function runTestSuite() {
 }
 
 function runSingleTest() {
-  try {
     resetTestSuite();
     console.log('+==================================+');
     var results = [];
-    results.push(testfieldEventOnEmptyCell());
+    results.push(testCollide());
     var counts = {};
     results.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
     if (results.contains('fail')) throw false;
@@ -1454,9 +1416,6 @@ function runSingleTest() {
     console.log('Single Results:');
     console.log(counts);
     console.log('+==================================+');
-  } catch(error) {
-    core.setFailed(error.message);
-  }
 }
 
 runTestSuite();

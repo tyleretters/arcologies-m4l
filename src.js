@@ -74,21 +74,25 @@ function fieldEvent(x, y) {
   var ids = getIds(existingCells);
 
   if (getSelectedCellId() && !ids.contains(id)) {
-    // we're pressing an empty cell, so deselect the cell
+    // we have a cell selected, we're pressing an empty cell, so deselect the cell
     deselectCell();
     returnToField();
 
   } else if (getSelectedCellId() === false && !ids.contains(id)) {
-    // no cell is selected and this cell doesn't exist so create it (via cycle...)
+    // no cell is selected and this cell doesn't exist so create it
+    initCell(id);
+    setCell(id, { 'isExists': true});
     selectCell(id, true);
     clearField();
-    cycleThroughFieldRoutes(x, y);    
+    // drawPorts(x, y);
+    drawLeylines(id);
     dumpSignalsAndCells()
 
   } else if (getSelectedCellId() == id) {
-    // we're pressing the already selected cell, so cycle through the routes
+    // we're pressing the already selected cell
     clearField();
-    cycleThroughFieldRoutes(x, y);
+    // drawPorts(x, y);
+    drawLeylines(id);
     dumpSignalsAndCells()
 
   } else if (getSelectedCellId() !== id && ids.contains(id)) {
@@ -96,7 +100,7 @@ function fieldEvent(x, y) {
     selectCell(id, true);
     clearField();
     drawLeylines(id);
-    out(drawRoute(id));
+    // drawPorts(id);
     dumpSignalsAndCells()
   }  
 
@@ -227,7 +231,7 @@ function cellSing(id) {
 function collide(signals) {
 
   var collisionResults = signals;
-  var cells = enrichWithRouteDirections(getExistingCells());
+  var cells = getExistingCells();
   var hives = getCellsByStructure('hive');
   var gates = getCellsByStructure('gate');
   var shrines = getCellsByStructure('shrine');
@@ -249,15 +253,15 @@ function collide(signals) {
     Object.keys(gatesAndNomads).forEach(function(gatesAndNomadsKey) {
      var thisCell = gatesAndNomads[gatesAndNomadsKey];
      var idMatch = (thisCell.id == thisSignal.id);
-     var isRouteMatch = routeMatch(thisCell.routeDirections, thisSignal.direction);
+     var isPortMatch = portMatch(thisCell.ports, thisSignal.direction);
 
-    // the cell and signal occupy the same spot, but the route/direction is not compatible
-    if (idMatch && !isRouteMatch) {
+    // the cell and signal occupy the same spot, but the port/direction is not compatible
+    if (idMatch && !isPortMatch) {
       delete collisionResults[thisSignal.id];
     }
 
     // this is a valid interaction
-    if (idMatch && isRouteMatch) {
+    if (idMatch && isPortMatch) {
       delete collisionResults[thisSignal.id];
       cellSing(thisCell.id);
       newSignals = Object.assign(routeSignals(thisCell, thisSignal), newSignals);
@@ -278,28 +282,28 @@ function routeSignals(cell, signal) {
   // a northbound will emerge next generation if the signal
   // did not enter from the south of the cell
   // unless it is it "nn" (u-turn) cell
-  if ((cell.routeDirections.contains('n') && (originSignal.direction != 's')) || cell.route == 'nn') {
+  if ((cell.ports.contains('n') && (originSignal.direction != 's')) || (cell.ports[0] == 'n' && cell.ports.length == 1)) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'n'));
   }
 
   // an eastbound signal will emerge next generation if the signal
   // did not enter from the west of the cell
   // OR it ee "u-turn"
-  if ((cell.routeDirections.contains('e') && (originSignal.direction != 'w')) || cell.route == 'ee') {
+  if ((cell.ports.contains('e') && (originSignal.direction != 'w')) || (cell.ports[0] == 'e' && cell.ports.length == 1)) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'e'));
   }
 
   // a southbound signal will emerge next generation if the signal
   // did not enter from the south of the cell
   // OR it ss "u-turn"
-  if ((cell.routeDirections.contains('s') && (originSignal.direction != 'n')) || cell.route == 'ss') {
+  if ((cell.ports.contains('s') && (originSignal.direction != 'n')) || (cell.ports[0] == 's' && cell.ports.length == 1)) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 's'));
   }
 
   // a westbound signal will emerge next generation if the signal
   // did not enter from the east of the cell
   // OR it ww "u-turn"
-  if ((cell.routeDirections.contains('w') && (originSignal.direction != 'e')) || cell.route == 'ww') {
+  if ((cell.ports.contains('w') && (originSignal.direction != 'e')) || (cell.ports[0] == 'w' && cell.ports.length == 1)) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'w'));
   }
 
@@ -309,11 +313,11 @@ function routeSignals(cell, signal) {
 // untested
 function cellRouteSignal(cell, originSignal, direction) {
   var cellRouteSignalResults = {};
-  var routeDirectionsLength = cell.routeDirections.length;
+  var portsLength = cell.ports.length;
 
-  for (i = 0; i < routeDirectionsLength; i++) {
+  for (i = 0; i < portsLength; i++) {
 
-    if (cell.routeDirections[i] == direction) {
+    if (cell.ports[i] == direction) {
       var uTurnSignal;
       if (direction == 'n') uTurnSignal = makeSignal( originSignal.x, originSignal.y - 1, 'n' );
       if (direction == 'e') uTurnSignal = makeSignal( originSignal.x + 1, originSignal.y, 'e' );
@@ -324,7 +328,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       continue;
     }
 
-    if (cell.routeDirections[i] == 's' && originSignal.direction != 'n') {      
+    if (cell.ports[i] == 's' && originSignal.direction != 'n') {      
       var northernSignal = makeSignal(
           originSignal.x,
           originSignal.y - 1,
@@ -335,7 +339,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       cellRouteSignalResults[northernSignal.id] = northernSignal;
     }
 
-    if (cell.routeDirections[i] == 'w' && originSignal.direction != 'e') {      
+    if (cell.ports[i] == 'w' && originSignal.direction != 'e') {      
       var easternSignal = makeSignal(
         originSignal.x + 1,
         originSignal.y,
@@ -346,7 +350,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       cellRouteSignalResults[easternSignal.id] = easternSignal;
     }
 
-    if (cell.routeDirections[i] == 'n' && originSignal.direction != 's') {      
+    if (cell.ports[i] == 'n' && originSignal.direction != 's') {      
       var southernSignal = makeSignal(
         originSignal.x,
         originSignal.y + 1,
@@ -357,7 +361,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       cellRouteSignalResults[southernSignal.id] = southernSignal;
     }
 
-    if (cell.routeDirections[i] == 'e' && originSignal.direction != 'w') {      
+    if (cell.ports[i] == 'e' && originSignal.direction != 'w') {      
       var westernSignal = makeSignal(
         originSignal.x - 1,
         originSignal.y,
@@ -369,20 +373,21 @@ function cellRouteSignal(cell, originSignal, direction) {
     }
 
   }
+
   return cellRouteSignalResults;
 
 }
 
 // tested
-// north direction matches south route
-// south direction matches north route
-// east direction matches west route
-// west direction matches east route
-function routeMatch(routes, direction) {
-  if (direction === 'n') return routes.contains('s');
-  if (direction === 'e') return routes.contains('w');
-  if (direction === 's') return routes.contains('n');
-  if (direction === 'w') return routes.contains('e');
+// north direction matches south port
+// south direction matches north port
+// east direction matches west port
+// west direction matches east port
+function portMatch(ports, direction) {
+  if (direction === 'n') return ports.contains('s');
+  if (direction === 'e') return ports.contains('w');
+  if (direction === 's') return ports.contains('n');
+  if (direction === 'w') return ports.contains('e');
   return false;
 }
 
@@ -474,7 +479,6 @@ function birthSignals() {
   var birthedSignals = {};
   var newSignals = [];
   var hives = getCellsByStructure('hive');
-  hives = enrichWithRouteDirections(hives);
 
   var hivesLength = hives.length;
 
@@ -483,7 +487,7 @@ function birthSignals() {
 
     if (!isHiveBirthing(thisHive.metabolism)) continue;
 
-    if (thisHive.routeDirections.contains('n')) {
+    if (thisHive.ports.contains('n')) {
       // one cell north means subtract one from the hive
       // check y against zero
       var y1 = thisHive.y - 1;
@@ -492,7 +496,7 @@ function birthSignals() {
       }
     }
 
-    if (thisHive.routeDirections.contains('e')) {
+    if (thisHive.ports.contains('e')) {
       // one cell east means add one to the hive
       // check x against grid width less one for zero index
       var x1 = thisHive.x + 1;
@@ -501,7 +505,7 @@ function birthSignals() {
       }
     }
 
-    if (thisHive.routeDirections.contains('s')) {
+    if (thisHive.ports.contains('s')) {
       // one cell south means add one to the hive
       // check y against grid height less one for zero index
       var y2 = thisHive.y + 1;
@@ -510,7 +514,7 @@ function birthSignals() {
       }
     }
 
-    if (thisHive.routeDirections.contains('w')) {
+    if (thisHive.ports.contains('w')) {
       // one cell west means subtract one from the hive
       // check x against 1
       var x2 = thisHive.x - 1;
@@ -632,23 +636,21 @@ function findRowNeighbor(currentCell, existingCells, direction) {
 function prepareCellLeylines(cellId) {
 
   var currentCell = getCell(cellId);
-  var currentCellRouteDirections = getRouteDirections(currentCell.route); // eg, ['n', 's']
   var existingCells = getExistingCells();
   var filteredTermini = [];
 
-  if (currentCellRouteDirections.contains('n')) {
+  if (currentCell.ports.contains('n')) {
     filteredTermini.push(findColumnNeighbor(currentCell, existingCells, 'north'));
   }
-  if (currentCellRouteDirections.contains('e')) {
+  if (currentCell.ports.contains('e')) {
     filteredTermini.push(findRowNeighbor(currentCell, existingCells, 'east'));
   }
-  if (currentCellRouteDirections.contains('s')) {
+  if (currentCell.ports.contains('s')) {
     filteredTermini.push(findColumnNeighbor(currentCell, existingCells, 'south'));
   }
-  if (currentCellRouteDirections.contains('w')) {
+  if (currentCell.ports.contains('w')) {
     filteredTermini.push(findRowNeighbor(currentCell, existingCells, 'west'));
   }
-
   var cellLeylines = [];
   for (var i = 0; i < filteredTermini.length; i++) {
     cellLeylines.push(['drawLeyline', currentCell.x, currentCell.y, filteredTermini[i].x, filteredTermini[i].y]);
@@ -659,26 +661,25 @@ function prepareCellLeylines(cellId) {
 
 // untested
 // wip need to replace, probably with a 'updatePorts'
-function cycleThroughFieldRoutes(x, y) {
+function drawPorts(x, y) {
   
   var cell = getCellByCoords(x, y);
   var id = makeId(x, y);
 
-  if (!cell.isExists) {
-    setCell(id,
-      { 
-        'structure' : getGlobalStructure(), 
-        'metabolism' : getGlobalMetabolism(), 
-        'route' : 'all', 
-        'isExists' : true 
-      } 
-    );
-  } else {
-    setCell(id, { 'route' : cycleRoutes(cell.route) });
-  }
+  // if (!cell.isExists) {
+  //   setCell(id,
+  //     { 
+  //       'structure' : getGlobalStructure(), 
+  //       'metabolism' : getGlobalMetabolism(), 
+  //       'port' : [], 
+  //       'isExists' : true 
+  //     } 
+  //   );
+  // } else {
+  //   setCell(id, { 'port' : getCell... laksjdlkf [] });
+  // }
 
-  drawLeylines(id); // eh?
-  out(drawRoute(id));
+  // out(drawPorts(id));
 
 }
 
@@ -725,8 +726,7 @@ function drawLeylines(id) {
 
   var cell = getCell(id);
   
-  if (cell.route == 'off') return;
-  if (cell.route == 'shell') return;
+  if (cell.ports.length == 0) return;
 
   var leylines = [];
   leylines = leylines.concat(prepareCellLeylines(cell.id));
@@ -765,11 +765,28 @@ function drawLeyline(arr) {
   return arr;
 }
 
-// tested
-// wip need to update for ports
-function drawRoute(id) {
+// wip but tested
+function drawPort(id, port) {
   var cell = getCell(id);
-  return ['drawRoute', cell.route, cell.x, cell.y];
+  var portX = 0;
+  var portY = 0;
+  if (port == 'n') {
+    portX = cell.x;
+    portY = cell.y - 1;
+  }
+  if (port == 'e') {
+    portX = cell.x + 1;
+    portY = cell.y;
+  }
+  if (port == 's') {
+    portX = cell.x;
+    portY = cell.y + 1;
+  }
+  if (port == 'w') {
+    portX = cell.x - 1;
+    portY = cell.y;
+  }
+  return ['drawPort', cell.x, cell.y, portX, portY];
 }
 
 // tested
@@ -940,10 +957,7 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.globalStructure = 'hive';
   ARCOLOGIES_GLOBAL_STATE.structures = ['hive', 'gate', 'shrine'];
   ARCOLOGIES_GLOBAL_STATE.globalMetabolism = 4;
-  ARCOLOGIES_GLOBAL_STATE.routes = [
-    'all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn',
-    'wne', 'nn', 'ee', 'ss', 'ww', 'home', 'random', 'shell', 'off'
-  ];
+  ARCOLOGIES_GLOBAL_STATE.ports = [ 'n', 'e', 's', 'w'];
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
   ARCOLOGIES_GLOBAL_STATE.signalSpeed = 1;
   ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
@@ -982,7 +996,7 @@ function initCell(x, y) {
     isExists: false,
     x: x,
     y: y,
-    route: 'off',
+    ports: [],
     structure: getGlobalStructure(),
     note: getGlobalMidiNote(),
     metabolism: getGlobalMetabolism(),
@@ -1091,7 +1105,7 @@ function moveCell(originId, destinationId) {
   // write the destination then erase the origin
   var destination = {
     'isExists' : true,
-    'route' : getCell(originId).route,
+    'ports' : getCell(originId).ports,
     'structure' : getCell(originId).structure,
     'note' : getCell(originId).note
   };
@@ -1188,70 +1202,9 @@ function getSignal(x, y) {
 }
 
 // tested
-// wip - how will random work in a routeless world? out of open ports only?
-function rollRandomRoute() {
-  var routes = ['all', 'ne', 'se', 'sw', 'nw', 'ns', 'ew', 'nes', 'esw', 'swn', 'wne', 'nn', 'ee', 'ss', 'ww', 'shell'];
-  return getRouteDirections(routes[ Math.floor(Math.random() * routes.length)]);
-}
-
-// tested
-// wip - to delete since this isn't a thing anymore
-function cycleRoutes(route) {
-  // this pattern is hardcoded for the user's benefit
-  // (i don't want errant array sorting changing it)
-  if  (route === 'all')    return 'ne';
-  if  (route === 'ne')     return 'se';
-  if  (route === 'se')     return 'sw';
-  if  (route === 'sw')     return 'nw';
-  if  (route === 'nw')     return 'ns';
-  if  (route === 'ns')     return 'ew';
-  if  (route === 'ew')     return 'nes';
-  if  (route === 'nes')    return 'esw';
-  if  (route === 'esw')    return 'swn';
-  if  (route === 'swn')    return 'wne';
-  if  (route === 'wne')    return 'nn';
-  if  (route === 'nn')     return 'ee';
-  if  (route === 'ee')     return 'ss';
-  if  (route === 'ss')     return 'ww';
-  if  (route === 'ww')     return 'random';
-  if  (route === 'random') return 'shell';
-  if  (route === 'shell')  return 'all';
-  return 'all';
-}
-
-// tested
-// wip - to delete since this isn't a thing anymore
-function getRouteDirections(route) {
-  if  (route == 'all')    return ['n', 'e', 's', 'w'];
-  if  (route == 'ne')     return ['n', 'e'];
-  if  (route == 'se')     return ['s', 'e'];
-  if  (route == 'sw')     return ['s', 'w'];
-  if  (route == 'nw')     return ['n', 'w'];
-  if  (route == 'ns')     return ['n', 's'];
-  if  (route == 'ew')     return ['e', 'w'];
-  if  (route == 'nes')    return ['n', 'e', 's'];
-  if  (route == 'esw')    return ['e', 's', 'w'];
-  if  (route == 'swn')    return ['s', 'w', 'n'];
-  if  (route == 'wne')    return ['w', 'n', 'e'];
-  if  (route == 'nn')     return ['n'];
-  if  (route == 'ee')     return ['e'];
-  if  (route == 'ss')     return ['s'];
-  if  (route == 'ww')     return ['w'];
-  if  (route == 'random') return ['n', 'e', 's', 'w'];
-  if  (route == 'shell')  return [];
-  if  (route == 'off')    return [];
-  return  [];
-}
-
-// tested
-// wip - to delete since this isn't a thing anymore
-function enrichWithRouteDirections(cells) {
-  Object.keys(cells).forEach(function(key) {
-    var cell = cells[key];
-    var routeDirections = (cell.route === 'random') ? rollRandomRoute() : getRouteDirections(cell.route);
-    cells[key].routeDirections = routeDirections;
-  });
-  return cells;
+function rollRandomPort() {
+  var ports = ['n', 'e', 's', 'w'];
+  return ports[ Math.floor(Math.random() * ports.length)];
 }
 
 // tested
