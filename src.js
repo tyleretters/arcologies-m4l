@@ -36,10 +36,7 @@ function advance() {
   var finalSignals;
   var existingCells;
 
-  // the hives sing...
-  hivesSing();
-
-  // their glorious birth...
+  // the hives give birth...
   birthedSignals = birthSignals();
 
   // & everything moves...
@@ -48,33 +45,31 @@ function advance() {
   // ...unless there's nothing to move...
   if (existingSignals === undefined) return; 
   
-  // & some things die but some things also sing...
+  // & some signals die but some shrines also sing...
   propagatedSignals = propagateSignals(existingSignals);
 
-  // & some more things die...
+  // & some more signals die...
   survivingSignals = cancelOutOfBoundsSignals(propagatedSignals);
   survivingSignals = cancelCollidingSignals(birthedSignals, survivingSignals);
 
-  // & things are at rest
+  // & everything is at rest
   setSignals(survivingSignals);
 
   // & if the weather is just so, we get to see it all from above
-  if (!getSelectedCellId() && !isQuickMenuActive() && !isMidiPaletteActive()) {
-    // only redraw when a cell isn't selected, the cell menu  isn't active, or the palette isn't active
+  if (!getSelectedCellId() && !isQuickMenuActive()) {
+    // only redraw when a cell isn't selected, the quick menu isn't active
     returnToField();
   }
 
 }
 
-// tested
+// paritally tested
 function fieldEvent(x, y) {
 
   var fieldId = makeId(x, y);
   var existingCells = getExistingCells();
   var ids = getIds(existingCells);
   var cellId = getSelectedCellId();
-
-
 
   if (cellId && isAdjacentPort(getCell(cellId), x, y)) {
     // we have a cell selected, we're pressing a port
@@ -117,13 +112,13 @@ function fieldEvent(x, y) {
 
 }
 
-// untested
+// untestable
 function returnToField() {
   clearField();
   dumpSignalsAndCells();
 }
 
-// untested
+// untestable
 function dumpSignalsAndCells() {
     dumpExistingCells();
     drawCells();
@@ -131,15 +126,22 @@ function dumpSignalsAndCells() {
     drawSignals();
 }
 
-// wip
-function inspect(val) {
-  clearField();
-  noBlinkSelectedCell();
-  if (val == 'signals'); // draw signals
-  if (val == 'hives') drawCells('hives');
-  if (val == 'gates') drawCells('gates');
-  if (val == 'shrines') drawCells('shrines');
-  if (val == 'leylines'); // draw leylines
+// untestable
+function inspectorPaletteEvent(y, z) {
+  if (z == 0) {
+    returnToField();
+    if(getSelectedCellId()) {
+      selectCell(getSelectedCellId(), true);
+    }
+  }
+  if (z == 1) {
+    clearField();
+    noBlinkSelectedCell();    
+    if (y == 2) drawCells('shrines');
+    if (y == 3) drawCells('gates');
+    if (y == 4) drawCells('hives');
+  }
+  
 }
 
 // tested
@@ -200,28 +202,8 @@ function structurePaletteEvent(y) {
  * ==============================================================================
  */
 
-// untested
-function hivesSing() {
-
-  var hiveChorus = ['playMidi'];
-  var hives = getCellsByStructure('hive');
-
-  Object.keys(hives).forEach(function(key) {
-    var thisHive = hives[key];
-    var note = isHiveBirthing(thisHive.metabolism) ? thisHive.note : false;
-    if (note) {
-      hiveChorus.push(note);
-    }
-  });
-
-  if (hiveChorus.length > 1) {
-    out(hiveChorus);
-  }
-
-}
-
-// untested
-function cellSing(id) {
+// tested
+function playMidi(id) {
 
   var cellNote = ['playMidi', getCell(id).note];
   
@@ -274,8 +256,10 @@ function collide(signals) {
     // this is a valid interaction
     if (idMatch && isPortMatch) {
       delete collisionResults[thisSignal.id];
-      cellSing(thisCell.id);
       newSignals = Object.assign(routeSignals(thisCell, thisSignal), newSignals);
+      if (thisCell.structure == 'shrine') {
+        playMidi(thisCell.id);
+      }
     }
 
     });
@@ -777,7 +761,6 @@ function drawCells(structure) {
   }
 
   if (isOutletsOn()) {
-    dumpExistingCells();
     out(arr);
   } else {
     return arr;
@@ -892,6 +875,16 @@ function closeQuickMenu() {
 }
 
 // tested
+function openInspectorPalette() {
+  setInspectorPalette(true);
+}
+
+// tested
+function closeInspectorPalette() {
+  setInspectorPalette(false);
+}
+
+// tested
 function openMidiPalette() {
   setMidiPalette(true);
 }
@@ -946,7 +939,6 @@ var ARCOLOGIES_GLOBAL_CELLS = {};
 var ARCOLOGIES_GLOBAL_SIGNALS = {};
 
 // tested by proxy
-// wip need to update for ports
 function init() {
   ARCOLOGIES_GLOBAL_STATE = null;
   ARCOLOGIES_GLOBAL_STATE = {};
@@ -960,12 +952,10 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.globalMetabolism = 4;
   ARCOLOGIES_GLOBAL_STATE.ports = [ 'n', 'e', 's', 'w'];
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
-  ARCOLOGIES_GLOBAL_STATE.signalSpeed = 1;
-  ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
+  ARCOLOGIES_GLOBAL_STATE.isInspectorPaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive = false;  
   ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = false;
-
 }
 
 // tested by proxy
@@ -1032,8 +1022,8 @@ function setCell(id, obj) {
 }
 
 // tested
-function setQuickMenu(val) {
-  ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = val;
+function setInspectorPalette(val) {
+  ARCOLOGIES_GLOBAL_STATE.isInspectorPaletteActive = val;
 }
 
 // tested
@@ -1354,11 +1344,6 @@ function getHeight() {
 }
 
 // tested
-function getSignalSpeed() {
-  return ARCOLOGIES_GLOBAL_STATE.signalSpeed;
-}
-
-// tested
 function getGeneration() {
   return ARCOLOGIES_GLOBAL_STATE.generation;
 }
@@ -1375,7 +1360,17 @@ function getSelectedCellId() {
 
 // tested
 function isQuickMenuActive() {
-  return ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive;
+  return (
+    isInspectorPaletteActive() &&
+    isStructurePaletteActive() &&
+    isMetabolismPaletteActive () &&
+    isMidiPaletteActive()
+  );
+}
+
+// tested
+function isInspectorPaletteActive() {
+  return ARCOLOGIES_GLOBAL_STATE.isInspectorPaletteActive;
 }
 
 // tested
@@ -1423,7 +1418,7 @@ function isOutletsOn() {
  * ==============================================================================
  */
 
-// wip
+// tested
 Array.prototype.remove = function() {
   var what, a = arguments, L = a.length, ax;
   while (L && this.length) {
@@ -1446,7 +1441,7 @@ Array.prototype.contains = function(obj) {
   return false;
 };
 
-// wip - replace for loops with this
+// tested
 Array.prototype.forEach = function forEach(callback, thisArg) {
   if (typeof callback !== 'function') {
     throw new TypeError(callback + ' is not a function');

@@ -103,13 +103,6 @@ function testMakeSignal() {
   return result;
 }
 
-function testGetSignalSpeed() {
-  var name = 'testGetSignalSpeed';
-  var result = (getSignalSpeed() === 1)  ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testDeleteSignal() {
   var name = 'testDeleteSignal';
   makeSignal(1, 1, 'w');
@@ -131,6 +124,27 @@ function testArrayContains() {
   var name = 'testArrayContains';
   var bucket = [1, 2, 3, 4, 5];
   var result = (bucket.contains(5)) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testArrayRemove() {
+  var name = 'testArrayRemove';
+  var bucket = ['cheese', 'salami'];
+  bucket.remove('cheese');
+  var result = (bucket[0] == 'salami') ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testArrayForEach() {
+  var name = 'testArrayForEach';
+  var bucket = ['c', 2, 3, 4, 5];
+  var result = '';
+  bucket.forEach(function(item) { 
+    result += item; 
+  });
+  var result = (result == 'c2345') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -193,14 +207,6 @@ function testSetGeneration() {
   return result;
 }
 
-function testOpenQuickMenu() {
-  var name = 'testOpenQuickMenu';
-  openQuickMenu();
-  var result = (ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive === true) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testOpenMidiPalette() {
   var name = 'testOpenMidiPalette';
   var msg = openMidiPalette();
@@ -252,15 +258,6 @@ function testSelectCell() {
   var name = 'testSelectCell';
   selectCell('x6y3');
   var result = (ARCOLOGIES_GLOBAL_STATE.selectedCellId === 'x6y3') ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testCloseQuickMenu() {
-  var name = 'testCloseQuickMenu';
-  openQuickMenu();
-  closeQuickMenu();
-  var result = (ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive === false) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1078,16 +1075,6 @@ function testSignalJSONIntegrity() {
   return result;
 }
 
-function testSetQuickMenu() {
-  var name = 'testSetQuickMenu';
-  var result1 = isQuickMenuActive();
-  setQuickMenu(true);
-  var result2 = isQuickMenuActive();
-  var result = (result1 == false && result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testNoBlinkSelectedCell() {
   var name = 'testNoBlinkSelectedCell';
   var result = (noBlinkSelectedCell() == 'noBlinkSelectedCell') ? 'pass' : 'fail';
@@ -1244,6 +1231,34 @@ function testTogglePort() {
 }
 
 
+function testOpenCloseInspectorPalette() {
+  var name = 'testOpenCloseInspectorPalette';
+  openInspectorPalette();
+  var result1 = isInspectorPaletteActive();
+  closeInspectorPalette();
+  var result2 = isInspectorPaletteActive();
+  var result = (result1 && !result2) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testSetInspectorPalette() {
+  var name = 'testSetInspectorPalette';
+  setInspectorPalette(true);
+  var result = (isInspectorPaletteActive()) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
+function testPlayMidi() {
+  var name = 'testPlayMidi';
+  initCell('x1y1');
+  setCell('x1y1', { 'note' : 78 });
+  var result = (playMidi('x1y1')[1] == 78) ? 'pass' : 'fail';
+  testOutput(name, result);
+  return result;
+}
+
 /*
  * Orchestration
  * ============================================================================
@@ -1272,24 +1287,23 @@ function testSuite() {
   results.push(testGetCell());
   results.push(testMakeSignal());
   results.push(testGetSignal());
-  results.push(testGetSignalSpeed());
   results.push(testDeleteSignal());
   results.push(testRollRandomPort());
   results.push(testGetCellStructure());
   results.push(testArrayContains());
+  results.push(testArrayRemove());
+  results.push(testArrayForEach());
   results.push(testObjectSize());
   results.push(testInitCells());
   results.push(testSetMidiPalette());
   results.push(testSetWidth());
   results.push(testSetHeight());
   results.push(testSetGeneration());
-  results.push(testOpenQuickMenu());
   results.push(testOpenMidiPalette());
   results.push(testMidiPaletteEvent());
   results.push(testNoteArrayKey());
   results.push(testDeselectCell());
   results.push(testSelectCell());
-  results.push(testCloseQuickMenu());
   results.push(testCloseMidiPalette());
   results.push(testOutletsOnOff());
   results.push(testClearField());
@@ -1386,9 +1400,6 @@ function testSuite() {
   results.push(testSignalJSONIntegrity());
 
   resetTestSuite();
-  results.push(testSetQuickMenu());
-
-  resetTestSuite();
   results.push(testNoBlinkSelectedCell());
 
   resetTestSuite();
@@ -1411,6 +1422,14 @@ function testSuite() {
   results.push(testDrawStructure());
   results.push(testIsAdjacentPort());
   results.push(testTogglePort());
+
+  resetTestSuite();
+  results.push(testOpenCloseInspectorPalette());
+  results.push(testSetInspectorPalette());
+  results.push(testOpenCloseInspectorPalette());
+
+  resetTestSuite();
+  results.push(testPlayMidi());
 
   return results;
 }
