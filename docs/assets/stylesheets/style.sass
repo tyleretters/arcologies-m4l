@@ -1,3 +1,5 @@
+$black: #000000
+
 .sans-serif
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif
 
@@ -29,13 +31,9 @@ a:link,
 a:visited
   text-decoration: underline
 
-a:hover,
-a:active
-
-
 hr
   margin-top: 0
-  border-top: 1px solid #000000
+  border-top: 1px solid $black
 
 img
   max-width: 100%
@@ -63,6 +61,7 @@ a.download
   text-decoration: none
 
 #toc
+  @extend .monospace
   position: sticky
   top: 4rem
   height: calc(100vh - 4rem)
