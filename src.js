@@ -120,10 +120,10 @@ function returnToField() {
 
 // untestable
 function dumpSignalsAndCells() {
-    dumpExistingCells();
-    drawCells();
     dumpSignals();
     drawSignals();
+    dumpExistingCells();
+    drawCells();    
 }
 
 // untestable
@@ -274,56 +274,41 @@ function routeSignals(cell, signal) {
   var originSignal = signal;
   if (cell.id != originSignal.id) return; // defensive coding, should never happen
 
-  // a northbound will emerge next generation if the signal
-  // did not enter from the south of the cell
-  // unless it is it "nn" (u-turn) cell
-  if ((cell.ports.contains('n') && (originSignal.direction != 's')) || (cell.ports[0] == 'n' && cell.ports.length == 1)) {
+  // a northbound signal will emerge next generation if the signal
+  // did not enter from the northern port (it was going south)
+  if ((cell.ports.contains('n') && (originSignal.direction != 'n'))) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'n'));
   }
 
   // an eastbound signal will emerge next generation if the signal
-  // did not enter from the west of the cell
-  // OR it ee "u-turn"
-  if ((cell.ports.contains('e') && (originSignal.direction != 'w')) || (cell.ports[0] == 'e' && cell.ports.length == 1)) {
+  // did not enter from the eastern port (it was going west)
+  if ((cell.ports.contains('e') && (originSignal.direction != 'e'))) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'e'));
   }
 
   // a southbound signal will emerge next generation if the signal
-  // did not enter from the south of the cell
-  // OR it ss "u-turn"
-  if ((cell.ports.contains('s') && (originSignal.direction != 'n')) || (cell.ports[0] == 's' && cell.ports.length == 1)) {
+  // did not enter from the sourthern port (it was going north)
+  if ((cell.ports.contains('s') && (originSignal.direction != 's'))) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 's'));
   }
 
   // a westbound signal will emerge next generation if the signal
-  // did not enter from the east of the cell
-  // OR it ww "u-turn"
-  if ((cell.ports.contains('w') && (originSignal.direction != 'e')) || (cell.ports[0] == 'w' && cell.ports.length == 1)) {
+  // did not enter from the western port (it was going east)
+  if ((cell.ports.contains('w') && (originSignal.direction != 'w'))) {
     newSignals = Object.assign(newSignals, cellRouteSignal(cell, originSignal, 'w'));
   }
 
   return newSignals;
 }
 
-// untested
+// tested (via testCollide)
 function cellRouteSignal(cell, originSignal, direction) {
   var cellRouteSignalResults = {};
   var portsLength = cell.ports.length;
 
   for (i = 0; i < portsLength; i++) {
 
-    if (cell.ports[i] == direction) {
-      var uTurnSignal;
-      if (direction == 'n') uTurnSignal = makeSignal( originSignal.x, originSignal.y - 1, 'n' );
-      if (direction == 'e') uTurnSignal = makeSignal( originSignal.x + 1, originSignal.y, 'e' );
-      if (direction == 's') uTurnSignal = makeSignal( originSignal.x, originSignal.y + 1, 's' );
-      if (direction == 'w') uTurnSignal = makeSignal( originSignal.x - 1, originSignal.y, 'w' );
-      uTurnSignal.generation = getGeneration() + 1;
-      cellRouteSignalResults[uTurnSignal.id] = uTurnSignal;
-      continue;
-    }
-
-    if (cell.ports[i] == 's' && originSignal.direction != 'n') {      
+    if (cell.ports[i] == 'n' && originSignal.direction != 's') {      
       var northernSignal = makeSignal(
           originSignal.x,
           originSignal.y - 1,
@@ -334,7 +319,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       cellRouteSignalResults[northernSignal.id] = northernSignal;
     }
 
-    if (cell.ports[i] == 'w' && originSignal.direction != 'e') {      
+    if (cell.ports[i] == 'e' && originSignal.direction != 'w') {      
       var easternSignal = makeSignal(
         originSignal.x + 1,
         originSignal.y,
@@ -345,7 +330,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       cellRouteSignalResults[easternSignal.id] = easternSignal;
     }
 
-    if (cell.ports[i] == 'n' && originSignal.direction != 's') {      
+    if (cell.ports[i] == 's' && originSignal.direction != 'n') {      
       var southernSignal = makeSignal(
         originSignal.x,
         originSignal.y + 1,
@@ -356,7 +341,7 @@ function cellRouteSignal(cell, originSignal, direction) {
       cellRouteSignalResults[southernSignal.id] = southernSignal;
     }
 
-    if (cell.ports[i] == 'e' && originSignal.direction != 'w') {      
+    if (cell.ports[i] == 'w' && originSignal.direction != 'e') {      
       var westernSignal = makeSignal(
         originSignal.x - 1,
         originSignal.y,

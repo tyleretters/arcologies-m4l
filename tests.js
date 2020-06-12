@@ -934,7 +934,6 @@ function testSetCell() {
   return result;
 }
 
-// wip
 function testCollide() {
   var name = 'testCollide';
   
@@ -950,7 +949,7 @@ function testCollide() {
   
   // test collide with a gate from an open port: reroute the signal
   var signal3 = makeSignal(6, 6, 's');
-  setCell('x6y6', {'id': 'x6y6', 'x': 6, 'y': 6, 'ports': ['n'], 'structure': 'gate', 'isExists': true});
+  setCell('x6y6', {'id': 'x6y6', 'x': 6, 'y': 6, 'ports': ['n', 'e'], 'structure': 'gate', 'isExists': true});
 
   // test collide with a gate with multiple ports
   // should result in: x10y4 n, x9y5 w, x11y5 e
@@ -965,9 +964,9 @@ function testCollide() {
   var result2 = !getIds(finalSurvivingSignals).contains('x5y5');
   var result3 = !getIds(finalSurvivingSignals).contains('x6y6');
 
-  var result4a = getIds(finalSurvivingSignals).contains('x6y5');
-  var result4b = (finalSurvivingSignals.x6y5.direction == 'n');
-  var result4c = (finalSurvivingSignals.x6y5.generation == 11);
+  var result4a = getIds(finalSurvivingSignals).contains('x7y6');
+  var result4b = (finalSurvivingSignals.x7y6.direction == 'e');
+  var result4c = (finalSurvivingSignals.x7y6.generation == 11);
 
   var result5a = getIds(finalSurvivingSignals).contains('x10y4');
   var result5b = (finalSurvivingSignals.x10y4.direction == 'n');
@@ -989,7 +988,6 @@ function testCollide() {
   return result;
 }
 
-// wip
 function testEastToSouthPort() {
   var name = 'testEastToSouthPort';
   
@@ -999,12 +997,11 @@ function testEastToSouthPort() {
   var signal = makeSignal(3, 0, 'e', 8, false);
   setCell('x4y0', {'id': 'x4y0', 'x': 4, 'y': 0, 'ports': ['s', 'w'], 'structure': 'gate', 'isExists': true});
 
-  var signals = { 'x4y0' : signal };
+  var signals = { 'x3y0' : signal };
   setSignals(signals);
 
   advance();
   finalSurvivingSignals = getSignals();
-
   var result1 = getIds(finalSurvivingSignals).contains('x4y1');
   var result2 = (finalSurvivingSignals.x4y1.direction == 's');
   var result3 = (finalSurvivingSignals.x4y1.generation == 11);
@@ -1021,9 +1018,9 @@ function testNorthToNorthPort() {
   
   setGeneration(10);
 
-  // test collide with a ws gate
+  // test collide with a nn gate - destroy the signal
   var signal = makeSignal(1, 0, 's');
-  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'ports': ['n'], 'structure': 'gate', 'isExists': true});
+  setCell('x1y1', {'id': 'x1y1', 'x': 1, 'y': 1, 'ports': ['n'], 'structure': 'shrine', 'isExists': true});
 
   var signals = { 'x1y1' : signal };
   setSignals(signals);
@@ -1032,11 +1029,9 @@ function testNorthToNorthPort() {
 
   var finalSurvivingSignals = getSignals();
 
-  var result1 = getIds(finalSurvivingSignals).contains('x1y0');
-  var result2 = (finalSurvivingSignals.x1y0.direction == 'n');
-  var result3 = (finalSurvivingSignals.x1y0.generation == 11);
-  var result4 = !getIds(finalSurvivingSignals).contains('x1y1');
-  var result = (result1 && result2 && result3 && result4) ? 'pass' : 'fail';
+  var result1 = !getIds(finalSurvivingSignals).contains('x1y0');
+  var result2 = !getIds(finalSurvivingSignals).contains('x1y1');
+  var result = (result1 && result2) ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
