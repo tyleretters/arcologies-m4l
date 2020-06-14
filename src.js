@@ -59,6 +59,7 @@ function advance() {
   if (!getSelectedCellId() && !isQuickMenuActive()) {
     // only redraw when a cell isn't selected, the quick menu isn't active
     returnToField();
+    setGeneration(getGeneration() + 1);
   }
 
 }
@@ -810,8 +811,56 @@ var inlets = 1;
 var outlets = 1;
 
 // untested
+function exportArcology() {
+  if (typeof Dict == 'undefined') return;
+  var d = new Dict('exportImport');
+  d.quiet = true;
+  d.clear();
+  var exportArcology = {
+    'metadata': {
+      'name': 'arcologies',
+      'arcologyStructure': 'v1',
+      'docs': 'https://tyleretters.github.io/arcologies',
+      'notes': 'Add your arcologist notes here with a text editor.'
+    },
+    'globalState': ARCOLOGIES_GLOBAL_STATE,
+    'existingCells': getExistingCells(),
+    'signals': getSignals()
+  };
+  d.parse(JSON.stringify(exportArcology));
+  out('exportArcology');
+}
+
+// untested
+function importArcology() {
+  if (typeof Dict == 'undefined') return;
+  var d = new Dict('exportImport');
+  d.quiet = false;
+  d.import_json();
+  if (
+    !d.contains('metadata') ||
+    !d.contains('globalState') ||
+    !d.contains('existingCells') ||
+    !d.contains('signals')) {
+    post('Error, unsupported arcology format.');  
+    return;
+  }
+  if (
+    d.get('metadata::name') != 'arcologies' || 
+    d.get('metadata::arcologyStructure') != 'v1') {
+    post('Error, unsupported arcology format.');
+    return;
+  }
+  init();
+  initSignals();
+  initCells();
+  out('importArcology');
+  returnToField();
+}
+
+// untested
 function dumpGlobalState() {
-  if (typeof Dict == "undefined") return;
+  if (typeof Dict == 'undefined') return;
   var d = new Dict('globalState');
   d.quiet = false;
   d.clear();
@@ -822,7 +871,7 @@ function dumpGlobalState() {
 
 // untested
 function dumpExistingCells() {
-  if (typeof Dict == "undefined") return;  
+  if (typeof Dict == 'undefined') return;  
   var d = new Dict('existingCells');
   d.quiet = false;
   d.clear();
@@ -832,7 +881,7 @@ function dumpExistingCells() {
 
 // untested
 function dumpSignals() {
-  if (typeof Dict == "undefined") return;  
+  if (typeof Dict == 'undefined') return;  
   var d = new Dict('signals');
   d.quiet = false;
   d.clear();
