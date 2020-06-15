@@ -1093,8 +1093,8 @@ function testSetGetGlobalStructure() {
   return result;
 }
 
-function testDrawMetabolism() {
-  var name = 'drawMetabolismFrom';
+function testDrawMetabolismFromJs() {
+  var name = 'testDrawMetabolismFromJs';
   msg1 = drawMetabolism();
   selectCell('x1y1');
   msg2 = drawMetabolism('x1y1');
@@ -1402,7 +1402,7 @@ function testSuite() {
   results.push(testSetGetGlobalStructure());
 
   resetTestSuite();
-  results.push(testDrawMetabolism());
+  results.push(testDrawMetabolismFromJs());
   results.push(testOpenCloseMetabolismPalette());
   results.push(testSetMetabolismPalette());
   results.push(testMetabolismPaletteEvent());

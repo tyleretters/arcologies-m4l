@@ -3,11 +3,13 @@ layout: default
 ---
 
 <div id="download" class="py-5 text-center">
-    <h1 class="arcologies">arcologies</h1>
-    <div class="tagline mb-3">{{ site.description }}</div>
-    <a class="download btn btn-primary btn-lg" href="https://github.com/tyleretters/arcologies/releases/download/v0.3-beta/arcologies-BETA-v0.3.Project.zip"><i class="fas fa-download"></i> Download Beta v0.3</a>
-    <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Huge UI, behavior, and core lexicon overhaul in v0.3. Please re-read the docs if you're coming in from v0.2!</p>
+  <h1 class="arcologies">arcologies</h1>
+  <div class="tagline mb-3">{{ site.description }}</div>
+  <a class="download btn btn-primary btn-lg" href="https://github.com/tyleretters/arcologies/releases/download/v0.3-beta/arcologies-BETA-v0.3.Project.zip"><i class="fas fa-download"></i> Download Beta v0.3</a>
+  <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Huge UI, behavior, and core lexicon overhaul in v0.3. Please re-read the docs if you're coming in from v0.2!</p>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -35,11 +37,12 @@ layout: default
   </div>
 </div>
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h2 id="installation">Installation</h2>
     <hr>
-
     <div class="row">
       <div class="col-lg-6 col-sm-12">
         <p>Double click the M4L device to install it.</p>
@@ -54,6 +57,8 @@ layout: default
   </div>
 </div>
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h2 id="concepts">Concepts</h2>
@@ -67,19 +72,15 @@ layout: default
       </thead>
       <tbody>
       <tr>
-        <td>Field</td>
-        <td>This is your canvas. Your grid is now a field where cells live, leylines wind, and signals propagate. The field encapsulates everything except the quick menu.</td>
-      </tr>
-      <tr>
-        <td>Quick Menu</td>
-        <td>The first column of your grid. For doing menu-y things.</td>
-      </tr>
-      <tr>
-        <td>Cell</td>
+        <td><a href="#cells">Cells</a></td>
         <td>The foundational building block of <strong>arcologies</strong>. Stationary structures on the grid. Cells have many attributes.</td>
       </tr>
       <tr>
-        <td>Structure</td>
+        <td><a href="#ports">Ports</a></td>
+        <td>Each cell has four ports: north, east, south, west. Each port is either open or closed.</td>
+      </tr>
+      <tr>
+        <td><a href="#structures">Structure</a></td>
         <td>Each cell has one-and-only-one structure. There are three types: hive, gate, shrine. But cells can change structure.</td>
       </tr>
       <tr>
@@ -95,29 +96,36 @@ layout: default
         <td>Just like gates, but also play notes.</td>
       </tr>
       <tr>
-        <td>Metabolism</td>
+        <td><a href="#notes">Notes</a></td>
+        <td>Each cell has a note. (But only shrines actually play notes.)</td>
+      </tr>
+      <tr>
+        <td><a href="#metabolism">Metabolism</a></td>
         <td>Each cell has a metabolism. (But only hives actually use metabolisms.)</td>
       </tr>
       <tr>
-        <td>Note</td>
-        <td>Each cell has a note. (But only shrines actually play notes.)</td>
-      </tr>      
-      <tr>
-        <td>Signal</td>
-        <td>Travels between cells, typically on leylines.</td>
+        <td><a href="#signals">Signals</a></td>
+        <td>Travels between cells, typically on leylines. They make noise!</td>
       </tr>
       <tr>
-        <td>Leylines</td>
+        <td><a href="#leylines">Leylines</a></td>
         <td>Glowing line segments that connect cells or terminate at the field boundary. Leylines help you visualize your arcology. They have no further function.</td>
       </tr>
       <tr>
-        <td>Port</td>
-        <td>Each cell has four ports: north, east, south, west. Each port is either open or closed.</td>
+      <td><a href="#the-field">The Field</a></td>
+        <td>This is your canvas. Your grid is now a field where cells live, leylines wind, and signals propagate. The field encapsulates everything except the quick menu.</td>
+      </tr>
+      <tr>
+        <td><a href="#the-quick-menu">The Quick Menu</a></td>
+        <td>The first column of your grid. For doing menu-y things.</td>
       </tr>
       </tbody>
     </table>
+    <p>Said plainly, hives spit out signals. Signals travel in straight lines. If they hit a gate or a shrine, they change directions or split. If they hit a shrine, they play a note. You pick the note. You also pick the directions, and timings.</p>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -127,11 +135,13 @@ layout: default
     <ol>
       <li><a href="#ports">Ports</a></li>
       <li><a href="#structures">Structure</a></li>
-      <li><a href="#note">Note</a></li>
+      <li><a href="#notes">Notes</a></li>
       <li><a href="#metabolism">Metabolism</a></li>
     </ol>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -142,6 +152,8 @@ layout: default
     <p>Gates and shrines route incoming signals to <em>every other</em> open port. So if a gate or shrine only has one port open, any signal that enters will be destroyed. If a gate or shrine has two ports open, the signal will emerge from the other port. If a gate or shrine has three ports open, the signal will be split in two and emerge from the other two ports. Finally, if all four ports are open, the signal will emerge from all three other ports.</p>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -168,6 +180,8 @@ layout: default
   </div>
 </div>
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h3 id="notes">Notes</h3>
@@ -175,6 +189,7 @@ layout: default
     <p>Shrines play their note when a signal collides with them. <strong>arcologies</strong> supports the chromatic scale of C1 - F#5. Like metabolism, each cell has a note configured, though only shrines use notes.</p>
   </div>
 </div>
+
 
 
 <div class="row">
@@ -227,6 +242,8 @@ layout: default
   </div>
 </div>
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h2 id="signals">Signals</h2>
@@ -238,6 +255,8 @@ layout: default
   </div>
 </div>
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h2 id="leylines">Leylines</h2>
@@ -245,6 +264,8 @@ layout: default
     <p>Create leylines by opening ports. These help you visualize the signal flow of your arcology. Leylines can cross over each other without consequence.</p>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -254,6 +275,8 @@ layout: default
     <p>At the field's resting state, active cells (hives, ports, shrines) will be displayed with a single, brightly illuminated LED. Signals will be displayed as single, slightly dimmer LEDs, moving about. This is the only state where signal flow can be analyzed. One cell can be selected at a time. If a cell is selected, it will blink. Press any active cell to select it. Then press an empty cell to deselect. Press an empty key to create a cell.</p>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -270,6 +293,8 @@ layout: default
    </div>
 </div> 
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h3 id="inspect-keys">Inspect</h3>
@@ -284,8 +309,10 @@ layout: default
         <img alt="Inspect" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/inspect@2x.png" />
       </div>
     </div>    
-   </div>
+  </div>
 </div>   
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -296,6 +323,8 @@ layout: default
     <p>Release the midi key to close the palette.</p>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -314,6 +343,8 @@ layout: default
    </div>
 </div>  
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h3 id="metabolism-keys">Metabolism</h3>
@@ -330,6 +361,8 @@ layout: default
    </div>
 </div>  
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h3 id="delete-keys">Delete</h3>
@@ -344,6 +377,8 @@ layout: default
     </div>
   </div>
 </div>
+
+
 
 <div class="row">
   <div class="col mb-5">
@@ -360,6 +395,8 @@ layout: default
    </div>
 </div> 
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h2 id="import-export">Importing & Exporting</h3>
@@ -368,6 +405,8 @@ layout: default
   </div>
 </div>
 
+
+
 <div class="row">
   <div class="col mb-5">
     <h2 id="philosophy">Philosophy</h3>
@@ -375,3 +414,4 @@ layout: default
     <p><strong>arcologies</strong> is an instrument for exploration and discovery. At its core it is designed to be a deterministic compositional tool. Mastery of any medium depends on both familiarity and consistent response. This philosophy extends through all the code of <strong>arcologies</strong>. If a certain combination of events occur, the context that gave rise to their emergence ought to be reproducible with 100% accuracy. With a given configuration of cells, structures, and metabolisms, entire songs can emerge <em>and be replayed note-for-note</em> from a relatively simple set of rules.</p>
   </div>
 </div>
+
