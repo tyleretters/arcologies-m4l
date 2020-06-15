@@ -5,7 +5,7 @@ layout: default
 <div id="download" class="py-5 text-center">
     <h1 class="arcologies">arcologies</h1>
     <div class="tagline mb-3">{{ site.description }}</div>
-    <a class="download btn btn-primary btn-lg" href="#"><i class="fas fa-download"></i> Download Beta v0.2</a>
+    <a class="download btn btn-primary btn-lg" href="#"><i class="fas fa-download"></i> Download Beta v0.v</a>
     <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Huge UI, behavior, and core lexicon overhaul in v0.3. Please re-read the docs if you're coming in from v0.2!</p>
 </div>
 
@@ -15,24 +15,21 @@ layout: default
     <hr>
     <div class="row">
       <div class="col-lg-6 col-sm-12">
-        <p><strong>arcologies</strong> works like this:</p>
-          <ul>
-            <li>Organize <strong>cells</strong> on the <strong>field</strong>.</li>
-            <li>Change a cell's <strong>structure</strong> to define behavior. Choose <strong>hive</strong>, <strong>gate</strong>, or <strong>shrine</strong>.</li>
-            <li>Open a cell's <strong>ports</strong> to create <strong>leylines</strong>.</li>
-            <li><strong>Signals</strong> emgerge from the ports of hives.</li>
-            <li>Gates and shrines change the flow of signals and can split signals.</li>
-            <li>When signals pass through shrines, a <strong>note</strong> plays.</li>
-          </ul>
-      </div>
-      <div class="col-lg-6 col-sm-12">
-        <img src="{{ site.baseurl }}/assets/images/garfield-park-conservatory.jpg" class="rounded mx-auto d-block mb-5" width="400" alt="Garfield Park Conservatory" />
-      </div>
-      <div class="col">
         <p>For <a href="https://monome.org/docs/grid">monome grid</a> and <a href="https://ableton.com/live">Ableton Live</a>, <strong>arcologies</strong> is an M4L midi instrument that pairs especially well with drum racks and <a href="https://www.ableton.com/en/manual/instrument-drum-and-effect-racks/#18-5-2-key-zones">zoned instrument racks</a>.</p>
         <p>Inspired by tools like <a href="https://monome.org/docs/meadowphysics/">meadowphysics</a>, <a href="https://100r.co/site/orca.html">Orca</a>, and <a href="https://warmplace.ru/soft/sunvox/">Sunvox</a>. But also other curios like <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>, the <a href="https://en.wikipedia.org/wiki/Tower_defense">tower defense</a> genre, and the <a href="http://generativemusic.com/">Eno / Chilvers</a> suite of generative applications.</p>
         <p>Also carbon-based life, water, the anthropocene, supply chains, <a href="https://en.wikipedia.org/wiki/The_Mushroom_at_the_End_of_the_World">The Mushroom at the End of the World</a>, <a href="https://dark-mountain.net/">The Dark Mountain Project</a>, <a href="https://soundcloud.com/eco-futurism-corp">Eco Futurism Corp</a>, <a href="https://danielseankelly.wordpress.com/2019/04/24/in-the-days-of-the-seasteaders-or-how-the-extropian-detritivores-broke-capitalism/">"seasteading"</a>, the gedankenexperiment-prompt: "sound artist's work in a William Gibson novel?", <a href="https://journal.highlandsolutions.com/cellular-automata-in-javascript-c0336af3e1f3?source=user_profile---------10-----------------------">Conway's Game of Life</a>, Garfield Park Conservatory, the Epcot Center, and <a href="https://en.wikipedia.org/wiki/Buckminster_Fuller">Buckminster Fuller</a>. And, of course, actual <a href="https://en.wikipedia.org/wiki/Arcology">arcologies</a> and <a href="https://en.wikipedia.org/wiki/Metabolism_(architecture)">the architectural movement known as <em>metabolism</em></a>.</p>
         <p><strong>arcologies</strong> is free, <a href="https://github.com/tyleretters/arcologies">open source</a>, licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">CC By 4.0</a> License.</p>
+        <ul>
+          <li>Organize <strong>cells</strong> on the <strong>field</strong>.</li>
+          <li>Change a cell's <strong>structure</strong> between <strong>hive</strong>, <strong>gate</strong>, or <strong>shrine</strong> to define behavior.</li>
+          <li>Open a cell's <strong>ports</strong> to create <strong>leylines</strong>.</li>
+          <li><strong>Signals</strong> emgerge from the ports of hives.</li>
+          <li>Both gates and shrines route and split signals.</li>
+          <li>When signals pass through shrines, a <strong>note</strong> plays.</li>
+        </ul>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img src="{{ site.baseurl }}/assets/images/garfield-park-conservatory.jpg" class="rounded mx-auto d-block mb-5" width="400" alt="Garfield Park Conservatory" />
       </div>
     </div>
   </div>
@@ -46,12 +43,11 @@ layout: default
     <div class="row">
       <div class="col-lg-6 col-sm-12">
         <p>Double click the M4L device to install it.</p>
-        <p>The demo set was built with Live 10. It will not work with prior versions of Live (but <strong>arcologies</strong> should!).</p>
         <p>Add the device to a new midi track and add any instrument to the track. Synths are an easy way to always get some sounds going fast. Drum racks require more configuration to line up all the notes. The most advanced usage probably involves zoned intrument racks. See the demo set included in the download for examples.</p>
       </div>
       <div class="col-lg-6 col-sm-12">
+        <p>The demo <code>.als</code> set was built with Live 10. It will not work with prior versions of Live (but <strong>arcologies</strong> should!).</p>
         <p><strong>arcologies</strong> was built for grid 128 but is lovingly compatible with 64 and 256. Just select your edition.</p>
-        <img src="{{ site.baseurl }}/assets/images/grid-size-config.png" class="rounded mb-3 mx-auto d-block" width="400" alt="grid Size Config" />
       </div>
     </div>
     <img alt="Zoned Instrument Rack" class="full-width" src="{{ site.baseurl }}/assets/images/zoned-instrument-rack.png" />
@@ -116,7 +112,7 @@ layout: default
       </tr>
       <tr>
         <td>Port</td>
-        <td>Each cell has four ports: north, east, south, west. Each ports is either open or closed.</td>
+        <td>Each cell has four ports: north, east, south, west. Each port is either open or closed.</td>
       </tr>
       </tbody>
     </table>
@@ -130,7 +126,7 @@ layout: default
     <p>Cells are the building blocks of <strong>arcologies</strong>. Cells have four key components:</p>
     <ol>
       <li><a href="#ports">Ports</a></li>
-      <li><a href="#structure">Structure</a></li>
+      <li><a href="#structures">Structure</a></li>
       <li><a href="#note">Note</a></li>
       <li><a href="#metabolism">Metabolism</a></li>
     </ol>
@@ -142,18 +138,14 @@ layout: default
     <h3 id="ports">Ports</h4>
     <hr>
     <p>Ports direct the flow of signals. Each cell has four ports: north, east, south, west. Open ports allow signals in. Closed ports stop signals. Select a cell, then press adjacent keys to toggle ports on and off.</p>
-    <h4>Ports & Metabolism</h4>
     <p>Hives emit signals from <em>all open</em> ports at a rate as defined by their metabolism. The default metabolism is 4. This means every fourth generation (or "beat") signals will be emitted.</p>
-    <p>Gates and shrines do not use metabolism.</p>
-    <h4>Ports & Signal Flow</h4>
-    <p>Gates and shrines route incoming signals to <em>every other</em> open port.</p>
-    <img class="d-block mx-auto mb-4" src="{{ site.baseurl }}/assets/images/ports.png" alt="ports" />
+    <p>Gates and shrines route incoming signals to <em>every other</em> open port. So if a gate or shrine only has one port open, any signal that enters will be destroyed. If a gate or shrine has two ports open, the signal will emerge from the other port. If a gate or shrine has three ports open, the signal will be split in two and emerge from the other two ports. Finally, if all four ports are open, the signal will emerge from all three other ports.</p>
   </div>
 </div>
 
 <div class="row">
   <div class="col mb-5">
-    <h4 id="structure">Structure</h4>
+    <h3 id="structures">Structures</h3>
     <hr>
     <p>Each active cell has one structure. Structure is configured via in the quick menu. Newly activated cells default to whatever global structure is set. Hive is the default.</p>
     <div class="row">
@@ -178,7 +170,7 @@ layout: default
 
 <div class="row">
   <div class="col mb-5">
-    <h4 id="note">Note</h4>
+    <h3 id="notes">Notes</h3>
     <hr>
     <p>Shrines play their note when a signal collides with them. <strong>arcologies</strong> supports the chromatic scale of C1 - F#5. Like metabolism, each cell has a note configured, though only shrines use notes.</p>
   </div>
@@ -187,7 +179,7 @@ layout: default
 
 <div class="row">
   <div class="col mb-5">
-    <h4 id="metabolism">Metabolism</h4>
+    <h3 id="metabolism">Metabolism</h3>
     <hr>
     <p>Metabolism is the rate at which hives birth signals. Metabolism is synced with Live's playback. Like notes, each cell has a metabolism configured, though only hives use metabolism.</p>
     <p>Consider an arcology in 4/4 time. This table illustrates the rates at which hives birth signals:</p>
@@ -239,16 +231,10 @@ layout: default
   <div class="col mb-5">
     <h2 id="signals">Signals</h2>
     <hr>
+    <p>Signals are born from hives, routed and split by both gates and shrines, and play notes at shrines.</p>
     <p>Signals have a position (<code>x</code> & <code>y</code>) and a direction (<code>n</code>, <code>e</code>, <code>s</code>, or <code>w</code>).
     <p>If a signal collides into a closed port, the signal disappears into silence (the poor little signal just smashed into a wall.) The same is true if it wanders off the field. The same is true if they collide with a hive. If a leyline disappears from beneath a signal, the signal will continue along. Perhaps you can help it will find its way again?</p>
-  </div>
-</div>
-<div class="row">
-  <div class="col mb-5">
-    <h3 id="signal-collisions">Signal Collisions</h3>
-    <hr>
     <p>If two (or more) signals land at the same place at the same time -- either in the field or at a cell -- both will be destroyed. However, signals may "pass" through each other so long as they wouldn't land at the same cell on the same beat.</p>
-    <img src="signal diagrams" />
   </div>
 </div>
 
@@ -264,50 +250,121 @@ layout: default
   <div class="col mb-5">
     <h2 id="the-field">The Field</h2>
     <hr>
-    <p>At the field's resting state, active cells (hives, ports, shrines) will be displayed with a single, brightly illuminated LED. Signals will be displayed as single, slightly dimmer LEDs, moving about. This is the only state where signal flow can be analyzed.</p>
+    <img alt="The Field" class="full-width" src="{{ site.baseurl }}/assets/images/field@2x.png" />
+    <p>At the field's resting state, active cells (hives, ports, shrines) will be displayed with a single, brightly illuminated LED. Signals will be displayed as single, slightly dimmer LEDs, moving about. This is the only state where signal flow can be analyzed. One cell can be selected at a time. If a cell is selected, it will blink. Press any active cell to select it. Then press an empty cell to deselect. Press an empty key to create a cell.</p>
   </div>
 </div>
 
 <div class="row">
   <div class="col mb-5">
-    <h2 id="the-menu">The Quick Menu</h2>
+    <h2 id="the-quick-menu">The Quick Menu</h2>
     <hr>
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-sm-12">
+        <p>The quick menu is always available. It occupies the first column of the grid. Most interactions involve a "long press" of one of the quick menu keys, plus pressing either a cell on the field or a second quick menu key.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img alt="Quick Menu" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/quick-menu@2x.png" />
+      </div>
+    </div>    
+   </div>
+</div> 
+
+<div class="row">
+  <div class="col mb-5">
+    <h3 id="inspect-keys">Inspect</h3>
+    <hr>
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-sm-12">
+        <p>Hold the inspect key plus any of the structure keys to view only those structures. This is useful for planning your arcology.</p>
+        <p>Release the inspect key to return to the normal view.</p>
+        <p>Note the inspect and structure keys use the same sub-menu layout.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img alt="Inspect" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/inspect@2x.png" />
+      </div>
+    </div>    
    </div>
 </div>   
 
 <div class="row">
   <div class="col mb-5">
-    <h3 id="midi-palette">Midi Palette</h3>
+    <h3 id="midi-keys">Midi</h3>
     <hr>    
-    <img alt="Midi Palette" class="full-width" src="{{ site.baseurl }}/assets/images/todo.png" />
-    <p>The midi palette contains the notes C3-B5. Press any key to set the note.</p>
-    <p>Pressing any dimly lit key will close the midi palette.</p>
+    <img alt="Midi" class="mb-3 mx-auto d-block" src="{{ site.baseurl }}/assets/images/midi@2x.png" />
+    <p>Hold the midi key to open the palette. The available notes are G5-C1. If a cell is selected, pressing any key will set the cell's note. If no cell is selected, pressing any key will set the global note. All newly created cells will default to this note.</p>
+    <p>Release the midi key to close the palette.</p>
   </div>
 </div>
 
 <div class="row">
   <div class="col mb-5">
-    <h2 id="example">Example</h3>
-    <hr>    
-    <img alt="Simple arcology" class="full-width" src="{{ site.baseurl }}/assets/images/todo.png" />
-    <p>Consider this simple arcology of one hive and three ports.</p>
-    <p>Let us assume the hive is set to C4, with an interval of three (i.e. whole notes.) It has a "North East South" route.</p>
-    <p>Let us further assume each of the ports are set to F4 with one directional routes pointing back to the hive.</p>
-    <p><a class="btn btn-primary" data-toggle="collapse" href="#simpleExample" role="button" aria-expanded="false" aria-controls="simpleExaple">What happens when we engage Live's playback?</a></p>
-    <div class="collapse" id="simpleExample">
-      <div class="card card-body bg-dark text-white">
-        <h4>Beat 1 (downbeat)</h4>
-        <p>First, the hive will emit three signals: one each to the north, east, and south. The hive will send one midi note (C4) to Live. We'll see the three signals begin traveling each of channels. (Note you cannot view both channels and signal flow at the same time... yet.)</p>
-        <h4>Beat 2</h4>
-        <p>Signals always move at a rate of 1 cell per quarter note, so on beat 2, the northern signal will collide with the port. It will send midi note F4 to Live. Since this is a dead-end port, the signal is destroyed.</p>
-        <h4>Beat 3</h4>
-        <p>The eastern and southern signals will continue down their channels.</p>
-        <h4>Beat 4</h4>
-        <p>The southern signal will collide with the port. It will send midi note F4 to Live. Again, since this is a dead-end port, the signal is destroyed.</p>
-        <h4>Beat 5</h4>
-        <p>The eastern signal will collide with the port, with the same results as the previous two signals... but it is also time for the hive to emit another cluster of signals! The result is three new singals entering the field from the hive, one leaving at the eastern port, and the dyad of C4 (via hive) & F5 (via eastern port) being sent to Live.</p>
+    <h3 id="structure-keys">Structure</h3>
+    <hr>
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-sm-12">
+        <p>Hold the structure key plus hive, gate, or shrine keys. If a cell is selected, this will set the cell's structure. If no cell is selected, this will set the global structure. All newly created cells will default to this structure.</p>
+        <p>Release the structure key to return to the normal view.</p>
+        <p>Note the inspect and structure keys use the same sub-menu layout.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img alt="Structure" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/structure@2x.png" />
+      </div>
+    </div>    
+   </div>
+</div>  
+
+<div class="row">
+  <div class="col mb-5">
+    <h3 id="metabolism-keys">Metabolism</h3>
+    <hr>
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-sm-12">
+        <p>Hold the metabolism key plus a number. If a cell is selected, this will set the cell's metabolism. If no cell is selected, this will set the global metabolism. All newly created cells will default to this metabolism.</p>
+        <p>Release the metabolism key to return to the normal view.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img alt="Metabolism" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/metabolism@2x.png" />
+      </div>
+    </div>    
+   </div>
+</div>  
+
+<div class="row">
+  <div class="col mb-5">
+    <h3 id="delete-keys">Delete</h3>
+    <hr>
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-sm-12">
+        <p>Hold the delete key and then press any active cell to delete it.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img alt="Delete" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/delete@2x.png" />
       </div>
     </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col mb-5">
+    <h3 id="delete-all-keys">Delete All</h3>
+    <hr>
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-sm-12">
+        <p>Hold the arm and delete keys to initiate a countdown. When the countdown reaches zero, all cells and signals will be deleted.</p>
+      </div>
+      <div class="col-lg-6 col-sm-12">
+        <img alt="Delete All" class="mb-3 mx-auto d-block" width="400" src="{{ site.baseurl }}/assets/images/delete-all@2x.png" />
+      </div>
+    </div>    
+   </div>
+</div> 
+
+<div class="row">
+  <div class="col mb-5">
+    <h2 id="import-export">Importing & Exporting</h3>
+    <hr>    
+    <p><strong>arcologies</strong> can be saved and shared with others. Just click the export button and to save the <code>.json</code> file on your computer. Note that when you import, your current arcology will be destroyed.</p>
   </div>
 </div>
 

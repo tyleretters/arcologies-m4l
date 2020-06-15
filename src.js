@@ -1248,11 +1248,11 @@ function rollRandomPort() {
 // tested
 function getMidiNote(x, y) {
   var noteKey = noteArrayKey(x, y);
-  // 7x8 = 56 = 4.6 octaves = C1 - F#5
+  // 7x8 = 56 = 4.6 octaves = F#5 - C1
   var chromaticMidiScale = [90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 
   80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 
   64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 
-  48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35];
+  48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36];
   return chromaticMidiScale[noteKey];
 }
 
