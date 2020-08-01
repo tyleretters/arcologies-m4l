@@ -39,10 +39,6 @@ img {
 .navbar a:active {
   text-decoration: none; }
 
-.arcologies {
-  font-style: italic;
-  letter-spacing: 25px; }
-
 .tagline {
   font-style: italic;
   margin: auto;

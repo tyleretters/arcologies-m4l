@@ -3,7 +3,7 @@
  * ============================================================================
  *
  * By:        Tyler Etters
- * Date:      June, 2020
+ * Date:      July, 2020
  * Docs:      https://tyleretters.github.io/arcologies 
  * Site:      https://nor.the-rn.info
  * License:   Attribution 4.0 International (CC BY 4.0)
@@ -140,11 +140,11 @@ function testArrayRemove() {
 function testArrayForEach() {
   var name = 'testArrayForEach';
   var bucket = ['c', 2, 3, 4, 5];
-  var result = '';
+  var temp = '';
   bucket.forEach(function(item) { 
-    result += item; 
+    temp += item; 
   });
-  var result = (result == 'c2345') ? 'pass' : 'fail';
+  var result = (temp == 'c2345') ? 'pass' : 'fail';
   testOutput(name, result);
   return result;
 }
@@ -1146,52 +1146,6 @@ function testTranslateMetabolism() {
   return result;
 }
 
-function testStructurePaletteEvent() {
-  var name = 'testStructurePaletteEvent';
-  selectCell('x1x3');
-  structurePaletteEvent(3);
-  var cell = getCell('x1x3');
-  var result1 = (cell.structure === 'gate') ? true : false;
-  deselectCell();
-  structurePaletteEvent(2);
-  var result2 = (getGlobalStructure() == 'shrine');
-  var result = (result1 && result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testOpenCloseStructurePalette() {
-  var name = 'testOpenCloseStructurePalette';
-  openStructurePalette();
-  var result1 = isStructurePaletteActive();
-  closeStructurePalette();
-  var result2 = isStructurePaletteActive();
-  var result = (result1 && !result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testSetStructurePalette() {
-  var name = 'testSetStructurePalette';
-  setStructurePalette(true);
-  var result1 = isStructurePaletteActive();
-  setGlobalStructure(true);
-  var result2 = getGlobalStructure(true);
-  var result = (result1 && result2) ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
-function testDrawStructure() {
-  var name = 'testDrawStructure';
-  msg1 = drawStructure();
-  selectCell('x1y1');
-  msg2 = drawStructure('x1y1');
-  var result = (msg1[1] == 'hive' && msg2[0] == 'drawStructureFromJs' && msg2[1] == 'hive') ? 'pass' : 'fail';
-  testOutput(name, result);
-  return result;
-}
-
 function testIsAdjacentPort() {
   var name = 'testIsAdjacentPort';
   var id = 'x4y5';
@@ -1408,13 +1362,8 @@ function testSuite() {
   results.push(testMetabolismPaletteEvent());
   results.push(testTranslateMetabolism());
 
-  resetTestSuite();
-  results.push(testStructurePaletteEvent());
-  results.push(testOpenCloseStructurePalette());
-  results.push(testSetStructurePalette());
 
   resetTestSuite();
-  results.push(testDrawStructure());
   results.push(testIsAdjacentPort());
   results.push(testTogglePort());
 

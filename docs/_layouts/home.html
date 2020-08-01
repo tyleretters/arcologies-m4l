@@ -3,24 +3,20 @@ layout: default
 ---
 
 <div id="download" class="py-5 text-center">
-  <h1 class="arcologies">arcologies</h1>
-  <div class="tagline mb-3">{{ site.description }}</div>
-  <a class="download btn btn-primary btn-lg" href="https://github.com/tyleretters/arcologies/releases/download/v0.3-beta/arcologies-BETA-v0.3.Project.zip"><i class="fas fa-download"></i> Download Beta v0.3</a>
-  <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Huge UI, behavior, and core lexicon overhaul in v0.3. Please re-read the docs if you're coming in from v0.2!</p>
+    <img src="{{ site.baseurl }} /assets/images/arcologies.png" />
+    <div class="tagline mb-3">{{ site.description }}</div>
+    <a class="download btn btn-primary btn-lg" href="#"><i class="fas fa-download"></i> Download Beta v0.3</a>
+    <p class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Huge UI, behavior, and core lexicon overhaul in v0.3. Please re-read the docs if you're coming in from v0.2!</p>
 </div>
 
 
 
 <div class="row">
   <div class="col mb-5">
-    <h2 id="about">About</h2>
+    <h2 id="overview">Overview</h2>
     <hr>
     <div class="row">
       <div class="col-lg-6 col-sm-12">
-        <p>For <a href="https://monome.org/docs/grid">monome grid</a> and <a href="https://ableton.com/live">Ableton Live</a>, <strong>arcologies</strong> is an M4L midi instrument that pairs especially well with drum racks and <a href="https://www.ableton.com/en/manual/instrument-drum-and-effect-racks/#18-5-2-key-zones">zoned instrument racks</a>.</p>
-        <p>Inspired by tools like <a href="https://monome.org/docs/meadowphysics/">meadowphysics</a>, <a href="https://100r.co/site/orca.html">Orca</a>, and <a href="https://warmplace.ru/soft/sunvox/">Sunvox</a>. But also other curios like <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>, the <a href="https://en.wikipedia.org/wiki/Tower_defense">tower defense</a> genre, and the <a href="http://generativemusic.com/">Eno / Chilvers</a> suite of generative applications.</p>
-        <p>Also carbon-based life, water, the anthropocene, supply chains, <a href="https://en.wikipedia.org/wiki/The_Mushroom_at_the_End_of_the_World">The Mushroom at the End of the World</a>, <a href="https://dark-mountain.net/">The Dark Mountain Project</a>, <a href="https://soundcloud.com/eco-futurism-corp">Eco Futurism Corp</a>, <a href="https://danielseankelly.wordpress.com/2019/04/24/in-the-days-of-the-seasteaders-or-how-the-extropian-detritivores-broke-capitalism/">"seasteading"</a>, the gedankenexperiment-prompt: "sound artist's work in a William Gibson novel?", <a href="https://journal.highlandsolutions.com/cellular-automata-in-javascript-c0336af3e1f3?source=user_profile---------10-----------------------">Conway's Game of Life</a>, Garfield Park Conservatory, the Epcot Center, and <a href="https://en.wikipedia.org/wiki/Buckminster_Fuller">Buckminster Fuller</a>. And, of course, actual <a href="https://en.wikipedia.org/wiki/Arcology">arcologies</a> and <a href="https://en.wikipedia.org/wiki/Metabolism_(architecture)">the architectural movement known as <em>metabolism</em></a>.</p>
-        <p><strong>arcologies</strong> is free, <a href="https://github.com/tyleretters/arcologies">open source</a>, licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">CC By 4.0</a> License.</p>
         <ul>
           <li>Organize <strong>cells</strong> on the <strong>field</strong>.</li>
           <li>Change a cell's <strong>structure</strong> between <strong>hive</strong>, <strong>gate</strong>, or <strong>shrine</strong> to define behavior.</li>
@@ -41,11 +37,10 @@ layout: default
 
 <div class="row">
   <div class="col mb-5">
-    <h2 id="installation">Installation</h2>
+    <h2 id="configuration">Configuration</h2>
     <hr>
     <div class="row">
       <div class="col-lg-6 col-sm-12">
-        <p>Double click the M4L device to install it.</p>
         <p>Add the device to a new midi track and add any instrument to the track. Synths are an easy way to always get some sounds going fast. Drum racks require more configuration to line up all the notes. The most advanced usage probably involves zoned intrument racks. See the demo set included in the download for examples.</p>
       </div>
       <div class="col-lg-6 col-sm-12">
@@ -401,17 +396,21 @@ layout: default
   <div class="col mb-5">
     <h2 id="import-export">Importing & Exporting</h3>
     <hr>    
-    <p><strong>arcologies</strong> can be saved and shared with others. Just click the export button and to save the <code>.json</code> file on your computer. Note that when you import, your current arcology will be destroyed.</p>
+    <p><strong>arcologies</strong> can be saved and shared with others. Just click the export button and to save the <code>.json</code> file on your computer. Note that when you import, your current arcology will be destroyed. Importing and exporting causes playback to stop.</p>
   </div>
-</div>
 
+</div>
 
 
 <div class="row">
   <div class="col mb-5">
     <h2 id="philosophy">Philosophy</h3>
-    <hr>  
+    <hr>
+    <p>For <a href="https://monome.org/docs/grid">monome grid</a> and <a href="https://ableton.com/live">Ableton Live</a>, <strong>arcologies</strong> is an M4L midi instrument that pairs especially well with drum racks and <a href="https://www.ableton.com/en/manual/instrument-drum-and-effect-racks/#18-5-2-key-zones">zoned instrument racks</a>.</p>
+    <p>Inspired by tools like <a href="https://monome.org/docs/meadowphysics/">meadowphysics</a>, <a href="https://100r.co/site/orca.html">Orca</a>, and <a href="https://warmplace.ru/soft/sunvox/">Sunvox</a>. But also other curios like <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a>, the <a href="https://en.wikipedia.org/wiki/Tower_defense">tower defense</a> genre, and the <a href="http://generativemusic.com/">Eno / Chilvers</a> suite of generative applications.</p>
+    <p>Also carbon-based life, water, the anthropocene, supply chains, <a href="https://en.wikipedia.org/wiki/The_Mushroom_at_the_End_of_the_World">The Mushroom at the End of the World</a>, <a href="https://dark-mountain.net/">The Dark Mountain Project</a>, <a href="https://soundcloud.com/eco-futurism-corp">Eco Futurism Corp</a>, <a href="https://danielseankelly.wordpress.com/2019/04/24/in-the-days-of-the-seasteaders-or-how-the-extropian-detritivores-broke-capitalism/">"seasteading"</a>, the gedankenexperiment-prompt: "sound artist's work in a William Gibson novel?", <a href="https://journal.highlandsolutions.com/cellular-automata-in-javascript-c0336af3e1f3?source=user_profile---------10-----------------------">Conway's Game of Life</a>, Garfield Park Conservatory, the Epcot Center, and <a href="https://en.wikipedia.org/wiki/Buckminster_Fuller">Buckminster Fuller</a>. And, of course, actual <a href="https://en.wikipedia.org/wiki/Arcology">arcologies</a> and <a href="https://en.wikipedia.org/wiki/Metabolism_(architecture)">the architectural movement known as <em>metabolism</em></a>.</p>
     <p><strong>arcologies</strong> is an instrument for exploration and discovery. At its core it is designed to be a deterministic compositional tool. Mastery of any medium depends on both familiarity and consistent response. This philosophy extends through all the code of <strong>arcologies</strong>. If a certain combination of events occur, the context that gave rise to their emergence ought to be reproducible with 100% accuracy. With a given configuration of cells, structures, and metabolisms, entire songs can emerge <em>and be replayed note-for-note</em> from a relatively simple set of rules.</p>
+    <p><strong>arcologies</strong> is free, <a href="https://github.com/tyleretters/arcologies">open source</a>, licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">CC By 4.0</a> License.</p>
   </div>
 </div>
 

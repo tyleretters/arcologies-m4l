@@ -3,7 +3,7 @@
  * ============================================================================
  *
  * By:        Tyler Etters
- * Date:      June, 2020
+ * Date:      July, 2020
  * Docs:      https://tyleretters.github.io/arcologies
  * Site:      https://nor.the-rn.info
  * License:   Attribution 4.0 International (CC BY 4.0)
@@ -56,11 +56,17 @@ function advance() {
   setSignals(survivingSignals);
 
   // & if the weather is just so, we get to see it all from above
-  if (!getSelectedCellId() && !isQuickMenuActive()) {
-    // only redraw when a cell isn't selected, the quick menu isn't active
+  if (
+    !getSelectedCellId() &&
+    !isInspectorPaletteActive() &&
+    !isMetabolismPaletteActive () &&
+    !isMidiPaletteActive()
+  ) {
+    // only redraw when a cell isn't selected & the quick menu isn't active
     returnToField();
-    setGeneration(getGeneration() + 1);
   }
+  setGeneration(getGeneration() + 1);
+  dumpGlobalState();
 
 }
 
@@ -97,9 +103,8 @@ function fieldEvent(x, y) {
 
   } else if (cellId == fieldId) {
     // we're pressing the already selected cell
+    deselectCell();
     clearField();
-    drawPorts(x, y);
-    drawLeylines(fieldId);
     dumpSignalsAndCells();
 
   } else if (cellId !== fieldId && ids.contains(fieldId)) {
@@ -107,8 +112,8 @@ function fieldEvent(x, y) {
     selectCell(fieldId, true);
     clearField();
     drawLeylines(fieldId);
-    drawPorts(fieldId);
     dumpSignalsAndCells();
+    drawPorts(fieldId);
   }  
 
 }
@@ -128,36 +133,39 @@ function dumpSignalsAndCells() {
 }
 
 // untestable
-function inspectorPaletteEvent(y, z) {
+function inspectorEvent(y, z) {
+post(y);
   if (z == 0) {
     returnToField();
+    closeInspectorPalette();
     if(getSelectedCellId()) {
       selectCell(getSelectedCellId(), true);
     }
   }
   if (z == 1) {
     clearField();
-    noBlinkSelectedCell();    
-    if (y == 2) drawCells('shrines');
-    if (y == 3) drawCells('gates');
-    if (y == 4) drawCells('hives');
+    noBlinkSelectedCell();
+    openInspectorPalette();
+    if (y == 1) drawCells('shrines');
+    if (y == 2) drawCells('gates');
+    if (y == 3) drawCells('hives');
   }
   
 }
 
 // tested
 function midiPaletteEvent(x, y) {
-  
+
   // defensive
-  if (x < 1 && x > 7 && y < 0 && y > 8) return;
+  if (x < 1 || x > 7 || y < 0 || y > 8) return;
 
   // if we have a cell selected, set its midi note,
   // otherwise set the global midi note
   var note = getMidiNote(x, y);
   var id = getSelectedCellId();
-  if (id) {
+  if (id && note) {
     setCell(id, { 'note' : note});  
-  } else {
+  } else if (note) {
     setGlobalMidiNote(note);
   }
 
@@ -165,9 +173,6 @@ function midiPaletteEvent(x, y) {
 
 // tested
 function metabolismPaletteEvent(y) {
-
-  // defensive
-  if (y < -1 && y > 5) return;
 
   var metabolism = translateMetabolism(y);
   var id = getSelectedCellId();
@@ -180,21 +185,20 @@ function metabolismPaletteEvent(y) {
 }
 
 // tested
-function structurePaletteEvent(y) {
-
-  // defensive
-  if (y < 2 && y > 4) return;
+function structureEvent(y) {
 
   var structureName = '';
-  if (y == 2) structureName = 'shrine';
-  if (y == 3) structureName = 'gate';
-  if (y == 4) structureName = 'hive';
+  if (y == 1) structureName = 'hive';
+  if (y == 2) structureName = 'gate';
+  if (y == 3) structureName = 'shrine';
 
   var id = getSelectedCellId();
-  if (getSelectedCellId()) {
-    setCell(id, { 'structure' : structureName});    
+  if (id) {
+    setCell(id, { 'structure' : structureName});
+    dumpExistingCells();  
   } else {
     setGlobalStructure(structureName);
+    dumpGlobalState();
   }
 }
 
@@ -640,7 +644,7 @@ function prepareCellLeylines(cellId) {
 }
 
 /*
- * Draws
+ * 
  * ==============================================================================
  */
 
@@ -738,7 +742,7 @@ function drawLeylines(id) {
 
 // tested
 function drawCells(structure) {
-  var structure = structure || false;
+  structure = structure || false;
   var arr = ['drawCells'];
   if (structure) {
     arr.push(structure);
@@ -769,15 +773,28 @@ function noBlinkSelectedCell() {
   }
 }
 
-// tested
-function drawStructure() {
-  var msg = ['drawStructureFromJs'];
+// wip
+function blinkMidiNote() {
+  var msg = ['blinkMidiNoteFromJs'];
+  var note = '';
   if (getSelectedCellId()) {
-    msg.push(getCell(getSelectedCellId()).structure);
+    note = getCell(getSelectedCellId()).note;
   } else {
-    msg.push(getGlobalStructure());
+    note = getGlobalMidiNote();
   }
+  var coords = lookupNoteCoords(note);
+  msg.push(coords[0]); // x
+  msg.push(coords[1]); // y
+  if (isOutletsOn()) {
+    out(msg);
+  } else {
+    return msg;
+  }
+}
 
+// wip
+function stopBlinkMidiNote() {
+  var msg = ['stopBlinkMidiNoteFromJs'];
   if (isOutletsOn()) {
     out(msg);
   } else {
@@ -851,11 +868,17 @@ function importArcology() {
     post('Error, unsupported arcology format.');
     return;
   }
-  init();
-  initSignals();
-  initCells();
+  // wtffff
+  // init();
+  // setOutlets(true);
+  // initSignals();
+  // initCells();
+  // d.setparse('test', '{ "price" : "priceless", "lyric" : "I would do anything for love but I won\'t eat that" }');
+//   ARCOLOGIES_GLOBAL_STATE = d.get('globalState');
+// post(JSON.stringify(d.get('globalState')));
+//   ARCOLOGIES_GLOBAL_CELLS = d.get('existingCells');
+  // ARCOLOGIES_GLOBAL_SIGNALS = d.get('signals');
   out('importArcology');
-  returnToField();
 }
 
 // untested
@@ -898,12 +921,12 @@ function out(val) {
   }
 }
 
-// tested
+// wip
 function openQuickMenu() {
   setQuickMenu(true);
 }
 
-// tested
+// wip
 function closeQuickMenu() {
   setQuickMenu(false);
 }
@@ -926,16 +949,6 @@ function openMidiPalette() {
 // tested
 function closeMidiPalette() {
   setMidiPalette(false);
-}
-
-// tested
-function openStructurePalette() {
-  setStructurePalette(true);
-}
-
-// tested
-function closeStructurePalette() {
-  setStructurePalette(false);
 }
 
 // tested
@@ -986,6 +999,7 @@ function init() {
   ARCOLOGIES_GLOBAL_STATE.globalMetabolism = 4;
   ARCOLOGIES_GLOBAL_STATE.ports = [ 'n', 'e', 's', 'w'];
   ARCOLOGIES_GLOBAL_STATE.selectedCellId = false;
+  ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = false;
   ARCOLOGIES_GLOBAL_STATE.isInspectorPaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = false;
   ARCOLOGIES_GLOBAL_STATE.isMetabolismPaletteActive = false;  
@@ -1055,6 +1069,11 @@ function setCell(id, obj) {
   });
 }
 
+// wip
+function setQuickMenu(val) {
+  ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive = val;
+}
+
 // tested
 function setInspectorPalette(val) {
   ARCOLOGIES_GLOBAL_STATE.isInspectorPaletteActive = val;
@@ -1063,11 +1082,6 @@ function setInspectorPalette(val) {
 // tested
 function setMidiPalette(val) {
   ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive = val;
-}
-
-// teseted
-function setStructurePalette(val) {
-  ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive = val;
 }
 
 // teseted
@@ -1120,7 +1134,6 @@ function setSignals(newSignals) {
   ARCOLOGIES_GLOBAL_SIGNALS = null;
   ARCOLOGIES_GLOBAL_SIGNALS = newSignals;
 }
-
 
 // tested
 // wip - hold cell + single on field maybe?
@@ -1252,8 +1265,76 @@ function getMidiNote(x, y) {
   var chromaticMidiScale = [90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 
   80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 
   64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52, 51, 50, 49, 
-  48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36];
+  48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35];
   return chromaticMidiScale[noteKey];
+}
+
+// wip
+function lookupNoteCoords(note) {
+  // row 0
+  if (note == 90) return [1,0];
+  if (note == 89) return [2,0];
+  if (note == 88) return [3,0];
+  if (note == 87) return [4,0];
+  if (note == 86) return [5,0];
+  if (note == 85) return [6,0];
+  if (note == 84) return [7,0];
+  // row 1
+  if (note == 83) return [1,1];
+  if (note == 82) return [2,1];
+  if (note == 81) return [3,1];
+  if (note == 80) return [4,1];
+  if (note == 79) return [5,1];
+  if (note == 78) return [6,1];
+  if (note == 77) return [7,1];
+  // row 2
+  if (note == 76) return [1,2];
+  if (note == 75) return [2,2];
+  if (note == 74) return [3,2];
+  if (note == 73) return [4,2];
+  if (note == 72) return [5,2];
+  if (note == 71) return [6,2];
+  if (note == 70) return [7,2];
+  // row 3
+  if (note == 69) return [1,3];
+  if (note == 68) return [2,3];
+  if (note == 67) return [3,3];
+  if (note == 66) return [4,3];
+  if (note == 65) return [5,3];
+  if (note == 64) return [6,3];
+  if (note == 63) return [7,3];
+  // row 4
+  if (note == 62) return [1,4];
+  if (note == 61) return [2,4];
+  if (note == 60) return [3,4];
+  if (note == 59) return [4,4];
+  if (note == 58) return [5,4];
+  if (note == 57) return [6,4];
+  if (note == 56) return [7,4];
+  // row 5
+  if (note == 55) return [1,5];
+  if (note == 54) return [2,5];
+  if (note == 53) return [3,5];
+  if (note == 52) return [4,5];
+  if (note == 51) return [5,5];
+  if (note == 50) return [6,5];
+  if (note == 49) return [7,5];
+  // row 6
+  if (note == 48) return [1,6];
+  if (note == 47) return [2,6];
+  if (note == 46) return [3,6];
+  if (note == 45) return [4,6];
+  if (note == 44) return [5,6];
+  if (note == 43) return [6,6];
+  if (note == 42) return [7,6];
+  // row 7
+  if (note == 41) return [1,7];
+  if (note == 40) return [2,7];
+  if (note == 39) return [3,7];
+  if (note == 38) return [4,7];
+  if (note == 37) return [5,7];
+  if (note == 36) return [6,7];
+  if (note == 35) return [7,7];
 }
 
 // tested
@@ -1354,7 +1435,7 @@ function isAdjacentPort(cell, x, y) {
   else if (cell.x == x &&  (cell.y + 1 == y)) { return 's'; }
   // west
   else if ((cell.x - 1) == x &&  cell.y == y) { return 'w'; }
-  else { return false }
+  else { return false; }
 }
 
 /*
@@ -1392,14 +1473,9 @@ function getSelectedCellId() {
   return ARCOLOGIES_GLOBAL_STATE.selectedCellId;
 }
 
-// tested
+// wip
 function isQuickMenuActive() {
-  return (
-    isInspectorPaletteActive() &&
-    isStructurePaletteActive() &&
-    isMetabolismPaletteActive () &&
-    isMidiPaletteActive()
-  );
+  return ARCOLOGIES_GLOBAL_STATE.isQuickMenuActive;
 }
 
 // tested
@@ -1410,11 +1486,6 @@ function isInspectorPaletteActive() {
 // tested
 function isMidiPaletteActive() {
   return ARCOLOGIES_GLOBAL_STATE.isMidiPaletteActive;
-}
-
-// tested
-function isStructurePaletteActive() {
-  return ARCOLOGIES_GLOBAL_STATE.isStructurePaletteActive;
 }
 
 // tested
