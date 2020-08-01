@@ -1,6 +1,8 @@
 ![Node.js CI](https://github.com/tyleretters/arcologies/workflows/Node.js%20CI/badge.svg?branch=master)
 
-# arcologies
+**This implementation of arcologies has been abandonned. Development has been moved to norns.**
+
+# arcologies m4l
 
 If you are an artist, musician, or arcologist here to use this instrument, [everything you need to know is in the docs](https://tyleretters.github.io/arcologies).
 
