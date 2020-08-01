@@ -4,7 +4,7 @@
 
 # arcologies m4l
 
-If you are an artist, musician, or arcologist here to use this instrument, [everything you need to know is in the docs](https://tyleretters.github.io/arcologies).
+If you are an artist, musician, or arcologist here to use this instrument, [everything you need to know is in the docs](https://tyleretters.github.io/arcologies-m4l).
 
 This README is for developers looking to contribute to building **arcologies**.
 

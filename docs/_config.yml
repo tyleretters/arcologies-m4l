@@ -1,6 +1,6 @@
-title: "arcologies: docs"
+title: "arcologies m4l: docs"
 description: an interactive environment for designing 2d sound arcologies with grid and live
-baseurl: /arcologies
-url: https://tyleretters.github.io/arcologies
+baseurl: /arcologies-m4l
+url: https://tyleretters.github.io/arcologies-m4l
 markdown: kramdown
 theme: minima
